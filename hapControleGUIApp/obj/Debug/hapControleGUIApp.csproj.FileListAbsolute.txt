@@ -1,0 +1,14 @@
+c:\users\kazuki\documents\visual studio 2015\Projects\hapControleGUIApp\hapControleGUIApp\bin\Debug\hapControleGUIApp.exe.config
+C:\Users\Kazuki\Documents\Visual Studio 2015\Projects\hapControleGUIApp\hapControleGUIApp\obj\Debug\hapControleGUIApp.csprojResolveAssemblyReference.cache
+C:\Users\Kazuki\Documents\Visual Studio 2015\Projects\hapControleGUIApp\hapControleGUIApp\obj\Debug\MainWindow.g.cs
+C:\Users\Kazuki\Documents\Visual Studio 2015\Projects\hapControleGUIApp\hapControleGUIApp\obj\Debug\App.g.cs
+C:\Users\Kazuki\Documents\Visual Studio 2015\Projects\hapControleGUIApp\hapControleGUIApp\obj\Debug\hapControleGUIApp_MarkupCompile.cache
+C:\Users\Kazuki\Documents\Visual Studio 2015\Projects\hapControleGUIApp\hapControleGUIApp\obj\Debug\hapControleGUIApp_MarkupCompile.lref
+C:\Users\Kazuki\Documents\Visual Studio 2015\Projects\hapControleGUIApp\hapControleGUIApp\bin\Debug\hapControleGUIApp.exe
+C:\Users\Kazuki\Documents\Visual Studio 2015\Projects\hapControleGUIApp\hapControleGUIApp\bin\Debug\hapControleGUIApp.pdb
+C:\Users\Kazuki\Documents\Visual Studio 2015\Projects\hapControleGUIApp\hapControleGUIApp\obj\Debug\MainWindow.baml
+C:\Users\Kazuki\Documents\Visual Studio 2015\Projects\hapControleGUIApp\hapControleGUIApp\obj\Debug\hapControleGUIApp.g.resources
+C:\Users\Kazuki\Documents\Visual Studio 2015\Projects\hapControleGUIApp\hapControleGUIApp\obj\Debug\hapControleGUIApp.Properties.Resources.resources
+C:\Users\Kazuki\Documents\Visual Studio 2015\Projects\hapControleGUIApp\hapControleGUIApp\obj\Debug\hapControleGUIApp.csproj.GenerateResource.Cache
+C:\Users\Kazuki\Documents\Visual Studio 2015\Projects\hapControleGUIApp\hapControleGUIApp\obj\Debug\hapControleGUIApp.exe
+C:\Users\Kazuki\Documents\Visual Studio 2015\Projects\hapControleGUIApp\hapControleGUIApp\obj\Debug\hapControleGUIApp.pdb
