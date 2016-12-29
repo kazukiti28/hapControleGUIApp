@@ -8,6 +8,7 @@ using System.Windows.Threading;
 using System.IO;
 using System.Net;
 using System.Windows.Media.Imaging;
+using System.Windows.Media;
 
 namespace hapControleGUIApp
 {
@@ -36,7 +37,11 @@ namespace hapControleGUIApp
         public static string musicId = null;
         public static string prevMusicId = null;
         public static string nowMusicCover = null;
-        
+        public static string bgColor = null;
+        public static string r = null;
+        public static string g = null;
+        public static string b = null;
+        public static string a = null;
         public static string myDocument = null;
         public static string ip = null;
         DispatcherTimer dispatcherTimer;
@@ -44,6 +49,39 @@ namespace hapControleGUIApp
         public MainWindow()
         {
             InitializeComponent();
+
+            myDocument = Environment.GetFolderPath(Environment.SpecialFolder.Personal) + "/HAPControlApp";
+            DirectoryInfo di = new DirectoryInfo(myDocument);
+            di.Create();
+
+            string bgurl = myDocument + "/bg_overlay.png";
+            Encoding utf = Encoding.GetEncoding("UTF-8");
+            string fileName = myDocument + "/ipadd";
+            if (File.Exists(fileName))
+            {
+                StreamReader sr = new StreamReader(fileName, utf);
+                ip = sr.ReadLine();
+                sr.Close();
+                hostUrl = ip;
+                ipaddInput.Text = ip;
+                setJunbi("getmusicinfo");
+                if (!File.Exists(myDocument + "/bg_overlay.png"))
+                {
+                    WebClient wc = new WebClient();
+                    string ipad = hostUrl.Replace(":60200/sony/", "");
+                    ipad = ipad + ":60100/img/bg_overlay.png";
+                    wc.DownloadFile(ipad, bgurl);
+                }
+                BitmapImage bgimg = new BitmapImage();
+                bgimg.BeginInit();
+                bgimg.UriSource = new Uri(bgurl);
+                bgimg.EndInit();
+                bgimage.Source = bgimg;
+                dispatcherTimer = new DispatcherTimer(DispatcherPriority.Normal);
+                dispatcherTimer.Interval = new TimeSpan(0, 0, 0, 0, 250);
+                dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
+                dispatcherTimer.Start();
+            }
         }
 
         void dispatcherTimer_Tick(object sender, EventArgs e)
@@ -64,6 +102,7 @@ namespace hapControleGUIApp
             img.UriSource = new Uri(nowMusicCover);
             img.EndInit();
             coverArt.Source = img;
+            BG.Background = new SolidColorBrush(Color.FromArgb(Convert.ToByte(a, 16), Convert.ToByte(r, 16), Convert.ToByte(g, 16), Convert.ToByte(g, 16)));
         }
 
         private void button_Click(object sender, RoutedEventArgs e)
@@ -71,6 +110,11 @@ namespace hapControleGUIApp
             string str = ipaddInput.Text;
             ip = str;
             hostUrl = str + ":60200/sony/";
+
+            StreamWriter writer = new StreamWriter(myDocument + "/ipadd", true, Encoding.GetEncoding("UTF-8"));
+            writer.WriteLine(hostUrl);
+            writer.Close();
+
             setJunbi("getmusicinfo");
             musicName.Text = nowPlaying;
             musicArtist.Text = artist;
@@ -82,10 +126,8 @@ namespace hapControleGUIApp
             serializeJson(getVolumeObj, "audio", 1);
             volIn.Text = nowVolume.ToString();
             coverArt.Visibility = Visibility.Visible;
-
-            myDocument = Environment.GetFolderPath(Environment.SpecialFolder.Personal) + "/HAPControlApp";
-            DirectoryInfo di = new DirectoryInfo(myDocument);
-            di.Create();
+            
+            
             downloadCoverArt();
 
             BitmapImage img = new BitmapImage();
@@ -93,7 +135,7 @@ namespace hapControleGUIApp
             img.UriSource = new Uri(nowMusicCover);
             img.EndInit();
             coverArt.Source = img;
-
+            BG.Background = new SolidColorBrush(Color.FromArgb(Convert.ToByte(a, 16), Convert.ToByte(r, 16), Convert.ToByte(g, 16), Convert.ToByte(g, 16)));
             minsec.Visibility = Visibility.Visible;
             musicAlbum.Visibility = Visibility.Visible;
             musicArtist.Visibility = Visibility.Visible;
@@ -108,7 +150,6 @@ namespace hapControleGUIApp
 
         static void setCoverArt()
         {
-            myDocument = Environment.GetFolderPath(Environment.SpecialFolder.Personal) + "/HAPControlApp";
             DirectoryInfo di = new DirectoryInfo(myDocument);
             di.Create();
             downloadCoverArt();
@@ -200,10 +241,18 @@ namespace hapControleGUIApp
                     {
                         prevMusicId = musicId;
                     }
+
                 }
                 catch (Exception e)
                 {
                     noCoverArt = 1;
+                }
+                if (noCoverArt != 1)
+                {
+                    r = Convert.ToString((int)data.result[0].backgroundColorR, 16);
+                    g = Convert.ToString((int)data.result[0].backgroundColorG, 16);
+                    b = Convert.ToString((int)data.result[0].backgroundColorB, 16);
+                    a = Convert.ToString((int)data.result[0].backgroundColorA, 16);
                 }
                 positionSec = data.result[0].positionSec;
                 posSec = (int)positionSec;
