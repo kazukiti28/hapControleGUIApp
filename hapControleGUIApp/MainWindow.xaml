@@ -12,14 +12,11 @@
             <RowDefinition Height="14*"/>
         </Grid.RowDefinitions>
 
-        <TextBlock x:Name="ipadd" HorizontalAlignment="Left" Margin="10,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Text="IPアドレス:" Width="55" Height="27"/>
-        <TextBox x:Name="ipaddInput" HorizontalAlignment="Left" Height="27" Margin="70,10,0,0" TextWrapping="Wrap" Text="http://" VerticalAlignment="Top" Width="120"/>
-        <Image x:Name="coverArt" HorizontalAlignment="Left" Height="285" Margin="10,48,0,0" VerticalAlignment="Top" Width="285" Grid.RowSpan="2"/>
+        <TextBlock x:Name="ipadd" HorizontalAlignment="Left" Margin="10,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Text="IPアドレス:" Width="55" Height="20"/>
         <TextBlock x:Name="musicName" FontSize="16pt" HorizontalAlignment="Left" Margin="300,60,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Width="390" Height="55"/>
         <TextBlock x:Name="musicAlbum" FontSize="10pt" HorizontalAlignment="Left" Margin="311,120,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Width="379" Height="41"/>
         <TextBlock x:Name="musicCodec" FontSize="10pt" HorizontalAlignment="Left" Margin="311,212,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Width="284" Height="21" Grid.RowSpan="2"/>
         <TextBlock x:Name="minsec" FontSize="10pt"  HorizontalAlignment="Left" Margin="600,212,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Width="90" Height="21" Grid.RowSpan="2"/>
-        <Button x:Name="ipaButton" Content="確定" HorizontalAlignment="Left" Margin="195,10,0,0" VerticalAlignment="Top" Width="56" Height="27" Click="button_Click"/>
         <Button x:Name="startButton" Content="Play/Stop" HorizontalAlignment="Left" Margin="386,45,0,0" VerticalAlignment="Top" Width="56" Height="56" Click="startButton_Click" Grid.Row="1"/>
         <Button x:Name="nextButton" Content="Next" HorizontalAlignment="Left" Margin="459,45,0,0" VerticalAlignment="Top" Width="56" Height="56" Click="nextButton_Click" Grid.Row="1"/>
         <Button x:Name="prevButton" Content="Previous" HorizontalAlignment="Left" Margin="311,45,0,0" VerticalAlignment="Top" Width="58" Height="56" Click="prevButton_Click" Grid.Row="1"/>
