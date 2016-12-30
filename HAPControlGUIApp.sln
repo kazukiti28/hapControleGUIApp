@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "hapControleGUIApp", "hapControleGUIApp\hapControleGUIApp.csproj", "{5A9D80D5-3A05-465C-86EC-228EA8D1D1F5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "hapControlGUIApp", "hapControleGUIApp\hapControlGUIApp.csproj", "{5A9D80D5-3A05-465C-86EC-228EA8D1D1F5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
