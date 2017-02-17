@@ -16,3 +16,7 @@ C:\Users\Kazuki\Documents\Visual Studio 2015\Projects\hapControlGUIApp\hapContro
 C:\Users\Kazuki\Documents\Visual Studio 2015\Projects\hapControlGUIApp\hapControleGUIApp\bin\Debug\hapControlGUIApp.pdb
 C:\Users\Kazuki\Documents\Visual Studio 2015\Projects\hapControlGUIApp\hapControleGUIApp\obj\Debug\hapControlGUIApp.exe.manifest
 C:\Users\Kazuki\Documents\Visual Studio 2015\Projects\hapControlGUIApp\hapControleGUIApp\obj\Debug\hapControlGUIApp.application
+C:\Users\Kazuki\Documents\Visual Studio 2015\Projects\hapControlGUIApp\hapControleGUIApp\obj\Debug\cont.g.cs
+C:\Users\Kazuki\Documents\Visual Studio 2015\Projects\hapControlGUIApp\hapControleGUIApp\obj\Debug\nav.g.cs
+C:\Users\Kazuki\Documents\Visual Studio 2015\Projects\hapControlGUIApp\hapControleGUIApp\obj\Debug\cont.baml
+C:\Users\Kazuki\Documents\Visual Studio 2015\Projects\hapControlGUIApp\hapControleGUIApp\obj\Debug\nav.baml
