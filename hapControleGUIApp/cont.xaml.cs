@@ -54,6 +54,7 @@ namespace hapControlGUIApp
         public static string nowRepeat = null;
         public static string nowShuffle = null;
         public static string shabgurl;
+        public static string rawip = null;
         DispatcherTimer dispatcherTimer;
 
 
@@ -76,6 +77,7 @@ namespace hapControlGUIApp
                 sr.Close();
                 hostUrl = ip;
                 ipaddInput.Text = ip;
+                rawip = ip;
                 setJunbi("getmusicinfo");
                 if (!File.Exists(myDocument + "/bg_overlay.png"))
                 {
@@ -89,10 +91,12 @@ namespace hapControlGUIApp
                 bgimg.UriSource = new Uri(bgurl);
                 bgimg.EndInit();
                 bgimage.Source = bgimg;
+
                 dispatcherTimer = new DispatcherTimer(DispatcherPriority.Normal);
                 dispatcherTimer.Interval = new TimeSpan(0, 0, 0, 0, 500);
                 dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
                 dispatcherTimer.Start();
+
                 coverArt.Visibility = Visibility.Visible;
                 ipaButton.Visibility = Visibility.Hidden;
                 prevButton.Visibility = Visibility.Visible;
@@ -145,7 +149,6 @@ namespace hapControlGUIApp
             img.EndInit();
             coverArt.Source = img;
             BG.Background = new SolidColorBrush(Color.FromArgb(Convert.ToByte(a, 16), Convert.ToByte(r, 16), Convert.ToByte(g, 16), Convert.ToByte(g, 16)));
-
 
             if (nowShuffle == "track")
             {
@@ -710,6 +713,7 @@ namespace hapControlGUIApp
 
         private void button_Click_1(object sender, RoutedEventArgs e)
         {
+            dispatcherTimer.Stop();
             nav navig = new nav();
             NavigationService?.Navigate(navig);
         }
