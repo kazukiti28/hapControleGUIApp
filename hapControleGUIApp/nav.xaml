@@ -21,7 +21,7 @@
         </DataTemplate>
         <DataTemplate x:Key="DataTemplateTracks">
             <Canvas Height="45" Width="400" x:Name="albums">
-                <TextBlock x:Name="Track" Text="{Binding TrackName}" Canvas.Left="5" Width="380" Height="27" Foreground="White" FontSize="12pt"/>
+                <TextBlock x:Name="Track" Text="{Binding TrackName}" Canvas.Left="5" Width="400" Height="27" Foreground="White" FontSize="12pt"/>
                 <TextBlock x:Name="Artist" Text="{Binding ArtistName}" Canvas.Left="5" Canvas.Top="27" Width="220" Height="15" Foreground="White"/>
                 <TextBlock Text="{Binding TrackInfo}" Canvas.Left="325" Canvas.Top="27" Width="200" Height="15" Foreground="White"/>
             </Canvas>

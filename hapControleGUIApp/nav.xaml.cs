@@ -21,6 +21,7 @@ using System.Windows.Shapes;
 using System.Windows.Threading;
 using Codeplex.Data;
 using Microsoft.Win32;
+using System.Collections;
 
 namespace hapControlGUIApp
 {
@@ -58,6 +59,9 @@ namespace hapControlGUIApp
         static string totalfigure = null;//合計アルバム数が入る
         static dynamic allalbumdata;
         private static int i;
+        private static bool mute;
+        dynamic AlbumData;
+        dynamic[,] FileName;
         DispatcherTimer dispatcherTimer;
 
         public nav()
@@ -178,6 +182,26 @@ namespace hapControlGUIApp
             return dataList;
         }
 
+        static int CompareArray(int[] x, int[] y)
+        {
+            int min = Math.Min(x.Length, y.Length);
+
+            for (int n = 0; n < min; n++)
+            {
+                if (x[n] > y[n])
+                    return 1;
+                else if (x[n] < y[n])
+                    return -1;
+            }
+
+            if (x.Length > y.Length)
+                return 1;
+            else if (x.Length < y.Length)
+                return -1;
+            else /* if (x.Length == y.Length) */
+                return 0;
+        }
+
         void DisplayAlbumInfo(int number)
         {
             string AlbumName = allalbumdata.albums[number].name; //アルバム名の取得
@@ -188,9 +212,9 @@ namespace hapControlGUIApp
             string[] Freq = new string[numberoftracks]; //サンプリング周波数
             string[] Bitwidth = new string[numberoftracks]; //サンプリング周波数
             string[] Bitrate = new string[numberoftracks];
-            dynamic[,] FileName = new dynamic[numberoftracks,2];
+            FileName = new dynamic[numberoftracks,2];
 
-            dynamic AlbumData = DynamicJson.Parse(gettrackinfo(allalbumdata.albums[number].tracks_url)); //トラック情報の取得
+            AlbumData = DynamicJson.Parse(gettrackinfo(allalbumdata.albums[number].tracks_url)); //トラック情報の取得
             numberoftracks = (int)AlbumData.paging.total;
             string urlnew = allalbumdata.albums[number].tracks_url + "?offset=0&limit=" + numberoftracks.ToString();
            
@@ -218,38 +242,55 @@ namespace hapControlGUIApp
 
             TracksdataList = new List<VisibleItem>();
             VisibleItem tracklist;
-            
+
+            for (int i = 0; i < FileName.Length/2 - 1; i++)
+            {
+                for (int k = FileName.Length/2 - 1; k > i; k--)
+                {
+                    if (FileName[k,0].CompareTo(FileName[k - 1,0]) < 0)
+                    {
+                        dynamic tmp = FileName[k, 0];
+                        FileName[k, 0] = FileName[k - 1, 0];
+                        FileName[k - 1, 0] = tmp;
+
+                        tmp = FileName[k, 1];
+                        FileName[k, 1] = FileName[k - 1, 1];
+                        FileName[k - 1, 1] = tmp;
+                    }
+                }
+            }
+
             for (int cnt = 0; cnt < numberoftracks; cnt++)
             {
-                min = (Duration[cnt] / 60).ToString();
-                if (Duration[cnt] % 60 < 10)
+                min = (Duration[FileName[cnt, 1]] / 60).ToString();
+                if (Duration[FileName[cnt, 1]] % 60 < 10)
                 {
-                    sec = (Duration[cnt] % 60).ToString();
+                    sec = (Duration[FileName[cnt, 1]] % 60).ToString();
                     sec = "0" + sec;
                 }
                 else
-                    sec = (Duration[cnt] % 60).ToString();
+                    sec = (Duration[FileName[cnt, 1]] % 60).ToString();
                 dur = min + ":" + sec;
 
-                if (Codec[cnt] == "alac" || Codec[cnt] == "flac" || Codec[cnt] == "aiff" || Codec[cnt] == "wav")//サンプリング周波数とビット深度がある場合
+                if (Codec[FileName[cnt, 1]] == "alac" || Codec[FileName[cnt, 1]] == "flac" || Codec[FileName[cnt, 1]] == "aiff" || Codec[FileName[cnt, 1]] == "wav")//サンプリング周波数とビット深度がある場合
                 {
-                    info = Codec[cnt].ToUpper() + " " + Freq[cnt] + "kHz" + "/" + Bitwidth[cnt] + "bit  " + dur;
+                    info = Codec[FileName[cnt, 1]].ToUpper() + " " + Freq[FileName[cnt, 1]] + "kHz" + "/" + Bitwidth[FileName[cnt, 1]] + "bit  " + dur;
                 }
-                else if (Codec[cnt] == "dsd" || Codec[cnt] == "dsf")//サンプリング周波数はあるがビット深度がない場合(DSD)
+                else if (Codec[FileName[cnt, 1]] == "dsd" || Codec[FileName[cnt, 1]] == "dsf")//サンプリング周波数はあるがビット深度がない場合(DSD)
                 {
-                    info = Codec[cnt].ToUpper() + " " + Freq[cnt] + "MHz  " + dur;
+                    info = Codec[FileName[cnt, 1]].ToUpper() + " " + Freq[FileName[cnt, 1]] + "MHz  " + dur;
                 }
                 else//サンプリング周波数もビット深度もない場合(圧縮音源)
                 {
-                    info = Codec[cnt].ToUpper() + " " + Bitrate[cnt] + "kbps  " + dur;
+                    info = Codec[FileName[cnt, 1]].ToUpper() + " " + Bitrate[FileName[cnt, 1]] + "kbps  " + dur;
                 }
                 tracklist = new VisibleItem();
 
-                tracklist.ArtistName = AlbumData.tracks[cnt].artist.name;
-                tracklist.TrackName = AlbumData.tracks[cnt].name;
+                tracklist.ArtistName = "   " + AlbumData.tracks[FileName[cnt, 1]].artist.name;
+                tracklist.TrackName = (cnt+1).ToString() + "  " + AlbumData.tracks[FileName[cnt, 1]].name;
                 tracklist.TrackInfo = info;
-                tracklist.ContentUrl = AlbumData.tracks[cnt].album.url;
-                tracklist.MusicId = (AlbumData.tracks[cnt].trackid).ToString();
+                tracklist.ContentUrl = AlbumData.tracks[FileName[cnt, 1]].album.url;
+                tracklist.MusicId = (AlbumData.tracks[FileName[cnt, 1]].trackid).ToString();
                 TracksdataList.Add(tracklist);
                 info = "";
             }
@@ -303,11 +344,13 @@ namespace hapControlGUIApp
             {
                 str = "off";
                 Mute.Content = "Mute Off";
+                mute = false;
             }
             else
             {
                 str = "on";
                 Mute.Content = "Mute On";
+                mute = true;
             }
             var obj = new
             {
@@ -619,7 +662,25 @@ namespace hapControlGUIApp
 
         private void TrackClick(object sender, RoutedEventArgs e)
         {
-            
+            int item = ListBoxTrack.SelectedIndex;
+            dynamic index = FileName[item, 1];
+            dynamic trackid = AlbumData.tracks[index].trackid;
+            dynamic albumid = AlbumData.tracks[index].album.albumid;
+            string contenturl = cont.hostUrl + "contentdb/v100/audio/tracks?albumid=" + albumid;
+
+            var playSelectedMusic = new
+            {
+                content_type = "track",
+                content_url = contenturl,
+                firstplay_trackid = trackid,
+                id = 1,
+                method = "playcontent",
+                play_type = "now",
+                repeat_mode = cont.nowRepeat,
+                shuffle_mode = cont.nowShuffle,
+                version = "1.1",
+            };
+            serializeJson(playSelectedMusic, "contentplayer/v100/operation", 0);
         }
     }
 }
