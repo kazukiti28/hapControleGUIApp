@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -17,14 +20,18 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using Codeplex.Data;
+using Microsoft.Win32;
 
 namespace hapControlGUIApp
 {
     /// <summary>
     /// nav.xaml の相互作用ロジック
     /// </summary>
+    ///
     public partial class nav : Page
     {
+        
+
         static int nowVolume = 0;
         static string nowPlaying = null;
         static string album = null;
@@ -48,7 +55,9 @@ namespace hapControlGUIApp
         static string a = null;
         static string myDocument = null;
         static string ip = null;
-        static string totalfigure = null;
+        static string totalfigure = null;//合計アルバム数が入る
+        static dynamic allalbumdata;
+        private static int i;
         DispatcherTimer dispatcherTimer;
 
         public nav()
@@ -74,6 +83,8 @@ namespace hapControlGUIApp
             dispatcherTimer.Interval = new TimeSpan(0, 0, 0, 0, 500);
             dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
             dispatcherTimer.Start();
+            getAllAlbumInfo();
+            LoadListItems();
         }
 
         void dispatcherTimer_Tick(object sender, EventArgs e)
@@ -98,20 +109,160 @@ namespace hapControlGUIApp
 
         void getAllAlbumInfo()
         {
-            string setUrl = cont.rawip + ":60200/sony/contentdb/v100/audio/albums";
+            string setUrl = cont.rawip + "contentdb/v100/audio/albums";
 
             var req = WebRequest.Create(setUrl);
             var res = req.GetResponse();
 
             dynamic data = DynamicJson.Parse(res.GetResponseStream());
-            totalfigure = data.paging.total;
+            totalfigure = data.paging.total.ToString();
 
             setUrl = setUrl + "?offset=0&limit=" + totalfigure;
             req = WebRequest.Create(setUrl);
             res = req.GetResponse();
-            data = DynamicJson.Parse(res.GetResponseStream());//これにたくさん入っている
+            allalbumdata = DynamicJson.Parse(res.GetResponseStream());//これにたくさん入っている
+            allalbumdata.albums[0].album_artist.name = "不明なアーティスト";
+            allalbumdata.albums[0].name = "不明なアルバム";
+        }
 
+        public List<VisibleItem> dataList { get; set; }
 
+        public List<VisibleItem> TracksdataList { get; set; }
+
+        private void LoadListItems()
+        {
+            dataList = new List<VisibleItem>();
+            dataList = getDataList();
+            ListBoxConverter.ItemsSource = dataList;
+            ListBoxConverter.DataContext = this;
+        }
+
+        private List<VisibleItem> getDataList()
+        {
+            dispatcherTimer.Stop();//情報定期取得一時停止
+
+            VisibleItem vItem;
+            vItem = new VisibleItem();
+            //albums[0]のみ例外
+            vItem.CoverArt = myDocument + "/" + "default.png";
+            vItem.ArtistName = "不明なアーティスト";
+            vItem.AlbumName = "不明なアルバム";
+            vItem.TrackFigure = "トラック:" + allalbumdata.albums[0].number_of_tracks.ToString();
+            vItem.TracksUrl = allalbumdata.albums[0].tracks_url;
+            dataList.Add(vItem);
+
+            for (i = 1; i < (int)allalbumdata.paging.total; i++)
+            {
+                try
+                {
+                    noCoverArt = 0;
+                    coverArtUrl = allalbumdata.albums[i].image.url;
+                    int findsla = coverArtUrl.LastIndexOf("/") + 1;
+                    musicId = coverArtUrl.Substring(findsla);
+                }
+                catch
+                {
+                    noCoverArt = 1;
+                }
+                downloadCoverArt();
+
+                vItem = new VisibleItem();
+                vItem.CoverArt = nowMusicCover;
+                vItem.ArtistName = allalbumdata.albums[i].album_artist.name;
+                vItem.AlbumName = allalbumdata.albums[i].name;
+                vItem.TrackFigure = "トラック:" + allalbumdata.albums[i].number_of_tracks.ToString();
+                vItem.TracksUrl = allalbumdata.albums[0].tracks_url;
+                dataList.Add(vItem);
+            }
+            dispatcherTimer.Start();//再開
+            return dataList;
+        }
+
+        void DisplayAlbumInfo(int number)
+        {
+            string AlbumName = allalbumdata.albums[number].name; //アルバム名の取得
+            int numberoftracks = (int)allalbumdata.albums[number].number_of_tracks; //アルバム収録曲数の取得
+            string[] Tracks = new string[numberoftracks]; //曲の名前を格納する配列
+            int[] Duration = new int[numberoftracks]; //曲長さ格納
+            string[] Codec = new string[numberoftracks]; //コーデック格納
+            string[] Freq = new string[numberoftracks]; //サンプリング周波数
+            string[] Bitwidth = new string[numberoftracks]; //サンプリング周波数
+            string[] Bitrate = new string[numberoftracks];
+            dynamic[,] FileName = new dynamic[numberoftracks,2];
+
+            dynamic AlbumData = DynamicJson.Parse(gettrackinfo(allalbumdata.albums[number].tracks_url)); //トラック情報の取得
+            numberoftracks = (int)AlbumData.paging.total;
+            string urlnew = allalbumdata.albums[number].tracks_url + "?offset=0&limit=" + numberoftracks.ToString();
+           
+            AlbumData = DynamicJson.Parse(gettrackinfo(urlnew)); //トラック情報の取得
+
+            for (int num = 0; num < numberoftracks; num++)
+            {
+                Tracks[num] = AlbumData.tracks[num].name; //すべての名前の取得
+                Duration[num] = (int) AlbumData.tracks[num].duration; //曲長さ(秒)
+                Codec[num] = AlbumData.tracks[num].codec.codec_type; //コーデック
+                Bitrate[num] = (AlbumData.tracks[num].codec.bit_rate / 1000).ToString(); //ビットレート
+                int fr = (int) AlbumData.tracks[num].codec.sample_rate / 1000;
+                Freq[num] = fr.ToString(); //サンプリング周波数
+                Bitwidth[num] = AlbumData.tracks[num].codec.bit_width.ToString(); //ビット深度
+                FileName[num, 0] = AlbumData.tracks[num].filename;
+                FileName[num, 1] = num;
+            }
+            string info = "";
+            string min = "";
+            string sec = "";
+            string dur = "";
+
+            ListBoxConverter.Visibility = Visibility.Hidden;
+            ListBoxTrack.Visibility = Visibility.Visible;
+
+            TracksdataList = new List<VisibleItem>();
+            VisibleItem tracklist;
+            
+            for (int cnt = 0; cnt < numberoftracks; cnt++)
+            {
+                min = (Duration[cnt] / 60).ToString();
+                if (Duration[cnt] % 60 < 10)
+                {
+                    sec = (Duration[cnt] % 60).ToString();
+                    sec = "0" + sec;
+                }
+                else
+                    sec = (Duration[cnt] % 60).ToString();
+                dur = min + ":" + sec;
+
+                if (Codec[cnt] == "alac" || Codec[cnt] == "flac" || Codec[cnt] == "aiff" || Codec[cnt] == "wav")//サンプリング周波数とビット深度がある場合
+                {
+                    info = Codec[cnt].ToUpper() + " " + Freq[cnt] + "kHz" + "/" + Bitwidth[cnt] + "bit  " + dur;
+                }
+                else if (Codec[cnt] == "dsd" || Codec[cnt] == "dsf")//サンプリング周波数はあるがビット深度がない場合(DSD)
+                {
+                    info = Codec[cnt].ToUpper() + " " + Freq[cnt] + "MHz  " + dur;
+                }
+                else//サンプリング周波数もビット深度もない場合(圧縮音源)
+                {
+                    info = Codec[cnt].ToUpper() + " " + Bitrate[cnt] + "kbps  " + dur;
+                }
+                tracklist = new VisibleItem();
+
+                tracklist.ArtistName = AlbumData.tracks[cnt].artist.name;
+                tracklist.TrackName = AlbumData.tracks[cnt].name;
+                tracklist.TrackInfo = info;
+                tracklist.ContentUrl = AlbumData.tracks[cnt].album.url;
+                tracklist.MusicId = (AlbumData.tracks[cnt].trackid).ToString();
+                TracksdataList.Add(tracklist);
+                info = "";
+            }
+            ListBoxTrack.ItemsSource = TracksdataList;
+            ListBoxTrack.DataContext = this;
+        }
+
+        dynamic gettrackinfo(string url)
+        {
+            var req = WebRequest.Create(url);
+            var res = req.GetResponse();
+            dynamic data = res.GetResponseStream();
+            return data;
         }
 
         void downloadCoverArt()
@@ -128,6 +279,7 @@ namespace hapControlGUIApp
                 nowMusicCover = nowMusicCover + ".jpg";
                 if (!File.Exists(nowMusicCover))
                 {
+                    Console.WriteLine(i);
                     wc.DownloadFile(coverArtUrl, nowMusicCover);
                 }
             }
@@ -457,6 +609,17 @@ namespace hapControlGUIApp
         {
             cont con = new cont();
             NavigationService?.Navigate(con);
+        }
+
+        private void listClick(object sender, RoutedEventArgs e)
+        {
+            int item = ListBoxConverter.SelectedIndex;
+            DisplayAlbumInfo(item);//戻るボタン実装
+        }
+
+        private void TrackClick(object sender, RoutedEventArgs e)
+        {
+            
         }
     }
 }

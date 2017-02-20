@@ -301,7 +301,7 @@ namespace hapControlGUIApp
             Uri Url = new Uri(setUrl);
             client.DefaultRequestHeaders.ExpectContinue = false;//これは絶対いる
             StringContent theContent = new StringContent(json, Encoding.UTF8, "application/x-www-form-urlencoded");
-            dynamic result = client.PostAsync(Url, theContent).Result.Content.ReadAsStringAsync().Result;//送信部。帰ってくるJSONはresultに入る
+            dynamic result = client.PostAsync(Url, theContent).Result.Content.ReadAsStringAsync().Result;
             dynamic data = DynamicJson.Parse(result);
             if (isNeedParse == 1)//現在音量取得
             {
