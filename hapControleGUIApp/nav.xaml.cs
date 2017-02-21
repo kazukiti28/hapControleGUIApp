@@ -113,7 +113,7 @@ namespace hapControlGUIApp
 
         void getAllAlbumInfo()
         {
-            string setUrl = cont.rawip + "contentdb/v100/audio/albums";
+            string setUrl = cont.hostUrl + "contentdb/v100/audio/albums";
 
             var req = WebRequest.Create(setUrl);
             var res = req.GetResponse();
@@ -329,7 +329,7 @@ namespace hapControlGUIApp
                 nowMusicCover = myDocument + "/" + "default.png";
                 if (!File.Exists(nowMusicCover))
                 {
-                    string ipad = hostUrl.Replace(":60200/sony/", "");
+                    string ipad = cont.hostUrl.Replace(":60200/sony/", "");
                     string noCoverUrl = ipad + ":60100/img/album_default.png";
                     wc.DownloadFile(noCoverUrl, nowMusicCover);
                 }
