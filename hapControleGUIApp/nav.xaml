@@ -37,7 +37,7 @@
         </Grid.RowDefinitions>
         <Image x:Name="bgimage"  Stretch="Fill" HorizontalAlignment="Left" Height="348" VerticalAlignment="Top" Width="715" Grid.RowSpan="2"/>
         <Border x:Name="blackbar" BorderBrush="Black" HorizontalAlignment="Left" Height="69" Margin="-3,124,0,0" VerticalAlignment="Top" Width="726" Background="Black" Grid.Row="1">
-            <Image x:Name="coverArt" Stretch="Uniform" HorizontalAlignment="Center" Height="59" Margin="0,10,667,0" VerticalAlignment="Center" Width="59" />
+            <Image x:Name="coverArt" Stretch="Uniform" HorizontalAlignment="Center" Height="59" Margin="0,10,657,0" VerticalAlignment="Center" Width="59" />
         </Border>
         <Button x:Name="startButton" Content="▶/||" HorizontalAlignment="Left" Margin="360,146,0,0" VerticalAlignment="Top" Width="40" Height="40" Click="startButton_Click" Grid.Row="1"/>
         <Button x:Name="nextButton" Content="→" HorizontalAlignment="Left" Margin="410,146,0,0" VerticalAlignment="Top" Width="40" Height="40" Click="nextButton_Click" Grid.Row="1"/>
@@ -54,8 +54,10 @@
         <Button x:Name="control" Content="Control" HorizontalAlignment="Left" Margin="639,10,0,0" VerticalAlignment="Top" Width="60" Click="change_click"/>
 
 
-        <ListBox Visibility="Hidden" MouseDoubleClick="TrackClick" Background="Transparent" x:Name="ListBoxTrack" ItemTemplate="{DynamicResource DataTemplateTracks}" ItemsSource="{Binding dataList}" IsSynchronizedWithCurrentItem="True" HorizontalContentAlignment="Left" Margin="211,36,10,79" Grid.RowSpan="2"/>
-        <ListBox MouseDoubleClick="listClick" Background="Transparent" x:Name="ListBoxConverter" ItemTemplate="{DynamicResource DataTemplateItemConverter}" ItemsSource="{Binding dataList}" IsSynchronizedWithCurrentItem="True" HorizontalContentAlignment="Left" Margin="211,36,10,79" Grid.RowSpan="2"/>
-    
+        <ListBox Visibility="Hidden" MouseDoubleClick="TrackClick" Background="Transparent" x:Name="ListBoxTrack" ItemTemplate="{DynamicResource DataTemplateTracks}" ItemsSource="{Binding dataList}" IsSynchronizedWithCurrentItem="True" HorizontalContentAlignment="Left" Margin="211,63,10,79" Grid.RowSpan="2"/>
+        <ListBox MouseDoubleClick="listClick" Background="Transparent" x:Name="ListBoxConverter" ItemTemplate="{DynamicResource DataTemplateItemConverter}" ItemsSource="{Binding dataList}" IsSynchronizedWithCurrentItem="True" HorizontalContentAlignment="Left" Margin="211,63,10,79" Grid.RowSpan="2"/>
+        <Button  Visibility="Hidden" x:Name="BackButton" Click="BackButton_OnClick" Content="←" HorizontalAlignment="Left" Margin="211,36,0,0" VerticalAlignment="Top" Width="22" Height="22"/>
+        <ComboBox x:Name="comboBox" HorizontalAlignment="Left" Margin="661,36,0,0" VerticalAlignment="Top" Width="38"/>
+
     </Grid>
 </Page>

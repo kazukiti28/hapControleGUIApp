@@ -31,8 +31,6 @@ namespace hapControlGUIApp
     ///
     public partial class nav : Page
     {
-        
-
         static int nowVolume = 0;
         static string nowPlaying = null;
         static string album = null;
@@ -97,14 +95,12 @@ namespace hapControlGUIApp
             BG.Background =
                 new SolidColorBrush(Color.FromArgb(Convert.ToByte(a, 16), Convert.ToByte(r, 16),
                     Convert.ToByte(g, 16), Convert.ToByte(g, 16)));
-
             serializeJson(getVolumeInfo(), "audio", 1);
             downloadCoverArt();
             BitmapImage img = new BitmapImage();
             img.BeginInit();
             img.UriSource = new Uri(nowMusicCover);
             img.EndInit();
-
             coverArt.Source = img;
             musicName.Text = nowPlaying;
             musicAlbum.Text = album;
@@ -182,26 +178,6 @@ namespace hapControlGUIApp
             return dataList;
         }
 
-        static int CompareArray(int[] x, int[] y)
-        {
-            int min = Math.Min(x.Length, y.Length);
-
-            for (int n = 0; n < min; n++)
-            {
-                if (x[n] > y[n])
-                    return 1;
-                else if (x[n] < y[n])
-                    return -1;
-            }
-
-            if (x.Length > y.Length)
-                return 1;
-            else if (x.Length < y.Length)
-                return -1;
-            else /* if (x.Length == y.Length) */
-                return 0;
-        }
-
         void DisplayAlbumInfo(int number)
         {
             string AlbumName = allalbumdata.albums[number].name; //アルバム名の取得
@@ -239,6 +215,7 @@ namespace hapControlGUIApp
 
             ListBoxConverter.Visibility = Visibility.Hidden;
             ListBoxTrack.Visibility = Visibility.Visible;
+            BackButton.Visibility = Visibility.Visible;
 
             TracksdataList = new List<VisibleItem>();
             VisibleItem tracklist;
@@ -272,15 +249,15 @@ namespace hapControlGUIApp
                     sec = (Duration[FileName[cnt, 1]] % 60).ToString();
                 dur = min + ":" + sec;
 
-                if (Codec[FileName[cnt, 1]] == "alac" || Codec[FileName[cnt, 1]] == "flac" || Codec[FileName[cnt, 1]] == "aiff" || Codec[FileName[cnt, 1]] == "wav")//サンプリング周波数とビット深度がある場合
+                if (Codec[FileName[cnt, 1]] == "alac" || Codec[FileName[cnt, 1]] == "flac" || Codec[FileName[cnt, 1]] == "aiff" || Codec[FileName[cnt, 1]] == "wav")//可逆圧縮/非圧縮
                 {
                     info = Codec[FileName[cnt, 1]].ToUpper() + " " + Freq[FileName[cnt, 1]] + "kHz" + "/" + Bitwidth[FileName[cnt, 1]] + "bit  " + dur;
                 }
-                else if (Codec[FileName[cnt, 1]] == "dsd" || Codec[FileName[cnt, 1]] == "dsf")//サンプリング周波数はあるがビット深度がない場合(DSD)
+                else if (Codec[FileName[cnt, 1]] == "dsd" || Codec[FileName[cnt, 1]] == "dsf")//DSD
                 {
                     info = Codec[FileName[cnt, 1]].ToUpper() + " " + Freq[FileName[cnt, 1]] + "MHz  " + dur;
                 }
-                else//サンプリング周波数もビット深度もない場合(圧縮音源)
+                else//圧縮音源
                 {
                     info = Codec[FileName[cnt, 1]].ToUpper() + " " + Bitrate[FileName[cnt, 1]] + "kbps  " + dur;
                 }
@@ -681,6 +658,13 @@ namespace hapControlGUIApp
                 version = "1.1",
             };
             serializeJson(playSelectedMusic, "contentplayer/v100/operation", 0);
+        }
+
+        private void BackButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            ListBoxTrack.Visibility = Visibility.Hidden;
+            ListBoxConverter.Visibility = Visibility.Visible;
+            BackButton.Visibility = Visibility.Hidden;
         }
     }
 }
