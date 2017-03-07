@@ -22,6 +22,8 @@ using System.Windows.Threading;
 using Codeplex.Data;
 using Microsoft.Win32;
 using System.Collections;
+using System.Collections.ObjectModel;
+using System.Text.RegularExpressions;
 
 namespace hapControlGUIApp
 {
@@ -59,8 +61,10 @@ namespace hapControlGUIApp
         private static int i;
         private static bool mute;
         dynamic AlbumData;
-        dynamic[,] FileName;
+        private dynamic[,] FileName;
         DispatcherTimer dispatcherTimer;
+        private dynamic[,] head;
+        private dynamic dict = new Dictionary<string, int>();
 
         public nav()
         {
@@ -128,6 +132,7 @@ namespace hapControlGUIApp
         public List<VisibleItem> dataList { get; set; }
 
         public List<VisibleItem> TracksdataList { get; set; }
+        
 
         private void LoadListItems()
         {
@@ -139,7 +144,7 @@ namespace hapControlGUIApp
 
         private List<VisibleItem> getDataList()
         {
-            dispatcherTimer.Stop();//情報定期取得一時停止
+            dispatcherTimer.Stop(); //情報定期取得一時停止
 
             VisibleItem vItem;
             vItem = new VisibleItem();
@@ -150,8 +155,13 @@ namespace hapControlGUIApp
             vItem.TrackFigure = "トラック:" + allalbumdata.albums[0].number_of_tracks.ToString();
             vItem.TracksUrl = allalbumdata.albums[0].tracks_url;
             dataList.Add(vItem);
+            head = new dynamic[26, 2];
 
-            for (i = 1; i < (int)allalbumdata.paging.total; i++)
+            string h, tmp;
+            string prev = "";
+            int cnt = 0;
+
+            for (i = 1; i < (int) allalbumdata.paging.total; i++)
             {
                 try
                 {
@@ -173,10 +183,38 @@ namespace hapControlGUIApp
                 vItem.TrackFigure = "トラック:" + allalbumdata.albums[i].number_of_tracks.ToString();
                 vItem.TracksUrl = allalbumdata.albums[0].tracks_url;
                 dataList.Add(vItem);
+                h = allalbumdata.albums[i].name;
+                if (new Regex("^[0-9a-zA-Z]+$").IsMatch(h.Substring(0,1)))
+                {
+                    Combox item;
+
+                    h = allalbumdata.albums[i].name;
+                    if (h.Length > 4)
+                    {
+                        tmp = h.Substring(0, 4);
+                        if (tmp.ToUpper() == "THE ") h = h.Remove(0,4);
+                    }
+
+                    if (i!=1 && prev.Substring(0,1).ToLower() != h.Substring(0,1).ToLower())
+                    {
+                        Console.WriteLine(h);
+                        h = h.Substring(0,1);
+                        item = new Combox();
+                        item.headChara = h.ToUpper();
+                        item.suf = i;
+                        comboBox.Items.Add(item);
+                        head[cnt, 0] = h;
+                        head[cnt, 1] = i;
+                        cnt++;
+                    }
+                }
+                prev = h;
             }
-            dispatcherTimer.Start();//再開
+            dispatcherTimer.Start(); //再開
             return dataList;
         }
+
+        
 
         void DisplayAlbumInfo(int number)
         {
@@ -236,6 +274,7 @@ namespace hapControlGUIApp
                     }
                 }
             }
+
 
             for (int cnt = 0; cnt < numberoftracks; cnt++)
             {
@@ -634,7 +673,7 @@ namespace hapControlGUIApp
         private void listClick(object sender, RoutedEventArgs e)
         {
             int item = ListBoxConverter.SelectedIndex;
-            DisplayAlbumInfo(item);//戻るボタン実装
+            DisplayAlbumInfo(item);
         }
 
         private void TrackClick(object sender, RoutedEventArgs e)
@@ -665,6 +704,16 @@ namespace hapControlGUIApp
             ListBoxTrack.Visibility = Visibility.Hidden;
             ListBoxConverter.Visibility = Visibility.Visible;
             BackButton.Visibility = Visibility.Hidden;
+        }
+
+        private void HeadChanged(object sender, RoutedEventArgs e)
+        {
+            /*int ind = head[comboBox.SelectedIndex, 1];
+            
+            ListBoxTrack.ScrollIntoView(allalbumdata.albums[ind].name);*/
+
+            VisibleItem s = new VisibleItem();
+            ListBoxTrack.ScrollIntoView(dataList[head[comboBox.SelectedIndex, 1]].ToString());
         }
     }
 }

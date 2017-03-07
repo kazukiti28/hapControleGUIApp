@@ -54,10 +54,9 @@
         <Button x:Name="control" Content="Control" HorizontalAlignment="Left" Margin="639,10,0,0" VerticalAlignment="Top" Width="60" Click="change_click"/>
 
 
-        <ListBox Visibility="Hidden" MouseDoubleClick="TrackClick" Background="Transparent" x:Name="ListBoxTrack" ItemTemplate="{DynamicResource DataTemplateTracks}" ItemsSource="{Binding dataList}" IsSynchronizedWithCurrentItem="True" HorizontalContentAlignment="Left" Margin="211,63,10,79" Grid.RowSpan="2"/>
+        <ListBox Visibility="Hidden" MouseDoubleClick="TrackClick" Background="Transparent" x:Name="ListBoxTrack" ItemTemplate="{DynamicResource DataTemplateTracks}" ItemsSource="{Binding dataList, Mode=TwoWay}" IsSynchronizedWithCurrentItem="True" HorizontalContentAlignment="Left" Margin="211,63,10,79" Grid.RowSpan="2"/>
         <ListBox MouseDoubleClick="listClick" Background="Transparent" x:Name="ListBoxConverter" ItemTemplate="{DynamicResource DataTemplateItemConverter}" ItemsSource="{Binding dataList}" IsSynchronizedWithCurrentItem="True" HorizontalContentAlignment="Left" Margin="211,63,10,79" Grid.RowSpan="2"/>
         <Button  Visibility="Hidden" x:Name="BackButton" Click="BackButton_OnClick" Content="←" HorizontalAlignment="Left" Margin="211,36,0,0" VerticalAlignment="Top" Width="22" Height="22"/>
-        <ComboBox x:Name="comboBox" HorizontalAlignment="Left" Margin="661,36,0,0" VerticalAlignment="Top" Width="38"/>
-
+        <ComboBox x:Name="comboBox" ItemsSource="{Binding headChara}" SelectedItem="{Binding ref}"  SelectionChanged="HeadChanged" HorizontalAlignment="Left" Margin="661,36,0,0" VerticalAlignment="Top" Width="38"/>
     </Grid>
 </Page>
