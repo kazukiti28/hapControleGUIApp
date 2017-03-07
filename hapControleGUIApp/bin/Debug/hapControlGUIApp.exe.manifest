@@ -49,7 +49,11 @@
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+<<<<<<< HEAD
         <dsig:DigestValue>uz1Zmdta7tyn/e6wLxykCzchgHLSgVeM4KLUCgjKcUw=</dsig:DigestValue>
+=======
+        <dsig:DigestValue>/dRH3a2HOTqhPCRn/qXlzhNaEJQb3lqaaBzCKPs2TXU=</dsig:DigestValue>
+>>>>>>> parent of cca178f... バグ修正
       </hash>
     </dependentAssembly>
   </dependency>

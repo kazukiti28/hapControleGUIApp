@@ -20,25 +20,3 @@ C:\Users\Kazuki\Documents\Visual Studio 2015\Projects\hapControlGUIApp\hapContro
 C:\Users\Kazuki\Documents\Visual Studio 2015\Projects\hapControlGUIApp\hapControleGUIApp\obj\Debug\nav.g.cs
 C:\Users\Kazuki\Documents\Visual Studio 2015\Projects\hapControlGUIApp\hapControleGUIApp\obj\Debug\cont.baml
 C:\Users\Kazuki\Documents\Visual Studio 2015\Projects\hapControlGUIApp\hapControleGUIApp\obj\Debug\nav.baml
-C:\Users\Kazuki Fujii\Documents\GitHub\hapControleGUIApp\hapControleGUIApp\bin\Debug\hapControlGUIApp.exe.config
-C:\Users\Kazuki Fujii\Documents\GitHub\hapControleGUIApp\hapControleGUIApp\bin\Debug\hapControlGUIApp.exe.manifest
-C:\Users\Kazuki Fujii\Documents\GitHub\hapControleGUIApp\hapControleGUIApp\bin\Debug\hapControlGUIApp.application
-C:\Users\Kazuki Fujii\Documents\GitHub\hapControleGUIApp\hapControleGUIApp\bin\Debug\hapControlGUIApp.exe
-C:\Users\Kazuki Fujii\Documents\GitHub\hapControleGUIApp\hapControleGUIApp\bin\Debug\hapControlGUIApp.pdb
-C:\Users\Kazuki Fujii\Documents\GitHub\hapControleGUIApp\hapControleGUIApp\obj\Debug\hapControlGUIApp.csprojResolveAssemblyReference.cache
-C:\Users\Kazuki Fujii\Documents\GitHub\hapControleGUIApp\hapControleGUIApp\obj\Debug\cont.g.cs
-C:\Users\Kazuki Fujii\Documents\GitHub\hapControleGUIApp\hapControleGUIApp\obj\Debug\MainWindow.g.cs
-C:\Users\Kazuki Fujii\Documents\GitHub\hapControleGUIApp\hapControleGUIApp\obj\Debug\nav.g.cs
-C:\Users\Kazuki Fujii\Documents\GitHub\hapControleGUIApp\hapControleGUIApp\obj\Debug\App.g.cs
-C:\Users\Kazuki Fujii\Documents\GitHub\hapControleGUIApp\hapControleGUIApp\obj\Debug\hapControlGUIApp_MarkupCompile.cache
-C:\Users\Kazuki Fujii\Documents\GitHub\hapControleGUIApp\hapControleGUIApp\obj\Debug\hapControlGUIApp_MarkupCompile.lref
-C:\Users\Kazuki Fujii\Documents\GitHub\hapControleGUIApp\hapControleGUIApp\obj\Debug\cont.baml
-C:\Users\Kazuki Fujii\Documents\GitHub\hapControleGUIApp\hapControleGUIApp\obj\Debug\MainWindow.baml
-C:\Users\Kazuki Fujii\Documents\GitHub\hapControleGUIApp\hapControleGUIApp\obj\Debug\nav.baml
-C:\Users\Kazuki Fujii\Documents\GitHub\hapControleGUIApp\hapControleGUIApp\obj\Debug\hapControlGUIApp.g.resources
-C:\Users\Kazuki Fujii\Documents\GitHub\hapControleGUIApp\hapControleGUIApp\obj\Debug\hapControlGUIApp.Properties.Resources.resources
-C:\Users\Kazuki Fujii\Documents\GitHub\hapControleGUIApp\hapControleGUIApp\obj\Debug\hapControlGUIApp.csproj.GenerateResource.Cache
-C:\Users\Kazuki Fujii\Documents\GitHub\hapControleGUIApp\hapControleGUIApp\obj\Debug\hapControlGUIApp.exe.manifest
-C:\Users\Kazuki Fujii\Documents\GitHub\hapControleGUIApp\hapControleGUIApp\obj\Debug\hapControlGUIApp.application
-C:\Users\Kazuki Fujii\Documents\GitHub\hapControleGUIApp\hapControleGUIApp\obj\Debug\hapControlGUIApp.exe
-C:\Users\Kazuki Fujii\Documents\GitHub\hapControleGUIApp\hapControleGUIApp\obj\Debug\hapControlGUIApp.pdb
