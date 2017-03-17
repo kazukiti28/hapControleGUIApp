@@ -85,6 +85,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Combox.cs" />
     <Compile Include="VisibleItem.cs" />
     <Page Include="cont.xaml">
       <SubType>Designer</SubType>

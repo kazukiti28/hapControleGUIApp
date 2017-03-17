@@ -22,6 +22,8 @@ using System.Windows.Threading;
 using Codeplex.Data;
 using Microsoft.Win32;
 using System.Collections;
+using System.Collections.ObjectModel;
+using System.Text.RegularExpressions;
 
 namespace hapControlGUIApp
 {
@@ -31,8 +33,6 @@ namespace hapControlGUIApp
     ///
     public partial class nav : Page
     {
-        
-
         static int nowVolume = 0;
         static string nowPlaying = null;
         static string album = null;
@@ -61,8 +61,10 @@ namespace hapControlGUIApp
         private static int i;
         private static bool mute;
         dynamic AlbumData;
-        dynamic[,] FileName;
+        private dynamic[,] FileName;
         DispatcherTimer dispatcherTimer;
+        private dynamic[,] head;
+        private dynamic dict = new Dictionary<string, int>();
 
         public nav()
         {
@@ -97,14 +99,12 @@ namespace hapControlGUIApp
             BG.Background =
                 new SolidColorBrush(Color.FromArgb(Convert.ToByte(a, 16), Convert.ToByte(r, 16),
                     Convert.ToByte(g, 16), Convert.ToByte(g, 16)));
-
             serializeJson(getVolumeInfo(), "audio", 1);
             downloadCoverArt();
             BitmapImage img = new BitmapImage();
             img.BeginInit();
             img.UriSource = new Uri(nowMusicCover);
             img.EndInit();
-
             coverArt.Source = img;
             musicName.Text = nowPlaying;
             musicAlbum.Text = album;
@@ -113,7 +113,7 @@ namespace hapControlGUIApp
 
         void getAllAlbumInfo()
         {
-            string setUrl = cont.hostUrl + "contentdb/v100/audio/albums";
+            string setUrl = cont.rawip + "contentdb/v100/audio/albums";
 
             var req = WebRequest.Create(setUrl);
             var res = req.GetResponse();
@@ -132,6 +132,7 @@ namespace hapControlGUIApp
         public List<VisibleItem> dataList { get; set; }
 
         public List<VisibleItem> TracksdataList { get; set; }
+        
 
         private void LoadListItems()
         {
@@ -143,7 +144,7 @@ namespace hapControlGUIApp
 
         private List<VisibleItem> getDataList()
         {
-            dispatcherTimer.Stop();//情報定期取得一時停止
+            dispatcherTimer.Stop(); //情報定期取得一時停止
 
             VisibleItem vItem;
             vItem = new VisibleItem();
@@ -154,8 +155,13 @@ namespace hapControlGUIApp
             vItem.TrackFigure = "トラック:" + allalbumdata.albums[0].number_of_tracks.ToString();
             vItem.TracksUrl = allalbumdata.albums[0].tracks_url;
             dataList.Add(vItem);
+            head = new dynamic[26, 2];
 
-            for (i = 1; i < (int)allalbumdata.paging.total; i++)
+            string h, tmp;
+            string prev = "";
+            int cnt = 0;
+
+            for (i = 1; i < (int) allalbumdata.paging.total; i++)
             {
                 try
                 {
@@ -177,30 +183,38 @@ namespace hapControlGUIApp
                 vItem.TrackFigure = "トラック:" + allalbumdata.albums[i].number_of_tracks.ToString();
                 vItem.TracksUrl = allalbumdata.albums[0].tracks_url;
                 dataList.Add(vItem);
+                h = allalbumdata.albums[i].name;
+                if (new Regex("^[0-9a-zA-Z]+$").IsMatch(h.Substring(0,1)))
+                {
+                    Combox item;
+
+                    h = allalbumdata.albums[i].name;
+                    if (h.Length > 4)
+                    {
+                        tmp = h.Substring(0, 4);
+                        if (tmp.ToUpper() == "THE ") h = h.Remove(0,4);
+                    }
+
+                    if (i!=1 && prev.Substring(0,1).ToLower() != h.Substring(0,1).ToLower())
+                    {
+                        Console.WriteLine(h);
+                        h = h.Substring(0,1);
+                        item = new Combox();
+                        item.headChara = h.ToUpper();
+                        item.suf = i;
+                        comboBox.Items.Add(item);
+                        head[cnt, 0] = h;
+                        head[cnt, 1] = i;
+                        cnt++;
+                    }
+                }
+                prev = h;
             }
-            dispatcherTimer.Start();//再開
+            dispatcherTimer.Start(); //再開
             return dataList;
         }
 
-        static int CompareArray(int[] x, int[] y)
-        {
-            int min = Math.Min(x.Length, y.Length);
-
-            for (int n = 0; n < min; n++)
-            {
-                if (x[n] > y[n])
-                    return 1;
-                else if (x[n] < y[n])
-                    return -1;
-            }
-
-            if (x.Length > y.Length)
-                return 1;
-            else if (x.Length < y.Length)
-                return -1;
-            else /* if (x.Length == y.Length) */
-                return 0;
-        }
+        
 
         void DisplayAlbumInfo(int number)
         {
@@ -239,6 +253,7 @@ namespace hapControlGUIApp
 
             ListBoxConverter.Visibility = Visibility.Hidden;
             ListBoxTrack.Visibility = Visibility.Visible;
+            BackButton.Visibility = Visibility.Visible;
 
             TracksdataList = new List<VisibleItem>();
             VisibleItem tracklist;
@@ -260,6 +275,7 @@ namespace hapControlGUIApp
                 }
             }
 
+
             for (int cnt = 0; cnt < numberoftracks; cnt++)
             {
                 min = (Duration[FileName[cnt, 1]] / 60).ToString();
@@ -272,15 +288,15 @@ namespace hapControlGUIApp
                     sec = (Duration[FileName[cnt, 1]] % 60).ToString();
                 dur = min + ":" + sec;
 
-                if (Codec[FileName[cnt, 1]] == "alac" || Codec[FileName[cnt, 1]] == "flac" || Codec[FileName[cnt, 1]] == "aiff" || Codec[FileName[cnt, 1]] == "wav")//サンプリング周波数とビット深度がある場合
+                if (Codec[FileName[cnt, 1]] == "alac" || Codec[FileName[cnt, 1]] == "flac" || Codec[FileName[cnt, 1]] == "aiff" || Codec[FileName[cnt, 1]] == "wav")//可逆圧縮/非圧縮
                 {
                     info = Codec[FileName[cnt, 1]].ToUpper() + " " + Freq[FileName[cnt, 1]] + "kHz" + "/" + Bitwidth[FileName[cnt, 1]] + "bit  " + dur;
                 }
-                else if (Codec[FileName[cnt, 1]] == "dsd" || Codec[FileName[cnt, 1]] == "dsf")//サンプリング周波数はあるがビット深度がない場合(DSD)
+                else if (Codec[FileName[cnt, 1]] == "dsd" || Codec[FileName[cnt, 1]] == "dsf")//DSD
                 {
                     info = Codec[FileName[cnt, 1]].ToUpper() + " " + Freq[FileName[cnt, 1]] + "MHz  " + dur;
                 }
-                else//サンプリング周波数もビット深度もない場合(圧縮音源)
+                else//圧縮音源
                 {
                     info = Codec[FileName[cnt, 1]].ToUpper() + " " + Bitrate[FileName[cnt, 1]] + "kbps  " + dur;
                 }
@@ -329,7 +345,7 @@ namespace hapControlGUIApp
                 nowMusicCover = myDocument + "/" + "default.png";
                 if (!File.Exists(nowMusicCover))
                 {
-                    string ipad = cont.hostUrl.Replace(":60200/sony/", "");
+                    string ipad = hostUrl.Replace(":60200/sony/", "");
                     string noCoverUrl = ipad + ":60100/img/album_default.png";
                     wc.DownloadFile(noCoverUrl, nowMusicCover);
                 }
@@ -657,7 +673,7 @@ namespace hapControlGUIApp
         private void listClick(object sender, RoutedEventArgs e)
         {
             int item = ListBoxConverter.SelectedIndex;
-            DisplayAlbumInfo(item);//戻るボタン実装
+            DisplayAlbumInfo(item);
         }
 
         private void TrackClick(object sender, RoutedEventArgs e)
@@ -681,6 +697,23 @@ namespace hapControlGUIApp
                 version = "1.1",
             };
             serializeJson(playSelectedMusic, "contentplayer/v100/operation", 0);
+        }
+
+        private void BackButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            ListBoxTrack.Visibility = Visibility.Hidden;
+            ListBoxConverter.Visibility = Visibility.Visible;
+            BackButton.Visibility = Visibility.Hidden;
+        }
+
+        private void HeadChanged(object sender, RoutedEventArgs e)
+        {
+            /*int ind = head[comboBox.SelectedIndex, 1];
+            
+            ListBoxTrack.ScrollIntoView(allalbumdata.albums[ind].name);*/
+
+            VisibleItem s = new VisibleItem();
+            ListBoxTrack.ScrollIntoView(dataList[head[comboBox.SelectedIndex, 1]].ToString());
         }
     }
 }

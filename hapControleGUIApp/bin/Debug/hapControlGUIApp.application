@@ -14,7 +14,15 @@
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+<<<<<<< HEAD
         <dsig:DigestValue>GNCzPiEeHbDMexZHnnHWYoKiTmfwqcu+Sxk+Mcn3Iwg=</dsig:DigestValue>
+=======
+<<<<<<< HEAD
+        <dsig:DigestValue>mG86RJ05/kICBHFyJu5zCj4hYzUf5LynLR/jKZu8b2Y=</dsig:DigestValue>
+=======
+        <dsig:DigestValue>nV91cAaHfZVyKfQsNKJELfPyxTprVDrFH+tqyrOCkI0=</dsig:DigestValue>
+>>>>>>> parent of cca178f... バグ修正
+>>>>>>> origin/master
       </hash>
     </dependentAssembly>
   </dependency>
