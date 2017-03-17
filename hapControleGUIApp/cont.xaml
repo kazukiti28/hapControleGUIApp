@@ -55,7 +55,6 @@
         <TextBlock x:Name="musicCodec" Foreground="White" FontSize="10pt" HorizontalAlignment="Left" Margin="323,188,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Width="206" Height="21" Grid.RowSpan="2"/>
         <TextBlock x:Name="musicArtist" Foreground="White" FontSize="10pt" HorizontalAlignment="Left" Margin="323,147,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Width="379" Height="41"/>
         <TextBlock x:Name="minsec" Foreground="White" FontSize="10pt"  HorizontalAlignment="Left" Margin="650,105,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Width="63" Height="21" Grid.Row="1"/>
-
         <Button x:Name="browse" Content="Browse" HorizontalAlignment="Left" Margin="639,10,0,0" VerticalAlignment="Top" Width="60" Click="button_Click_1"/>
         <Slider x:Name="slider" HorizontalAlignment="Left" Margin="311,81,0,0" Grid.Row="1" VerticalAlignment="Top" Width="382" Height="19" Maximum="100" Minimum="0" Thumb.DragCompleted="slider_DragCompleted" Thumb.DragStarted="slider_DragStarted"/>
     </Grid>
