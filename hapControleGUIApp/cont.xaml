@@ -6,38 +6,57 @@
       xmlns:local="clr-namespace:hapControlGUIApp"
       mc:Ignorable="d">
 
+
     <Grid x:Name="BG">
         <Grid.RowDefinitions>
             <RowDefinition Height="15*"/>
             <RowDefinition Height="14*"/>
         </Grid.RowDefinitions>
-        <Image x:Name="bgimage" Stretch="Fill" HorizontalAlignment="Left" Height="348" VerticalAlignment="Top" Width="715" Grid.RowSpan="2"/>
-        <Border x:Name="blackbar" BorderBrush="Black" Visibility="Hidden" HorizontalAlignment="Left" Height="89" Margin="-3,124,0,0" VerticalAlignment="Top" Width="726" Background="Black" Grid.Row="1"/>
-        <Button x:Name="startButton" Visibility="Hidden" Content="Play/Stop" HorizontalAlignment="Left" Margin="386,45,0,0" VerticalAlignment="Top" Width="56" Height="56" Click="startButton_Click" Grid.Row="1"/>
-        <Button x:Name="nextButton" Visibility="Hidden" Content="Next" HorizontalAlignment="Left" Margin="459,45,0,0" VerticalAlignment="Top" Width="56" Height="56" Click="nextButton_Click" Grid.Row="1"/>
-        <Button x:Name="prevButton" Visibility="Hidden" Content="Previous" HorizontalAlignment="Left" Margin="311,45,0,0" VerticalAlignment="Top" Width="58" Height="56" Click="prevButton_Click" Grid.Row="1"/>
-        <Image x:Name="coverArt" Stretch="Uniform" HorizontalAlignment="Center" Height="285" Margin="-399,44,0,82" VerticalAlignment="Center" Width="285" Grid.RowSpan="2" />
+        <Image x:Name="bgimage" Stretch="Fill" HorizontalAlignment="Left" Height="348" VerticalAlignment="Top" Width="723" Grid.RowSpan="2"/>
+        <Border x:Name="blackbar" BorderBrush="Black" HorizontalAlignment="Left" Height="89" Margin="-3,124,0,0" VerticalAlignment="Top" Width="726" Background="Black" Grid.Row="1"/>
+        <Image x:Name="startimage" Height="56" Width="56" Margin="384,9,0,0" Grid.Row="1" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+        <Button BorderThickness="0" x:Name="startButton" Click="startButton_Click" MouseEnter="hover2" MouseLeave="leaved2" Grid.Row="1" HorizontalAlignment="Left" Margin="386,9,0,0" VerticalAlignment="Top" Opacity="0">
+            <Ellipse Width="56" Height="56"/>
+        </Button>
+        <Image x:Name="nextimage" Height="56" Width="56" Margin="459,9,0,0" Grid.Row="1" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+        <Button BorderThickness="0" x:Name="nextButton" Click="nextButton_Click" MouseEnter="hover3" MouseLeave="leaved3" Grid.Row="1" HorizontalAlignment="Left" Margin="459,9,0,0" VerticalAlignment="Top" Opacity="0">
+            <Ellipse Width="56" Height="56"/>
+        </Button>
+        <Image x:Name="previmage" Height="56" Width="56" Margin="311,9,0,0" Grid.Row="1" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+        <Button BorderThickness="0" x:Name="prevButton" Click="prevButton_Click" MouseEnter="hover1" MouseLeave="leaved1" Grid.Row="1" HorizontalAlignment="Left" Margin="311,9,0,0" VerticalAlignment="Top" Opacity="0">
+            <Ellipse Width="56" Height="56"/>
+        </Button>
+        <Image Visibility="Hidden" x:Name="coverArt" Stretch="Uniform" HorizontalAlignment="Center" Height="285" Margin="-399,44,0,82" VerticalAlignment="Center" Width="285" Grid.RowSpan="2" />
         <Button x:Name="ipaButton" Content="確定" HorizontalAlignment="Left" Margin="225,10,0,0" VerticalAlignment="Top" Width="56" Height="20" Click="button_Click"/>
         <TextBlock x:Name="ipadd" Foreground="Black" HorizontalAlignment="Left" Margin="10,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Text="IPアドレス:" Width="55" Height="20"/>
         <TextBox x:Name="ipaddInput" HorizontalAlignment="Left" Height="20" Margin="70,10,0,0" TextWrapping="Wrap" Text="http://" VerticalAlignment="Top" Width="150"/>
-        <Button x:Name="volPlu" Visibility="Hidden" Content="＋" HorizontalAlignment="Left" Margin="380,146,0,0" VerticalAlignment="Top" Width="40" Height="40" RenderTransformOrigin="1.875,0.525" Click="volPlu_Click" Grid.Row="1"/>
-        <Button x:Name="volMin" Visibility="Hidden" Content="－" HorizontalAlignment="Left" Margin="300,146,0,0" VerticalAlignment="Top" Width="40" Height="40" Click="volMin_Click" Grid.Row="1" />
+        <Image x:Name="pimg" HorizontalAlignment="Left" Margin="380,146,0,0" VerticalAlignment="Top" Width="40" Height="40" RenderTransformOrigin="1.875,0.525" Grid.Row="1" />
+        <Button BorderThickness="0" x:Name="volPlu" Click="volPlu_Click" MouseEnter="volPlu_MouseEnter" MouseLeave="volPlu_MouseLeave" Grid.Row="1" HorizontalAlignment="Left" Margin="380,146,0,0" VerticalAlignment="Top" Opacity="0">
+            <Ellipse Width="40" Height="40"/>
+        </Button>
+
+        <Image x:Name="mimg" HorizontalAlignment="Left" Margin="300,146,0,0" VerticalAlignment="Top" Width="40" Height="40" Grid.Row="1" />
+        <Button BorderThickness="0" x:Name="volMin" HorizontalAlignment="Left" Margin="300,146,0,0" MouseEnter="volMin_MouseEnter" MouseLeave="volMin_MouseLeave" VerticalAlignment="Top" Click="volMin_Click" Grid.Row="1" Opacity="0" >
+            <Ellipse Width="40" Height="40"/>
+        </Button>
         <TextBlock x:Name="volIn"  HorizontalAlignment="Left" Height="22" Margin="349,158,0,0" TextWrapping="NoWrap" Text="vol" VerticalAlignment="Top" Width="20" Foreground="White" Grid.Row="1"/>
-        <TextBlock x:Name="shuffle" HorizontalAlignment="Left" Margin="531,45,0,0" Grid.Row="1" TextWrapping="Wrap" Text="Shuffle" VerticalAlignment="Top" Foreground="White" Width="49"/>
-        <RadioButton x:Name="offshu" Visibility="Hidden" GroupName="Group2" Checked="offshu_Checked" Content="Off" HorizontalAlignment="Left" Margin="543,66,0,0" Grid.Row="1" VerticalAlignment="Top" Height="16" Width="37" Foreground="White"/>
-        <RadioButton x:Name="albumshu" Visibility="Hidden" GroupName="Group2" Checked="albumshu_Checked" Content="Albums" HorizontalAlignment="Left" Margin="543,82,0,0" Grid.Row="1" VerticalAlignment="Top" Foreground="White"/>
-        <RadioButton x:Name="allshu" Visibility="Hidden" GroupName="Group2" Checked="allshu_Checked" Content="Tracks" HorizontalAlignment="Left" Margin="543,97,0,0" Grid.Row="1" VerticalAlignment="Top" Foreground="White"/>
-        <TextBlock x:Name="Repeat" Visibility="Hidden" HorizontalAlignment="Left" Margin="609,45,0,0" Grid.Row="1" TextWrapping="Wrap" Text="Repeat" VerticalAlignment="Top" Foreground="White"/>
-        <RadioButton x:Name="repoff" Visibility="Hidden" GroupName="Group1" Checked="repoff_Checked" Content="Off" HorizontalAlignment="Left" Margin="622,66,0,0" Grid.Row="1" VerticalAlignment="Top" Foreground="White" Height="16"/>
-        <RadioButton x:Name="repall" Visibility="Hidden" GroupName="Group1" Checked="repall_Checked" Content="All" HorizontalAlignment="Left" Margin="622,82,0,0" Grid.Row="1" VerticalAlignment="Top" Foreground="White"/>
-        <RadioButton x:Name="repone" Visibility="Hidden" GroupName="Group1" Checked="repone_Checked" Content="1" HorizontalAlignment="Left" Margin="622,97,0,0" Grid.Row="1" VerticalAlignment="Top" Foreground="White"/>
-        <Button x:Name="Mute" Visibility="Hidden" Content="Mute" HorizontalAlignment="Left" Margin="242,156,0,0" Grid.Row="1" VerticalAlignment="Top" Width="53" Height="21" Click="Mute_OnClick"/>
-        <TextBlock x:Name="musicName" Foreground="White" FontSize="16pt" HorizontalAlignment="Left" Margin="309,61,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Width="390" Height="55"/>
-        <TextBlock x:Name="musicAlbum" Foreground="White" FontSize="10pt" HorizontalAlignment="Left" Margin="320,121,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Width="379" Height="41"/>
-        <TextBlock x:Name="musicCodec" Foreground="White" FontSize="10pt" HorizontalAlignment="Left" Margin="320,0,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Width="284" Height="21" Grid.Row="1"/>
-        <TextBlock x:Name="musicArtist" Foreground="White" FontSize="10pt" HorizontalAlignment="Left" Margin="320,167,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Width="379" Height="41"/>
-        <TextBlock x:Name="minsec" Foreground="White" FontSize="10pt"  HorizontalAlignment="Left" Margin="609,0,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Width="90" Height="21" Grid.Row="1"/>
+        <TextBlock x:Name="shuffle" HorizontalAlignment="Left" Margin="535,192,0,0" TextWrapping="Wrap" Text="Shuffle" VerticalAlignment="Top" Foreground="White" Width="49" Grid.RowSpan="2"/>
+        <RadioButton x:Name="offshu" GroupName="Group2" Checked="offshu_Checked" Content="Off" HorizontalAlignment="Left" Margin="546,15,0,0" Grid.Row="1" VerticalAlignment="Top" Height="16" Width="37" Foreground="White"/>
+        <RadioButton x:Name="albumshu" GroupName="Group2" Checked="albumshu_Checked" Content="Albums" HorizontalAlignment="Left" Margin="546,30,0,0" Grid.Row="1" VerticalAlignment="Top" Foreground="White"/>
+        <RadioButton x:Name="allshu" GroupName="Group2" Checked="allshu_Checked" Content="Tracks" HorizontalAlignment="Left" Margin="546,45,0,0" Grid.Row="1" VerticalAlignment="Top" Foreground="White"/>
+        <TextBlock x:Name="Repeat" HorizontalAlignment="Left" Margin="613,192,0,0" TextWrapping="Wrap" Text="Repeat" VerticalAlignment="Top" Foreground="White" Grid.RowSpan="2"/>
+        <RadioButton x:Name="repoff" GroupName="Group1" Checked="repoff_Checked" Content="Off" HorizontalAlignment="Left" Margin="625,15,0,0" Grid.Row="1" VerticalAlignment="Top" Foreground="White" Height="16"/>
+        <RadioButton x:Name="repall" GroupName="Group1" Checked="repall_Checked" Content="All" HorizontalAlignment="Left" Margin="625,30,0,0" Grid.Row="1" VerticalAlignment="Top" Foreground="White"/>
+        <RadioButton x:Name="repone" GroupName="Group1" Checked="repone_Checked" Content="1" HorizontalAlignment="Left" Margin="625,45,0,0" Grid.Row="1" VerticalAlignment="Top" Foreground="White"/>
+        <Image x:Name="muteimg" HorizontalAlignment="Left" Margin="241,146,0,0" Grid.Row="1" VerticalAlignment="Top" Width="40" Height="40"/>
+        <Button x:Name="Mute" Opacity="0" HorizontalAlignment="Left" Margin="241,146,0,0" Grid.Row="1" VerticalAlignment="Top" Width="40" Height="40" Click="Mute_OnClick" MouseEnter="Mute_MouseEnter" MouseLeave="Mute_MouseLeave"/>
+        <TextBlock x:Name="musicName" Foreground="White" FontSize="13pt" HorizontalAlignment="Left" Margin="309,49,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Width="390" Height="43"/>
+        <TextBlock x:Name="musicAlbum" Foreground="White" FontSize="10pt" HorizontalAlignment="Left" Margin="323,101,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Width="379" Height="41"/>
+        <TextBlock x:Name="musicCodec" Foreground="White" FontSize="10pt" HorizontalAlignment="Left" Margin="323,188,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Width="206" Height="21" Grid.RowSpan="2"/>
+        <TextBlock x:Name="musicArtist" Foreground="White" FontSize="10pt" HorizontalAlignment="Left" Margin="323,147,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Width="379" Height="41"/>
+        <TextBlock x:Name="minsec" Foreground="White" FontSize="10pt"  HorizontalAlignment="Left" Margin="650,105,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Width="63" Height="21" Grid.Row="1"/>
 
         <Button x:Name="browse" Content="Browse" HorizontalAlignment="Left" Margin="639,10,0,0" VerticalAlignment="Top" Width="60" Click="button_Click_1"/>
+        <Slider x:Name="slider" HorizontalAlignment="Left" Margin="311,81,0,0" Grid.Row="1" VerticalAlignment="Top" Width="382" Height="19" Maximum="100" Minimum="0" Thumb.DragCompleted="slider_DragCompleted" Thumb.DragStarted="slider_DragStarted"/>
     </Grid>
 </Page>

@@ -55,12 +55,67 @@ namespace hapControlGUIApp
         public static string nowShuffle = null;
         public static string shabgurl;
         public static string rawip = null;
+        public static bool isPlayNow;
+        public static bool extinput;
+        public static string nextimg = "/next.png";
+        public static string previmg = "/prev.png";
+        public static string playimg = "/play.png";
+        public static string stopimg = "/stop.png";
+        public static string muteon = "/muteon.png";
+        public static string muteoff = "/muteoff.png";
+        public static bool isMute;
+        public static string volm = "/minus.png";
+        public static string volp = "/plus.png";
+        public static double posTime;
+        public static double musiclen;
+        public static bool isDragging;
         DispatcherTimer dispatcherTimer;
 
+        void hiddenall()
+        {
+            coverArt.Visibility = Visibility.Hidden;
+            prevButton.Visibility = Visibility.Hidden;
+            nextButton.Visibility = Visibility.Hidden;
+            prevButton.Visibility = Visibility.Hidden;
+            blackbar.Visibility = Visibility.Hidden;
+            offshu.Visibility = Visibility.Hidden;
+            albumshu.Visibility = Visibility.Hidden;
+            allshu.Visibility = Visibility.Hidden;
+            repoff.Visibility = Visibility.Hidden;
+            repall.Visibility = Visibility.Hidden;
+            repone.Visibility = Visibility.Hidden;
+            startButton.Visibility = Visibility.Hidden;
+            Repeat.Visibility = Visibility.Hidden;
+            musicName.Visibility = Visibility.Hidden;
+            musicAlbum.Visibility = Visibility.Hidden;
+            musicCodec.Visibility = Visibility.Hidden;
+            minsec.Visibility = Visibility.Hidden;
+        }
+        void showall()
+        {
+            coverArt.Visibility = Visibility.Visible;
+            prevButton.Visibility = Visibility.Visible;
+            nextButton.Visibility = Visibility.Visible;
+            prevButton.Visibility = Visibility.Visible;
+            blackbar.Visibility = Visibility.Visible;
+            offshu.Visibility = Visibility.Visible;
+            albumshu.Visibility = Visibility.Visible;
+            allshu.Visibility = Visibility.Visible;
+            repoff.Visibility = Visibility.Visible;
+            repall.Visibility = Visibility.Visible;
+            repone.Visibility = Visibility.Visible;
+            startButton.Visibility = Visibility.Visible;
+            Repeat.Visibility = Visibility.Visible;
+            musicName.Visibility = Visibility.Visible;
+            musicAlbum.Visibility = Visibility.Visible;
+            musicCodec.Visibility = Visibility.Visible;
+            minsec.Visibility = Visibility.Visible;
+        }
 
         public cont()
         {
             InitializeComponent();
+            isDragging = false;
             myDocument = Environment.GetFolderPath(Environment.SpecialFolder.Personal) + "/HAPControlApp";
             DirectoryInfo di = new DirectoryInfo(myDocument);
             di.Create();
@@ -92,6 +147,13 @@ namespace hapControlGUIApp
                 bgimg.EndInit();
                 bgimage.Source = bgimg;
 
+                setRightimg();
+                setLeftimg();
+
+                setPlusimg();
+
+                setMinusimg();
+
                 dispatcherTimer = new DispatcherTimer(DispatcherPriority.Normal);
                 dispatcherTimer.Interval = new TimeSpan(0, 0, 0, 0, 500);
                 dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
@@ -118,49 +180,102 @@ namespace hapControlGUIApp
             }
         }
 
+        void setMinusimg()
+        {
+            BitmapImage volminus = new BitmapImage();
+            volminus.BeginInit();
+            volminus.UriSource = new Uri(myDocument + volm);
+            volminus.EndInit();
+            mimg.Source = volminus;
+        }
+
+        void setPlusimg()
+        {
+            BitmapImage volplus = new BitmapImage();
+            volplus.BeginInit();
+            volplus.UriSource = new Uri(myDocument + volp);
+            volplus.EndInit();
+            pimg.Source = volplus;
+        }
+
+        void setRightimg()
+        {
+            BitmapImage next = new BitmapImage();
+            next.BeginInit();
+            next.UriSource = new Uri(myDocument + nextimg);
+            next.EndInit();
+            nextimage.Source = next;
+        }
+
+        void setCenterimg()
+        {
+            BitmapImage butimg = new BitmapImage();
+            butimg.BeginInit();
+            if (isPlayNow) butimg.UriSource = new Uri(myDocument + playimg);
+            else butimg.UriSource = new Uri(myDocument + stopimg);
+            butimg.EndInit();
+            startimage.Source = butimg;
+        }
+
+        void setLeftimg()
+        {
+            BitmapImage prev = new BitmapImage();
+            prev.BeginInit();
+            prev.UriSource = new Uri(myDocument + previmg);
+            prev.EndInit();
+            previmage.Source = prev;
+        }
+
         void dispatcherTimer_Tick(object sender, EventArgs e)
         {
             setJunbi("getmusicinfo");
-            musicName.Text = nowPlaying;
-            musicArtist.Text = artist;
-            musicAlbum.Text = album;
-            string addi = codec.ToUpper() + " " + freq + "kHz/" + bandwidth + "bit " + bitrate + "kbps";
-            musicCodec.Text = addi;
-            minsec.Text = (posMin.ToString("00")) + ":" + (posSec.ToString("00"));
-            dynamic getVolumeObj = getVolumeInfo();
-            serializeJson(getVolumeObj, "audio", 1);
-            volIn.Text = nowVolume.ToString();
-            downloadCoverArt();
-            if (nowRepeat == "all")
+            if (!extinput)
             {
-                repall.IsChecked = true;
-            }
-            else if (nowRepeat == "off")
-            {
-                repoff.IsChecked = true;
-            }
-            else if (nowRepeat == "one")
-            {
-                repone.IsChecked = true;
-            }
-            BitmapImage img = new BitmapImage();
-            img.BeginInit();
-            img.UriSource = new Uri(nowMusicCover);
-            img.EndInit();
-            coverArt.Source = img;
-            BG.Background = new SolidColorBrush(Color.FromArgb(Convert.ToByte(a, 16), Convert.ToByte(r, 16), Convert.ToByte(g, 16), Convert.ToByte(g, 16)));
+                musicName.Text = nowPlaying;
+                musicArtist.Text = artist;
+                musicAlbum.Text = album;
+                string addi = codec.ToUpper() + " " + freq + "kHz/" + bandwidth + "bit " + bitrate + "kbps";
+                musicCodec.Text = addi;
+                minsec.Text = (posMin.ToString("00")) + ":" + (posSec.ToString("00"));
+                dynamic getVolumeObj = getVolumeInfo();
+                serializeJson(getVolumeObj, "audio", 1);
+                volIn.Text = nowVolume.ToString();
+                downloadCoverArt();
+                if (nowRepeat == "all")
+                {
+                    repall.IsChecked = true;
+                }
+                else if (nowRepeat == "off")
+                {
+                    repoff.IsChecked = true;
+                }
+                else if (nowRepeat == "one")
+                {
+                    repone.IsChecked = true;
+                }
+                BitmapImage img = new BitmapImage();
+                img.BeginInit();
+                img.UriSource = new Uri(nowMusicCover);
+                img.EndInit();
+                coverArt.Source = img;
+                BG.Background = new SolidColorBrush(Color.FromArgb(Convert.ToByte(a, 16), Convert.ToByte(r, 16), Convert.ToByte(g, 16), Convert.ToByte(g, 16)));
 
-            if (nowShuffle == "track")
-            {
-                allshu.IsChecked = true;
-            }
-            else if (nowShuffle == "off")
-            {
-                offshu.IsChecked = true;
-            }
-            else if (nowShuffle == "album")
-            {
-                albumshu.IsChecked = true;
+
+                if (nowShuffle == "track")
+                {
+                    allshu.IsChecked = true;
+                }
+                else if (nowShuffle == "off")
+                {
+                    offshu.IsChecked = true;
+                }
+                else if (nowShuffle == "album")
+                {
+                    albumshu.IsChecked = true;
+                }
+
+                setCenterimg();
+                if(!isDragging) slider.Value = ((posMin * 60 + posSec) / musiclen) * 100;
             }
         }
 
@@ -294,6 +409,15 @@ namespace hapControlGUIApp
             wc.Dispose();
         }
 
+        void setMute(string name)
+        {
+            BitmapImage mute = new BitmapImage();
+            mute.BeginInit();
+            mute.UriSource = new Uri(myDocument + name);
+            mute.EndInit();
+            muteimg.Source = mute;
+        }
+
         void connectHap(dynamic json, string url, int isNeedParse)//帰ってきたJSONが意味をなさないやつはこれ
         {
             HttpClient client = new HttpClient();
@@ -308,15 +432,35 @@ namespace hapControlGUIApp
                 nowVolume = (int)data.result[0].volume;
                 if (data.result[0].mute == "on")
                 {
-                    Mute.Content = "Mute On";
+                    setMute(muteon);
+                    isMute = true;
                 }
                 if (data.result[0].mute == "off")
                 {
-                    Mute.Content = "Mute Off";
+                    setMute(muteoff);
+                    isMute = false;
                 }
             }
             else if (isNeedParse == 2)//楽曲情報取得
             {
+                musiclen = data.result[0].durationSec;
+                string playmode = data.result[0].state;
+                if (playmode =="PAUSED")
+                {
+                    isPlayNow = false;
+                    showall();
+                }
+                else if(playmode == "PLAYING")
+                {
+                    isPlayNow = true;
+                    showall();
+                }
+                else if(playmode == "STOPPED")
+                {
+                    extinput = true;
+                    hiddenall();
+                    return;
+                }
                 nowPlaying = data.result[0].title;
                 noAlbum = 0;
                 try
@@ -375,7 +519,7 @@ namespace hapControlGUIApp
 
                 nowRepeat = data.result[0].repeatType;
                 nowShuffle = data.result[0].shuffleType;
-
+                
             }
             else if (isNeedParse == 3)//ミュートチェック
             {
@@ -396,12 +540,12 @@ namespace hapControlGUIApp
             if (mode == 1)
             {
                 str = "off";
-                Mute.Content = "Mute Off";
+                setMute(muteoff);
             }
             else
             {
                 str = "on";
-                Mute.Content = "Mute On";
+                setMute(muteon);
             }
             var obj = new
             {
@@ -578,6 +722,23 @@ namespace hapControlGUIApp
             return getVolumeObj;
         }
 
+        void seekPosition()
+        {
+            var seekPosObj = new
+            {
+                @params = new[] {
+                        new
+                        {
+                            positionSec = posTime,
+                        }
+                    },
+                method = "setPlayContent",
+                version = "1.1",
+                id = 1,
+            };
+            serializeJson(seekPosObj, "avContent", 0);
+        }
+
         private void startButton_Click(object sender, RoutedEventArgs e)
         {
             setJunbi("start");
@@ -716,6 +877,96 @@ namespace hapControlGUIApp
             dispatcherTimer.Stop();
             nav navig = new nav();
             NavigationService?.Navigate(navig);
+        }
+
+        private void hover1(object sender, MouseEventArgs e)
+        {
+            previmg = "/prevhov.png";
+            setLeftimg();
+        }
+        private void hover2(object sender, MouseEventArgs e)
+        {
+            playimg = "/playhov.png";
+            stopimg = "/stophov.png";
+            setCenterimg();
+        }
+
+        private void hover3(object sender, MouseEventArgs e)
+        {
+            nextimg = "/nexthov.png";
+            setRightimg();
+        }
+
+        private void leaved1(object sender, MouseEventArgs e)
+        {
+            previmg = "/prev.png";
+            setLeftimg();
+        }
+
+        private void leaved2(object sender,MouseEventArgs e)
+        {
+            playimg = "/play.png";
+            stopimg = "/stop.png";
+            setCenterimg();
+        }
+        private void leaved3(object sender, MouseEventArgs e)
+        {
+            nextimg = "/next.png";
+            setRightimg();
+        }
+
+        private void volPlu_MouseEnter(object sender, MouseEventArgs e)
+        {
+            volp = "/plushov.png";
+            setPlusimg();
+        }
+
+        private void volPlu_MouseLeave(object sender, MouseEventArgs e)
+        {
+            volp = "/plus.png";
+            setPlusimg();
+        }
+
+        private void volMin_MouseEnter(object sender, MouseEventArgs e)
+        {
+            volm = "/minushov.png";
+            setMinusimg();
+        }
+
+        private void volMin_MouseLeave(object sender, MouseEventArgs e)
+        {
+            volm = "/minus.png";
+            setMinusimg();
+        }
+
+        private void Mute_MouseEnter(object sender, MouseEventArgs e)
+        {
+            muteon = "/muteonhov.png";
+            muteoff = "/muteoffhov.png";
+            if (isMute) setMute(muteon);
+            else setMute(muteoff);
+        }
+
+        private void Mute_MouseLeave(object sender, MouseEventArgs e)
+        {
+            muteon = "/muteon.png";
+            muteoff = "/muteoff.png";
+            if (isMute) setMute(muteon);
+            else setMute(muteoff);
+        }
+
+        private void slider_DragCompleted(object sender, System.Windows.Controls.Primitives.DragCompletedEventArgs e)
+        {
+            isDragging = false;
+            posTime = (slider.Value / 100) * musiclen;
+            Console.WriteLine(posTime);
+            seekPosition();
+        }
+
+        private void slider_DragStarted(object sender, System.Windows.Controls.Primitives.DragStartedEventArgs e)
+        {
+            isDragging = true;
+            Console.WriteLine(sender);
         }
     }
 }
