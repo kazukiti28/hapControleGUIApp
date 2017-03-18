@@ -65,6 +65,7 @@ namespace hapControlGUIApp
         DispatcherTimer dispatcherTimer;
         private dynamic[,] head;
         private dynamic dict = new Dictionary<string, int>();
+        static dynamic[] playlistid;
 
         public nav()
         {
@@ -82,6 +83,8 @@ namespace hapControlGUIApp
             bgimg.EndInit();
             bgimage.Source = bgimg;
 
+            setImage();
+
             ipaddInput.Text = cont.ip;
             ipadd.Foreground = new SolidColorBrush(Colors.White);
 
@@ -91,6 +94,20 @@ namespace hapControlGUIApp
             dispatcherTimer.Start();
             getAllAlbumInfo();
             LoadListItems();
+        }
+
+        void setImage()
+        {
+            string[] name = new string[3] {"album.png","playlist.png","ext.png",};
+            for (int i = 0; i < name.Length; i++) {
+                BitmapImage img = new BitmapImage();
+                img.BeginInit();
+                img.UriSource = new Uri(myDocument + "/" + name[i]);
+                img.EndInit();
+                if (i == 0) albu.Source = img;
+                else if (i == 1) playlist.Source = img;
+                else if (i == 2) ext.Source = img;
+            }
         }
 
         void dispatcherTimer_Tick(object sender, EventArgs e)
@@ -214,7 +231,33 @@ namespace hapControlGUIApp
             return dataList;
         }
 
-        
+        void getPlaylist()
+        {
+            string url = cont.ip + "contentdb/v100/audio/playlists";
+            dynamic playlist = DynamicJson.Parse(gettrackinfo(url));
+            double cnt = playlist.paging.total;
+            url = url + "?offset=0&limit=" + cnt.ToString();
+            playlist = DynamicJson.Parse(gettrackinfo(url));
+            VisibleItem tracklist;
+            TracksdataList = new List<VisibleItem>();
+            playlistid = new dynamic [(int)cnt];
+            for (int i = 0; i < cnt; i++) {
+                tracklist = new VisibleItem();
+                string name = playlist.playlists[i].name;
+                if (name == "Newly Added") name = "新しく追加した曲";
+                else if (name == "Most Played") name = "再生回数の多い曲";
+                else if (name == "Least Played") name = "再生回数の少ない曲";
+                else if (name == "Recently Played") name = "最近再生した曲";
+                tracklist.TrackName = name;
+                playlistid[i] = playlist.playlists[i].playlistid;
+                TracksdataList.Add(tracklist);
+            }
+            ListBoxConverter.Visibility = Visibility.Hidden;
+            ListBoxTrack.Visibility = Visibility.Hidden;
+            playlistView.Visibility = Visibility.Visible;
+
+            playlistView.ItemsSource = TracksdataList;
+        }
 
         void DisplayAlbumInfo(int number)
         {
@@ -311,7 +354,6 @@ namespace hapControlGUIApp
                 info = "";
             }
             ListBoxTrack.ItemsSource = TracksdataList;
-            ListBoxTrack.DataContext = this;
         }
 
         dynamic gettrackinfo(string url)
@@ -321,6 +363,8 @@ namespace hapControlGUIApp
             dynamic data = res.GetResponseStream();
             return data;
         }
+
+
 
         void downloadCoverArt()
         {
@@ -634,6 +678,7 @@ namespace hapControlGUIApp
             return getVolumeObj;
         }
 
+
         private void startButton_Click(object sender, RoutedEventArgs e)
         {
             setJunbi("start");
@@ -714,6 +759,112 @@ namespace hapControlGUIApp
 
             VisibleItem s = new VisibleItem();
             ListBoxTrack.ScrollIntoView(dataList[head[comboBox.SelectedIndex, 1]].ToString());
+        }
+
+        static dynamic playlistData;
+        static int selectedPlaylist;
+
+        private void playlistView_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            int item = playlistView.SelectedIndex;
+            selectedPlaylist = (int)playlistid[item];
+
+            string setUrl = cont.ip + "contentdb/v100/audio/playlists/" + playlistid[item] + "/tracks";
+
+            var req = WebRequest.Create(setUrl);
+            var res = req.GetResponse();
+
+            playlistData = DynamicJson.Parse(res.GetResponseStream());
+            string totalfigure = playlistData.paging.total.ToString();
+            setUrl = setUrl + "?offset=0&limit=" + totalfigure;
+            req = WebRequest.Create(setUrl);
+            res = req.GetResponse();
+            playlistData = DynamicJson.Parse(res.GetResponseStream());
+            TracksdataList = new List<VisibleItem>();
+            VisibleItem tracklist;
+            string min = "";
+            string sec = "";
+            string info = "";
+            string dur = "";
+
+            playlistTrackid = new int[(int)playlistData.paging.total];
+
+            for (int cnt = 0; cnt < playlistData.paging.total; cnt++)
+            {
+                min = ((int)playlistData.tracks[cnt].duration / 60).ToString();
+                if ((int)playlistData.tracks[cnt].duration % 60 < 10)
+                {
+                    sec = ((int)playlistData.tracks[cnt].duration % 60).ToString();
+                    sec = "0" + sec;
+                }
+                else
+                    sec = ((int)playlistData.tracks[cnt].duration % 60).ToString();
+                dur = min + ":" + sec;
+
+                if (playlistData.tracks[cnt].codec.codec_type == "alac" || playlistData.tracks[cnt].codec.codec_type == "flac" || playlistData.tracks[cnt].codec.codec_type == "aiff" || playlistData.tracks[cnt].codec.codec_type == "wav")//可逆圧縮/非圧縮
+                {
+                    info = playlistData.tracks[cnt].codec.codec_type.ToUpper() + " " + playlistData.tracks[cnt].codec.sample_rate/1000 + "kHz" + "/" + playlistData.tracks[cnt].codec.bit_width + "bit  " + dur;
+                }
+                else if (playlistData.tracks[cnt].codec.codec_type == "dsd" || playlistData.tracks[cnt].codec.codec_type == "dsf")//DSD
+                {
+                    info = playlistData.tracks[cnt].codec.codec_type.ToUpper() + " " + playlistData.tracks[cnt].codec.sample_rate/1000000 + "MHz  " + dur;
+                }
+                else//圧縮音源
+                {
+                    info = playlistData.tracks[cnt].codec.codec_type.ToUpper() + " " + playlistData.tracks[cnt].codec.bit_rate/1000 + "kbps  " + dur;
+                }
+                tracklist = new VisibleItem();
+
+                tracklist.ArtistName = playlistData.tracks[cnt].artist.name;
+                tracklist.TrackName = playlistData.tracks[cnt].name;
+                tracklist.TrackInfo = info;
+                tracklist.ContentUrl = playlistData.tracks[cnt].album.url;
+                tracklist.MusicId = (playlistData.tracks[cnt].trackid).ToString();
+                TracksdataList.Add(tracklist);
+                info = "";
+            }
+            playlistTracks.Visibility = Visibility.Visible;
+            playlistView.Visibility = Visibility.Hidden;
+            playlistTracks.ItemsSource = TracksdataList;
+
+        }
+        static int[] playlistTrackid;
+        private void extbutton_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void playlistbutton_Click(object sender, RoutedEventArgs e)
+        {
+            playlistView.Visibility = Visibility.Visible;
+            ListBoxTrack.Visibility = Visibility.Hidden;
+            ListBoxConverter.Visibility = Visibility.Hidden;
+            getPlaylist();
+        }
+
+        private void playlistTracks_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            int item = playlistTracks.SelectedIndex;
+            var obj = new
+            {
+                content_type = "t",
+                content_url = cont.ip + "contentdb/v100/audio/playlists/" + selectedPlaylist + "/tracks",
+                firstplay_index = item,
+                firstplay_trackid = playlistData.tracks[item].trackid,
+                id = 1,
+                method = "playcontent",
+                play_type = "now",
+                repeat_mode = cont.nowRepeat,
+                shuffle_mode = cont.nowShuffle,
+                version = "1.1",
+            };
+            serializeJson(obj, "contentplayer/v100/operation", 0);
+        }
+
+        private void playlistBackButton_Click(object sender, RoutedEventArgs e)
+        {
+            playlistTracks.Visibility = Visibility.Hidden;
+            playlistView.Visibility = Visibility.Visible;
         }
     }
 }

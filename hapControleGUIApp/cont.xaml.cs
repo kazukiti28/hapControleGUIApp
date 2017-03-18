@@ -69,6 +69,8 @@ namespace hapControlGUIApp
         public static double posTime;
         public static double musiclen;
         public static bool isDragging;
+        public static int coverartStop = 1;
+        public static dynamic queueData;
         DispatcherTimer dispatcherTimer;
 
         void hiddenall()
@@ -253,13 +255,19 @@ namespace hapControlGUIApp
                 {
                     repone.IsChecked = true;
                 }
-                BitmapImage img = new BitmapImage();
-                img.BeginInit();
-                img.UriSource = new Uri(nowMusicCover);
-                img.EndInit();
-                coverArt.Source = img;
+                if (coverartStop == 1)
+                {
+                    BitmapImage img = new BitmapImage();
+                    img.BeginInit();
+                    img.UriSource = new Uri(nowMusicCover);
+                    img.EndInit();
+                    coverArt.Source = img;
+                }
+                else
+                {
+                    coverArt.Visibility = Visibility.Hidden;
+                }
                 BG.Background = new SolidColorBrush(Color.FromArgb(Convert.ToByte(a, 16), Convert.ToByte(r, 16), Convert.ToByte(g, 16), Convert.ToByte(g, 16)));
-
 
                 if (nowShuffle == "track")
                 {
@@ -273,9 +281,9 @@ namespace hapControlGUIApp
                 {
                     albumshu.IsChecked = true;
                 }
-
                 setCenterimg();
                 if(!isDragging) slider.Value = ((posMin * 60 + posSec) / musiclen) * 100;
+                getplayqueue();
             }
         }
 
@@ -404,7 +412,6 @@ namespace hapControlGUIApp
                     string noCoverUrl = ipad + ":60100/img/album_default.png";
                     wc.DownloadFile(noCoverUrl, nowMusicCover);
                 }
-
             }
             wc.Dispose();
         }
@@ -739,6 +746,90 @@ namespace hapControlGUIApp
             serializeJson(seekPosObj, "avContent", 0);
         }
 
+        void getplayqueue()
+        {
+            string setUrl = rawip + "contentplayer/v100/playqueue/tracks";
+
+            var req = WebRequest.Create(setUrl);
+            var res = req.GetResponse();
+
+            dynamic data = DynamicJson.Parse(res.GetResponseStream());
+            string totalfigure = data.paging.total.ToString();
+
+            setUrl = setUrl + "?offset=0&limit=" + totalfigure;
+            req = WebRequest.Create(setUrl);
+            res = req.GetResponse();
+            queueData = DynamicJson.Parse(res.GetResponseStream());
+
+            int numberoftracks = (int)queueData.paging.total; //アルバム収録曲数の取得
+            string[] Tracks = new string[numberoftracks]; //曲の名前を格納する配列
+            int[] Duration = new int[numberoftracks]; //曲長さ格納
+            string[] Codec = new string[numberoftracks]; //コーデック格納
+            string[] Freq = new string[numberoftracks]; //サンプリング周波数
+            string[] Bitwidth = new string[numberoftracks]; //サンプリング周波数
+            string[] Bitrate = new string[numberoftracks];
+
+            for (int num = 0; num < numberoftracks; num++)
+            {
+                Tracks[num] = queueData.tracks[num].name; //すべての名前の取得
+                Duration[num] = (int)queueData.tracks[num].duration; //曲長さ(秒)
+                Codec[num] = queueData.tracks[num].codec.codec_type; //コーデック
+                Bitrate[num] = (queueData.tracks[num].codec.bit_rate / 1000).ToString(); //ビットレート
+                int fr = (int)queueData.tracks[num].codec.sample_rate / 1000;
+                Freq[num] = fr.ToString(); //サンプリング周波数
+                Bitwidth[num] = queueData.tracks[num].codec.bit_width.ToString(); //ビット深度
+            }
+            string info = "";
+            string min = "";
+            string sec = "";
+            string dur = "";
+
+            TracksdataList = new List<VisibleItem>();
+            VisibleItem tracklist;
+
+            for (int cnt = 0; cnt < numberoftracks; cnt++)
+            {
+                min = (Duration[cnt] / 60).ToString();
+                if (Duration[cnt] % 60 < 10)
+                {
+                    sec = (Duration[cnt] % 60).ToString();
+                    sec = "0" + sec;
+                }
+                else
+                {
+                    sec = (Duration[cnt] % 60).ToString();
+                }
+
+                dur = min + ":" + sec;
+
+                if (Codec[cnt] == "alac" || Codec[cnt] == "flac" || Codec[cnt] == "aiff" || Codec[cnt] == "wav")//可逆圧縮/非圧縮
+                {
+                    info = Codec[cnt].ToUpper() + " " + Freq[cnt] + "kHz" + "/" + Bitwidth[cnt] + "bit  " + dur;
+                }
+                else if (Codec[cnt] == "dsd" || Codec[cnt] == "dsf")//DSD
+                {
+                    info = Codec[cnt].ToUpper() + " " + Freq[cnt] + "MHz  " + dur;
+                }
+                else//圧縮音源
+                {
+                    info = Codec[cnt].ToUpper() + " " + Bitrate[cnt] + "kbps  " + dur;
+                }
+
+                tracklist = new VisibleItem();
+
+                tracklist.ArtistName = "   " + queueData.tracks[cnt].artist.name;
+                tracklist.TrackName = queueData.tracks[cnt].name;
+                tracklist.TrackInfo = info;
+                tracklist.ContentUrl = queueData.tracks[cnt].album.url;
+                tracklist.MusicId = (queueData.tracks[cnt].trackid).ToString();
+                TracksdataList.Add(tracklist);
+                info = "";
+            }
+            listBoxqueue.ItemsSource = TracksdataList;
+        }
+
+        public List<VisibleItem> TracksdataList { get; set; }
+
         private void startButton_Click(object sender, RoutedEventArgs e)
         {
             setJunbi("start");
@@ -874,6 +965,7 @@ namespace hapControlGUIApp
 
         private void button_Click_1(object sender, RoutedEventArgs e)
         {
+            coverartStop = 1;
             dispatcherTimer.Stop();
             nav navig = new nav();
             NavigationService?.Navigate(navig);
@@ -967,6 +1059,46 @@ namespace hapControlGUIApp
         {
             isDragging = true;
             Console.WriteLine(sender);
+        }
+
+        private void Button_Click_2(object sender, RoutedEventArgs e)
+        {
+            backButton.Visibility = Visibility.Visible;
+            dispatcherTimer.Stop();
+            listBoxqueue.Visibility = Visibility.Visible;
+            showqueue.Visibility = Visibility.Hidden;
+            coverartStop = 0;
+            coverArt.Visibility = Visibility.Hidden;
+            dispatcherTimer.Start();
+            getplayqueue();
+        }
+
+        private void listBoxqueue_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            int item = listBoxqueue.SelectedIndex;
+            var obj = new
+            {
+                content_type = "track",
+                content_url = rawip + "contentplayer/v100/playqueue/tracks",
+                firstplay_index = item,
+                firstplay_trackid = queueData.tracks[item].trackid,
+                id = 1,
+                method = "playcontent",
+                play_type = "now",
+                repeat_mode = nowRepeat,
+                shuffle_mode = nowShuffle,
+                version = "1.1",
+            };
+            serializeJson(obj, "contentplayer/v100/operation", 0);
+        }
+
+        private void button_Click_3(object sender, RoutedEventArgs e)
+        {
+            coverartStop = 1;
+            listBoxqueue.Visibility = Visibility.Hidden;
+            showqueue.Visibility = Visibility.Visible;
+            backButton.Visibility = Visibility.Hidden;
+            coverArt.Visibility = Visibility.Visible;
         }
     }
 }

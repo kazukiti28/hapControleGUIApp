@@ -14,9 +14,9 @@
                     </Image.Source>
                 </Image>
 
-                <TextBlock x:Name="Track" Text="{Binding AlbumName}" Canvas.Left="65" Width="380" Height="27" Foreground="White" FontSize="12pt"/>
-                <TextBlock x:Name="Artist" Text="{Binding ArtistName}" Canvas.Left="65" Canvas.Top="36" Width="220" Height="15" Foreground="White"/>
-                <TextBlock Text="{Binding TrackFigure}" Canvas.Left="390" Canvas.Top="36" Width="80" Height="15" Foreground="White"/>
+                <TextBlock x:Name="Track" Text="{Binding AlbumName}" Canvas.Left="65" Width="480" Height="27" Foreground="White" FontSize="13pt"/>
+                <TextBlock x:Name="Artist" Text="{Binding ArtistName}" Canvas.Left="65" Canvas.Top="36" Width="418" Height="15" Foreground="White"/>
+                <TextBlock Text="{Binding TrackFigure}" Canvas.Left="490" Canvas.Top="36" Width="80" Height="15" Foreground="White"/>
             </Canvas>
         </DataTemplate>
         <DataTemplate x:Key="DataTemplateTracks">
@@ -24,6 +24,18 @@
                 <TextBlock x:Name="Track" Text="{Binding TrackName}" Canvas.Left="5" Width="400" Height="27" Foreground="White" FontSize="12pt"/>
                 <TextBlock x:Name="Artist" Text="{Binding ArtistName}" Canvas.Left="5" Canvas.Top="27" Width="220" Height="15" Foreground="White"/>
                 <TextBlock Text="{Binding TrackInfo}" Canvas.Left="325" Canvas.Top="27" Width="200" Height="15" Foreground="White"/>
+            </Canvas>
+        </DataTemplate>
+        <DataTemplate x:Key="DataTemplatePlaylistTracks">
+            <Canvas Height="45" Width="400">
+                <TextBlock x:Name="Track" Text="{Binding TrackName}" Canvas.Left="5" Width="400" Height="27" Foreground="White" FontSize="12pt"/>
+                <TextBlock x:Name="Artist" Text="{Binding ArtistName}" Canvas.Left="5" Canvas.Top="27" Width="380" Height="15" Foreground="White"/>
+                <TextBlock Text="{Binding TrackInfo}" Canvas.Left="400" Canvas.Top="27" Width="200" Height="15" Foreground="White"/>
+            </Canvas>
+        </DataTemplate>
+        <DataTemplate x:Key="DataTemplatePlaylist">
+            <Canvas Height="45" Width="400">
+                <TextBlock x:Name="Track" Text="{Binding TrackName}" Canvas.Left="5" Width="400" Height="27" Foreground="White" FontSize="12pt"/>
             </Canvas>
         </DataTemplate>
     </Page.Resources>
@@ -39,6 +51,8 @@
         <Border x:Name="blackbar" BorderBrush="Black" HorizontalAlignment="Left" Height="69" Margin="-3,124,0,0" VerticalAlignment="Top" Width="726" Background="Black" Grid.Row="1">
             <Image x:Name="coverArt" Stretch="Uniform" HorizontalAlignment="Center" Height="59" Margin="0,10,657,0" VerticalAlignment="Center" Width="59" />
         </Border>
+
+        <Button Opacity="0" Click="change_click" x:Name="backControle" HorizontalAlignment="Left" Height="59" Margin="-3,124,0,0" VerticalAlignment="Top" Width="59" Grid.Row="1"/>
         <Button x:Name="startButton" Content="▶/||" HorizontalAlignment="Left" Margin="360,146,0,0" VerticalAlignment="Top" Width="40" Height="40" Click="startButton_Click" Grid.Row="1"/>
         <Button x:Name="nextButton" Content="→" HorizontalAlignment="Left" Margin="410,146,0,0" VerticalAlignment="Top" Width="40" Height="40" Click="nextButton_Click" Grid.Row="1"/>
         <Button x:Name="prevButton" Content="←" HorizontalAlignment="Left" Margin="310,146,0,0" VerticalAlignment="Top" Width="40" Height="40" Click="prevButton_Click" Grid.Row="1"/>
@@ -51,12 +65,27 @@
         <TextBlock x:Name="musicName" Foreground="White" FontSize="10pt" HorizontalAlignment="Left" Margin="63,143.5,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Width="223" Height="16" Grid.Row="1"/>
         <TextBlock x:Name="musicAlbum" Foreground="White" FontSize="8pt" HorizontalAlignment="Left" Margin="79,165.5,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Width="207" Height="16" Grid.Row="1"/>
 
+
         <Button x:Name="control" Content="Control" HorizontalAlignment="Left" Margin="639,10,0,0" VerticalAlignment="Top" Width="60" Click="change_click"/>
 
+        <ListBox Visibility="Hidden" MouseDoubleClick="playlistTracks_MouseDoubleClick" Background="Transparent" x:Name="playlistTracks" ItemTemplate="{DynamicResource DataTemplatePlaylistTracks}" ItemsSource="{Binding dataList, Mode=TwoWay}" IsSynchronizedWithCurrentItem="True" HorizontalContentAlignment="Left" Margin="120,63,10,79" Grid.RowSpan="2"/>
 
-        <ListBox Visibility="Hidden" MouseDoubleClick="TrackClick" Background="Transparent" x:Name="ListBoxTrack" ItemTemplate="{DynamicResource DataTemplateTracks}" ItemsSource="{Binding dataList, Mode=TwoWay}" IsSynchronizedWithCurrentItem="True" HorizontalContentAlignment="Left" Margin="211,63,10,79" Grid.RowSpan="2"/>
-        <ListBox MouseDoubleClick="listClick" Background="Transparent" x:Name="ListBoxConverter" ItemTemplate="{DynamicResource DataTemplateItemConverter}" ItemsSource="{Binding dataList}" IsSynchronizedWithCurrentItem="True" HorizontalContentAlignment="Left" Margin="211,63,10,79" Grid.RowSpan="2"/>
-        <Button  Visibility="Hidden" x:Name="BackButton" Click="BackButton_OnClick" Content="←" HorizontalAlignment="Left" Margin="211,36,0,0" VerticalAlignment="Top" Width="22" Height="22"/>
+        <ListBox Visibility="Hidden" MouseDoubleClick="playlistView_MouseDoubleClick" Background="Transparent" x:Name="playlistView" ItemTemplate="{DynamicResource DataTemplatePlaylist}" ItemsSource="{Binding dataList, Mode=TwoWay}" IsSynchronizedWithCurrentItem="True" HorizontalContentAlignment="Left" Margin="120,63,10,79" Grid.RowSpan="2"/>
+
+        <ListBox Visibility="Hidden" MouseDoubleClick="TrackClick" Background="Transparent" x:Name="ListBoxTrack" ItemTemplate="{DynamicResource DataTemplateTracks}" ItemsSource="{Binding dataList, Mode=TwoWay}" IsSynchronizedWithCurrentItem="True" HorizontalContentAlignment="Left" Margin="120,63,10,79" Grid.RowSpan="2"/>
+
+        <ListBox MouseDoubleClick="listClick" Background="Transparent" x:Name="ListBoxConverter" ItemTemplate="{DynamicResource DataTemplateItemConverter}" ItemsSource="{Binding dataList}" IsSynchronizedWithCurrentItem="True" HorizontalContentAlignment="Left" Margin="120,63,10,79" Grid.RowSpan="2"/>
+        <Button x:Name="BackButton" Click="BackButton_OnClick" Content="←" HorizontalAlignment="Left" Margin="120,36,0,0" VerticalAlignment="Top" Width="22" Height="22"/>
+        <Button x:Name="playlistBackButton" Click="playlistBackButton_Click" Content="←" HorizontalAlignment="Left" Margin="120,36,0,0" VerticalAlignment="Top" Width="22" Height="22"/>
+
         <ComboBox x:Name="comboBox" ItemsSource="{Binding headChara}" SelectedItem="{Binding ref}"  SelectionChanged="HeadChanged" HorizontalAlignment="Left" Margin="661,36,0,0" VerticalAlignment="Top" Width="38"/>
+
+        <Image x:Name="albu" HorizontalAlignment="Left" Height="80" Margin="15,63,0,0" Grid.RowSpan="2" VerticalAlignment="Top" Width="80"/>
+        <Button Opacity="0" x:Name="albumbutton" HorizontalAlignment="Left" Height="80" Margin="15,63,0,0" Grid.RowSpan="2" VerticalAlignment="Top" Width="80"/>
+        <Image x:Name="playlist" HorizontalAlignment="Left" Height="80" Margin="15,149,0,0" Grid.RowSpan="2" VerticalAlignment="Top" Width="80"/>
+        <Button Opacity="0" x:Name="playlistbutton" Click="playlistbutton_Click" HorizontalAlignment="Left" Height="80" Margin="15,149,0,0" Grid.RowSpan="2" VerticalAlignment="Top" Width="80"/>
+        <Image x:Name="ext" HorizontalAlignment="Left" Height="80" Margin="15,235,0,0" Grid.RowSpan="2" VerticalAlignment="Top" Width="80"/>
+        <Button Opacity="0" x:Name="extbutton" Click="extbutton_Click" HorizontalAlignment="Left" Height="80" Margin="15,235,0,0" Grid.RowSpan="2" VerticalAlignment="Top" Width="80"/>
+
     </Grid>
 </Page>

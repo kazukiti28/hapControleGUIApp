@@ -5,7 +5,15 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:hapControlGUIApp"
       mc:Ignorable="d">
-
+    <Page.Resources>
+        <DataTemplate x:Key="DataTemplateTracks">
+            <Canvas Height="45" Width="200" x:Name="albums">
+                <TextBlock x:Name="Track" Text="{Binding TrackName}" Width="270" Height="27" Foreground="White" FontSize="13pt"/>
+                <TextBlock x:Name="Artist" Text="{Binding ArtistName}" Canvas.Top="27" Width="150" Height="15" Foreground="White"/>
+                <TextBlock Text="{Binding TrackInfo}" Canvas.Left="158" Canvas.Top="27" Width="200" Height="15" Foreground="White" FontSize="8pt"/>
+            </Canvas>
+        </DataTemplate>
+    </Page.Resources>
 
     <Grid x:Name="BG">
         <Grid.RowDefinitions>
@@ -27,6 +35,7 @@
             <Ellipse Width="56" Height="56"/>
         </Button>
         <Image Visibility="Hidden" x:Name="coverArt" Stretch="Uniform" HorizontalAlignment="Center" Height="285" Margin="-399,44,0,82" VerticalAlignment="Center" Width="285" Grid.RowSpan="2" />
+        <Button Opacity="0" x:Name="listview" Width="285" Height="285" Margin="-399,44,0,82" VerticalAlignment="Center" Grid.RowSpan="2"/>
         <Button x:Name="ipaButton" Content="確定" HorizontalAlignment="Left" Margin="225,10,0,0" VerticalAlignment="Top" Width="56" Height="20" Click="button_Click"/>
         <TextBlock x:Name="ipadd" Foreground="Black" HorizontalAlignment="Left" Margin="10,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Text="IPアドレス:" Width="55" Height="20"/>
         <TextBox x:Name="ipaddInput" HorizontalAlignment="Left" Height="20" Margin="70,10,0,0" TextWrapping="Wrap" Text="http://" VerticalAlignment="Top" Width="150"/>
@@ -57,5 +66,8 @@
         <TextBlock x:Name="minsec" Foreground="White" FontSize="10pt"  HorizontalAlignment="Left" Margin="650,105,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Width="63" Height="21" Grid.Row="1"/>
         <Button x:Name="browse" Content="Browse" HorizontalAlignment="Left" Margin="639,10,0,0" VerticalAlignment="Top" Width="60" Click="button_Click_1"/>
         <Slider x:Name="slider" HorizontalAlignment="Left" Margin="311,81,0,0" Grid.Row="1" VerticalAlignment="Top" Width="382" Height="19" Maximum="100" Minimum="0" Thumb.DragCompleted="slider_DragCompleted" Thumb.DragStarted="slider_DragStarted"/>
+        <ListBox Visibility="Hidden" MouseDoubleClick="listBoxqueue_MouseDoubleClick"  ItemTemplate="{DynamicResource DataTemplateTracks}" ItemsSource="{Binding dataList, Mode=TwoWay}" Background="Transparent" x:Name="listBoxqueue" HorizontalAlignment="Left" Height="285" Margin="5,44,0,0" VerticalAlignment="Top" Width="295" Grid.RowSpan="2"/>
+        <Button x:Name="showqueue" Margin="20,45,419,82" Grid.RowSpan="2" Opacity="0" Click="Button_Click_2"/>
+        <Button Visibility="Hidden" x:Name="backButton" Content="戻る" HorizontalAlignment="Left" Margin="247,10,0,0" VerticalAlignment="Top" Width="34" Click="button_Click_3"/>
     </Grid>
 </Page>
