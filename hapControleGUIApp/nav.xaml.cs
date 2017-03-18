@@ -66,6 +66,7 @@ namespace hapControlGUIApp
         private dynamic[,] head;
         private dynamic dict = new Dictionary<string, int>();
         static dynamic[] playlistid;
+        static int playlistLoaded;
 
         public nav()
         {
@@ -84,6 +85,7 @@ namespace hapControlGUIApp
             bgimage.Source = bgimg;
 
             setImage();
+            playlistLoaded = 0;
 
             ipaddInput.Text = cont.ip;
             ipadd.Foreground = new SolidColorBrush(Colors.White);
@@ -94,11 +96,17 @@ namespace hapControlGUIApp
             dispatcherTimer.Start();
             getAllAlbumInfo();
             LoadListItems();
+            setMinusimg();
+            setPlusimg();
+            setLeftimg();
+            setCenterimg();
+            setRightimg();
+            playlistBackButton.Visibility = Visibility.Hidden;
         }
 
         void setImage()
         {
-            string[] name = new string[3] {"album.png","playlist.png","ext.png",};
+            string[] name = new string[3] { "album.png", "playlist.png", "ext.png", };
             for (int i = 0; i < name.Length; i++) {
                 BitmapImage img = new BitmapImage();
                 img.BeginInit();
@@ -109,23 +117,99 @@ namespace hapControlGUIApp
                 else if (i == 2) ext.Source = img;
             }
         }
+        void setMinusimg()
+        {
+            BitmapImage volminus = new BitmapImage();
+            volminus.BeginInit();
+            volminus.UriSource = new Uri(myDocument + cont.volm);
+            volminus.EndInit();
+            mimg.Source = volminus;
+        }
+
+        void setMuteimg(string name)
+        {
+            BitmapImage mute = new BitmapImage();
+            mute.BeginInit();
+            mute.UriSource = new Uri(myDocument + name);
+            mute.EndInit();
+            muteimg.Source = mute;
+        }
+
+        void setPlusimg()
+        {
+            BitmapImage volplus = new BitmapImage();
+            volplus.BeginInit();
+            volplus.UriSource = new Uri(myDocument + cont.volp);
+            volplus.EndInit();
+            pimg.Source = volplus;
+        }
+
+        void setRightimg()
+        {
+            BitmapImage next = new BitmapImage();
+            next.BeginInit();
+            next.UriSource = new Uri(myDocument + cont.nextimg);
+            next.EndInit();
+            nextimage.Source = next;
+        }
+
+        void setCenterimg()
+        {
+            BitmapImage butimg = new BitmapImage();
+            butimg.BeginInit();
+            if (cont.isPlayNow) butimg.UriSource = new Uri(myDocument + cont.playimg);
+            else butimg.UriSource = new Uri(myDocument + cont.stopimg);
+            butimg.EndInit();
+            startimage.Source = butimg;
+        }
+
+        void setLeftimg()
+        {
+            BitmapImage prev = new BitmapImage();
+            prev.BeginInit();
+            prev.UriSource = new Uri(myDocument + cont.previmg);
+            prev.EndInit();
+            previmage.Source = prev;
+        }
 
         void dispatcherTimer_Tick(object sender, EventArgs e)
         {
             setJunbi("getmusicinfo");
-            BG.Background =
-                new SolidColorBrush(Color.FromArgb(Convert.ToByte(a, 16), Convert.ToByte(r, 16),
-                    Convert.ToByte(g, 16), Convert.ToByte(g, 16)));
-            serializeJson(getVolumeInfo(), "audio", 1);
-            downloadCoverArt();
-            BitmapImage img = new BitmapImage();
-            img.BeginInit();
-            img.UriSource = new Uri(nowMusicCover);
-            img.EndInit();
-            coverArt.Source = img;
-            musicName.Text = nowPlaying;
-            musicAlbum.Text = album;
-            volIn.Text = nowVolume.ToString();
+            if (!cont.extinput)
+            {
+                BG.Background =
+                    new SolidColorBrush(Color.FromArgb(Convert.ToByte(a, 16), Convert.ToByte(r, 16),
+                        Convert.ToByte(g, 16), Convert.ToByte(g, 16)));
+                serializeJson(getVolumeInfo(), "audio", 1);
+                downloadCoverArt();
+                BitmapImage img = new BitmapImage();
+                img.BeginInit();
+                img.UriSource = new Uri(nowMusicCover);
+                img.EndInit();
+                coverArt.Source = img;
+                musicName.Text = nowPlaying;
+                musicAlbum.Text = album;
+                volIn.Text = nowVolume.ToString();
+                setCenterimg();
+                nextButton.Visibility = Visibility.Visible;
+                nextimage.Visibility = Visibility.Visible;
+                startButton.Visibility = Visibility.Visible;
+                startimage.Visibility = Visibility.Visible;
+                prevButton.Visibility = Visibility.Visible;
+                previmage.Visibility = Visibility.Visible;
+            } else
+            {
+                musicName.Text = cont.extMode;
+                dynamic getVolumeObj = getVolumeInfo();
+                serializeJson(getVolumeObj, "audio", 1);
+                volIn.Text = nowVolume.ToString();
+                nextButton.Visibility = Visibility.Hidden;
+                nextimage.Visibility = Visibility.Hidden;
+                startButton.Visibility = Visibility.Hidden;
+                startimage.Visibility = Visibility.Hidden;
+                prevButton.Visibility = Visibility.Hidden;
+                previmage.Visibility = Visibility.Hidden;
+            }
         }
 
         void getAllAlbumInfo()
@@ -149,7 +233,9 @@ namespace hapControlGUIApp
         public List<VisibleItem> dataList { get; set; }
 
         public List<VisibleItem> TracksdataList { get; set; }
-        
+
+        public List<VisibleItem> extList { get; set; }
+
 
         private void LoadListItems()
         {
@@ -178,7 +264,7 @@ namespace hapControlGUIApp
             string prev = "";
             int cnt = 0;
 
-            for (i = 1; i < (int) allalbumdata.paging.total; i++)
+            for (i = 1; i < (int)allalbumdata.paging.total; i++)
             {
                 try
                 {
@@ -201,7 +287,7 @@ namespace hapControlGUIApp
                 vItem.TracksUrl = allalbumdata.albums[0].tracks_url;
                 dataList.Add(vItem);
                 h = allalbumdata.albums[i].name;
-                if (new Regex("^[0-9a-zA-Z]+$").IsMatch(h.Substring(0,1)))
+                if (new Regex("^[0-9a-zA-Z]+$").IsMatch(h.Substring(0, 1)))
                 {
                     Combox item;
 
@@ -209,13 +295,13 @@ namespace hapControlGUIApp
                     if (h.Length > 4)
                     {
                         tmp = h.Substring(0, 4);
-                        if (tmp.ToUpper() == "THE ") h = h.Remove(0,4);
+                        if (tmp.ToUpper() == "THE ") h = h.Remove(0, 4);
                     }
 
-                    if (i!=1 && prev.Substring(0,1).ToLower() != h.Substring(0,1).ToLower())
+                    if (i != 1 && prev.Substring(0, 1).ToLower() != h.Substring(0, 1).ToLower())
                     {
                         Console.WriteLine(h);
-                        h = h.Substring(0,1);
+                        h = h.Substring(0, 1);
                         item = new Combox();
                         item.headChara = h.ToUpper();
                         item.suf = i;
@@ -240,7 +326,7 @@ namespace hapControlGUIApp
             playlist = DynamicJson.Parse(gettrackinfo(url));
             VisibleItem tracklist;
             TracksdataList = new List<VisibleItem>();
-            playlistid = new dynamic [(int)cnt];
+            playlistid = new dynamic[(int)cnt];
             for (int i = 0; i < cnt; i++) {
                 tracklist = new VisibleItem();
                 string name = playlist.playlists[i].name;
@@ -269,21 +355,21 @@ namespace hapControlGUIApp
             string[] Freq = new string[numberoftracks]; //サンプリング周波数
             string[] Bitwidth = new string[numberoftracks]; //サンプリング周波数
             string[] Bitrate = new string[numberoftracks];
-            FileName = new dynamic[numberoftracks,2];
+            FileName = new dynamic[numberoftracks, 2];
 
             AlbumData = DynamicJson.Parse(gettrackinfo(allalbumdata.albums[number].tracks_url)); //トラック情報の取得
             numberoftracks = (int)AlbumData.paging.total;
             string urlnew = allalbumdata.albums[number].tracks_url + "?offset=0&limit=" + numberoftracks.ToString();
-           
+
             AlbumData = DynamicJson.Parse(gettrackinfo(urlnew)); //トラック情報の取得
 
             for (int num = 0; num < numberoftracks; num++)
             {
                 Tracks[num] = AlbumData.tracks[num].name; //すべての名前の取得
-                Duration[num] = (int) AlbumData.tracks[num].duration; //曲長さ(秒)
+                Duration[num] = (int)AlbumData.tracks[num].duration; //曲長さ(秒)
                 Codec[num] = AlbumData.tracks[num].codec.codec_type; //コーデック
                 Bitrate[num] = (AlbumData.tracks[num].codec.bit_rate / 1000).ToString(); //ビットレート
-                int fr = (int) AlbumData.tracks[num].codec.sample_rate / 1000;
+                int fr = (int)AlbumData.tracks[num].codec.sample_rate / 1000;
                 Freq[num] = fr.ToString(); //サンプリング周波数
                 Bitwidth[num] = AlbumData.tracks[num].codec.bit_width.ToString(); //ビット深度
                 FileName[num, 0] = AlbumData.tracks[num].filename;
@@ -301,11 +387,11 @@ namespace hapControlGUIApp
             TracksdataList = new List<VisibleItem>();
             VisibleItem tracklist;
 
-            for (int i = 0; i < FileName.Length/2 - 1; i++)
+            for (int i = 0; i < FileName.Length / 2 - 1; i++)
             {
-                for (int k = FileName.Length/2 - 1; k > i; k--)
+                for (int k = FileName.Length / 2 - 1; k > i; k--)
                 {
-                    if (FileName[k,0].CompareTo(FileName[k - 1,0]) < 0)
+                    if (FileName[k, 0].CompareTo(FileName[k - 1, 0]) < 0)
                     {
                         dynamic tmp = FileName[k, 0];
                         FileName[k, 0] = FileName[k - 1, 0];
@@ -346,7 +432,7 @@ namespace hapControlGUIApp
                 tracklist = new VisibleItem();
 
                 tracklist.ArtistName = "   " + AlbumData.tracks[FileName[cnt, 1]].artist.name;
-                tracklist.TrackName = (cnt+1).ToString() + "  " + AlbumData.tracks[FileName[cnt, 1]].name;
+                tracklist.TrackName = (cnt + 1).ToString() + "  " + AlbumData.tracks[FileName[cnt, 1]].name;
                 tracklist.TrackInfo = info;
                 tracklist.ContentUrl = AlbumData.tracks[FileName[cnt, 1]].album.url;
                 tracklist.MusicId = (AlbumData.tracks[FileName[cnt, 1]].trackid).ToString();
@@ -447,15 +533,55 @@ namespace hapControlGUIApp
                 nowVolume = (int)data.result[0].volume;
                 if (data.result[0].mute == "on")
                 {
+                    setMuteimg(cont.muteon);
                     Mute.Content = "Mute On";
                 }
                 if (data.result[0].mute == "off")
                 {
+                    setMuteimg(cont.muteoff);
                     Mute.Content = "Mute Off";
                 }
             }
             else if (isNeedParse == 2)//楽曲情報取得
             {
+                string playmode = data.result[0].state;
+                if (playmode == "PAUSED")
+                {
+                    cont.isPlayNow = false;
+                }
+                else if (playmode == "PLAYING")
+                {
+                    cont.isPlayNow = true;
+                }
+                else if (playmode == "STOPPED")
+                {
+                    try {
+                        string extType = data.result[0].uri;
+                        extType = extType.Replace("extInput:", "");
+                        string type = extType.Substring(0, 4);
+                        if (type == "line")
+                        {
+                            cont.extMode = "Line In " + extType.Substring(extType.Length - 1, 1) + "(外部入力)";
+                        }
+                        else if (type == "coax")
+                        {
+                            cont.extMode = "Coaxial In (外部入力中)";
+                        }
+                        else if (type == "opti")
+                        {
+                            cont.extMode = "Optical In (外部入力中)";
+                        }
+                        cont.extinput = true;
+                    }
+                    catch
+                    {
+                        cont.extMode = "";
+                    }
+                    return;
+                }
+                cont.musiclen = data.result[0].durationSec;
+
+
                 nowPlaying = data.result[0].title;
                 noAlbum = 0;
                 try
@@ -477,6 +603,9 @@ namespace hapControlGUIApp
                     noArtist = 1;
                     artist = "undefined artist";
                 }
+                cont.codec = data.result[0].audioInfo[0].codec;
+                cont.bandwidth = data.result[0].audioInfo[0].bandwidth;
+                cont.bitrate = (double.Parse(data.result[0].audioInfo[0].bitrate)) / 1000;
                 freq = data.result[0].audioInfo[0].frequency;
                 double f = double.Parse(freq);
                 f = f / 1000;
@@ -509,6 +638,8 @@ namespace hapControlGUIApp
                 posMin = posSec / 60;//分数
                 posSec = posSec % 60;//秒数
 
+                cont.nowRepeat = data.result[0].repeatType;
+                cont.nowShuffle = data.result[0].shuffleType;
             }
             else if (isNeedParse == 3)//ミュートチェック
             {
@@ -708,7 +839,7 @@ namespace hapControlGUIApp
         {
             setJunbi("mute");
         }
-        
+
         private void change_click(object sender, RoutedEventArgs e)
         {
             cont con = new cont();
@@ -803,15 +934,15 @@ namespace hapControlGUIApp
 
                 if (playlistData.tracks[cnt].codec.codec_type == "alac" || playlistData.tracks[cnt].codec.codec_type == "flac" || playlistData.tracks[cnt].codec.codec_type == "aiff" || playlistData.tracks[cnt].codec.codec_type == "wav")//可逆圧縮/非圧縮
                 {
-                    info = playlistData.tracks[cnt].codec.codec_type.ToUpper() + " " + playlistData.tracks[cnt].codec.sample_rate/1000 + "kHz" + "/" + playlistData.tracks[cnt].codec.bit_width + "bit  " + dur;
+                    info = playlistData.tracks[cnt].codec.codec_type.ToUpper() + " " + playlistData.tracks[cnt].codec.sample_rate / 1000 + "kHz" + "/" + playlistData.tracks[cnt].codec.bit_width + "bit  " + dur;
                 }
                 else if (playlistData.tracks[cnt].codec.codec_type == "dsd" || playlistData.tracks[cnt].codec.codec_type == "dsf")//DSD
                 {
-                    info = playlistData.tracks[cnt].codec.codec_type.ToUpper() + " " + playlistData.tracks[cnt].codec.sample_rate/1000000 + "MHz  " + dur;
+                    info = playlistData.tracks[cnt].codec.codec_type.ToUpper() + " " + playlistData.tracks[cnt].codec.sample_rate / 1000000 + "MHz  " + dur;
                 }
                 else//圧縮音源
                 {
-                    info = playlistData.tracks[cnt].codec.codec_type.ToUpper() + " " + playlistData.tracks[cnt].codec.bit_rate/1000 + "kbps  " + dur;
+                    info = playlistData.tracks[cnt].codec.codec_type.ToUpper() + " " + playlistData.tracks[cnt].codec.bit_rate / 1000 + "kbps  " + dur;
                 }
                 tracklist = new VisibleItem();
 
@@ -829,17 +960,42 @@ namespace hapControlGUIApp
 
         }
         static int[] playlistTrackid;
+
         private void extbutton_Click(object sender, RoutedEventArgs e)
         {
-
+            extList = new List<VisibleItem>();
+            VisibleItem vItem;
+            string[] type = new string[4] {"optical.png","coaxial.png","line.png","line.png", };
+            string[] typeName = new string[4] { "Optical In", "Coaxial In", "Line in 1", "Line in 2", };
+            for(i = 0;i < 4;i++)
+            {
+                vItem = new VisibleItem();
+                vItem.CoverArt = myDocument + "/" + type[i];
+                vItem.AlbumName = typeName[i];
+                extList.Add(vItem);
+            }
+            extBox.ItemsSource = extList;
+            extBox.Visibility = Visibility.Visible;
+            playlistBackButton.Visibility = Visibility.Hidden;
+            playlistView.Visibility = Visibility.Hidden;
+            ListBoxTrack.Visibility = Visibility.Hidden;
+            ListBoxConverter.Visibility = Visibility.Hidden;
+            albumlistBackButton_Copy.Visibility = Visibility.Hidden;
         }
+
 
         private void playlistbutton_Click(object sender, RoutedEventArgs e)
         {
+            playlistBackButton.Visibility = Visibility.Visible;
             playlistView.Visibility = Visibility.Visible;
             ListBoxTrack.Visibility = Visibility.Hidden;
             ListBoxConverter.Visibility = Visibility.Hidden;
-            getPlaylist();
+            albumlistBackButton_Copy.Visibility = Visibility.Hidden;
+            if (playlistLoaded != 1)
+            {
+                getPlaylist();
+                playlistLoaded = 1;
+            }
         }
 
         private void playlistTracks_MouseDoubleClick(object sender, MouseButtonEventArgs e)
@@ -865,6 +1021,102 @@ namespace hapControlGUIApp
         {
             playlistTracks.Visibility = Visibility.Hidden;
             playlistView.Visibility = Visibility.Visible;
+        }
+
+        private void albumlistBackButton_Copy_Click(object sender, RoutedEventArgs e)
+        {
+            ListBoxConverter.Visibility = Visibility.Visible;
+            ListBoxTrack.Visibility = Visibility.Hidden;
+        }
+
+        private void albumbutton_Click(object sender, RoutedEventArgs e)
+        {
+            playlistView.Visibility = Visibility.Hidden;
+            playlistTracks.Visibility = Visibility.Hidden;
+            ListBoxConverter.Visibility = Visibility.Visible;
+            playlistBackButton.Visibility = Visibility.Hidden;
+            albumlistBackButton_Copy.Visibility = Visibility.Visible;
+        }
+
+        private void hover1(object sender, MouseEventArgs e)
+        {
+            cont.previmg = "/prevhov.png";
+            setLeftimg();
+        }
+        private void hover2(object sender, MouseEventArgs e)
+        {
+            cont.playimg = "/playhov.png";
+            cont.stopimg = "/stophov.png";
+            setCenterimg();
+        }
+
+        private void hover3(object sender, MouseEventArgs e)
+        {
+            cont.nextimg = "/nexthov.png";
+            setRightimg();
+        }
+
+        private void leaved1(object sender, MouseEventArgs e)
+        {
+            cont.previmg = "/prev.png";
+            setLeftimg();
+        }
+
+        private void leaved2(object sender, MouseEventArgs e)
+        {
+            cont.playimg = "/play.png";
+            cont.stopimg = "/stop.png";
+            setCenterimg();
+        }
+        private void leaved3(object sender, MouseEventArgs e)
+        {
+            cont.nextimg = "/next.png";
+            setRightimg();
+        }
+
+        private void volPlu_MouseEnter(object sender, MouseEventArgs e)
+        {
+            cont.volp = "/plushov.png";
+            setPlusimg();
+        }
+
+        private void volPlu_MouseLeave(object sender, MouseEventArgs e)
+        {
+            cont.volp = "/plus.png";
+            setPlusimg();
+        }
+
+        private void volMin_MouseEnter(object sender, MouseEventArgs e)
+        {
+            cont.volm = "/minushov.png";
+            setMinusimg();
+        }
+
+        private void volMin_MouseLeave(object sender, MouseEventArgs e)
+        {
+            cont.volm = "/minus.png";
+            setMinusimg();
+        }
+
+        private void Mute_MouseEnter(object sender, MouseEventArgs e)
+        {
+            cont.muteon = "/muteonhov.png";
+            cont.muteoff = "/muteoffhov.png";
+            if (cont.isMute) setMuteimg(cont.muteon);
+            else setMuteimg(cont.muteoff);
+        }
+
+        private void Mute_MouseLeave(object sender, MouseEventArgs e)
+        {
+            cont.muteon = "/muteon.png";
+            cont.muteoff = "/muteoff.png";
+            if (cont.isMute) setMuteimg(cont.muteon);
+            else setMuteimg(cont.muteoff);
+        }
+
+        private void extBox_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+
         }
     }
 }

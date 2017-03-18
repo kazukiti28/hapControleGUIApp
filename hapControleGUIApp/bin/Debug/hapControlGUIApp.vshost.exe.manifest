@@ -42,22 +42,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="hapControlGUIApp.exe" size="123904">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="hapControlGUIApp.exe" size="170496">
       <assemblyIdentity name="hapControlGUIApp" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-<<<<<<< HEAD
-        <dsig:DigestValue>G5z3uxOWdLTFwlvY5lwX4iG1scOz62YoOUQYETN76Dw=</dsig:DigestValue>
-=======
-<<<<<<< HEAD
-        <dsig:DigestValue>uz1Zmdta7tyn/e6wLxykCzchgHLSgVeM4KLUCgjKcUw=</dsig:DigestValue>
-=======
-        <dsig:DigestValue>/dRH3a2HOTqhPCRn/qXlzhNaEJQb3lqaaBzCKPs2TXU=</dsig:DigestValue>
->>>>>>> parent of cca178f... バグ修正
->>>>>>> origin/master
+        <dsig:DigestValue>8kGdone61vxJeZRXK0SZ0diWTLX27NucZ8/B+xJywSA=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>

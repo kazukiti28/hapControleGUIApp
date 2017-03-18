@@ -71,15 +71,14 @@ namespace hapControlGUIApp
         public static bool isDragging;
         public static int coverartStop = 1;
         public static dynamic queueData;
+        public static string extMode;
         DispatcherTimer dispatcherTimer;
 
-        void hiddenall()
+        public void hiddenall()
         {
             coverArt.Visibility = Visibility.Hidden;
-            prevButton.Visibility = Visibility.Hidden;
             nextButton.Visibility = Visibility.Hidden;
             prevButton.Visibility = Visibility.Hidden;
-            blackbar.Visibility = Visibility.Hidden;
             offshu.Visibility = Visibility.Hidden;
             albumshu.Visibility = Visibility.Hidden;
             allshu.Visibility = Visibility.Hidden;
@@ -88,18 +87,23 @@ namespace hapControlGUIApp
             repone.Visibility = Visibility.Hidden;
             startButton.Visibility = Visibility.Hidden;
             Repeat.Visibility = Visibility.Hidden;
-            musicName.Visibility = Visibility.Hidden;
             musicAlbum.Visibility = Visibility.Hidden;
+            musicArtist.Visibility = Visibility.Hidden;
             musicCodec.Visibility = Visibility.Hidden;
             minsec.Visibility = Visibility.Hidden;
+            slider.Visibility = Visibility.Hidden;
+            slider.Visibility = Visibility.Hidden;
+            shuffle.Visibility = Visibility.Hidden;
+            previmage.Visibility = Visibility.Hidden;
+            nextimage.Visibility = Visibility.Hidden;
         }
-        void showall()
+        public void showall()
         {
+            musicArtist.Visibility = Visibility.Visible;
             coverArt.Visibility = Visibility.Visible;
             prevButton.Visibility = Visibility.Visible;
             nextButton.Visibility = Visibility.Visible;
             prevButton.Visibility = Visibility.Visible;
-            blackbar.Visibility = Visibility.Visible;
             offshu.Visibility = Visibility.Visible;
             albumshu.Visibility = Visibility.Visible;
             allshu.Visibility = Visibility.Visible;
@@ -108,10 +112,16 @@ namespace hapControlGUIApp
             repone.Visibility = Visibility.Visible;
             startButton.Visibility = Visibility.Visible;
             Repeat.Visibility = Visibility.Visible;
-            musicName.Visibility = Visibility.Visible;
             musicAlbum.Visibility = Visibility.Visible;
             musicCodec.Visibility = Visibility.Visible;
             minsec.Visibility = Visibility.Visible;
+            slider.Visibility = Visibility.Visible;
+            nextButton.Visibility = Visibility.Visible;
+            prevButton.Visibility = Visibility.Visible;
+            slider.Visibility = Visibility.Visible;
+            shuffle.Visibility = Visibility.Visible;
+            previmage.Visibility = Visibility.Visible;
+            nextimage.Visibility = Visibility.Visible;
         }
 
         public cont()
@@ -140,9 +150,13 @@ namespace hapControlGUIApp
                 {
                     WebClient wc = new WebClient();
                     string ipad = hostUrl.Replace(":60200/sony/", "");
-                    ipad = ipad + ":60100/img/bg_overlay.png";
-                    wc.DownloadFile(ipad, bgurl);
+                    string url = ipad + ":60100/img/bg_overlay.png";
+                    wc.DownloadFile(url, bgurl);
                 }
+                WebClient wec = new WebClient();
+                wec.DownloadFile(hostUrl.Replace(":60200/sony/", "") + ":60100/img/icon_input_optical.png", myDocument + "/optical.png");
+                wec.DownloadFile(hostUrl.Replace(":60200/sony/", "") + ":60100/img/icon_input_coaxial.png", myDocument + "/coaxial.png");
+                wec.DownloadFile(hostUrl.Replace(":60200/sony/", "") + ":60100/img/icon_input_analog.png", myDocument + "/line.png");
                 BitmapImage bgimg = new BitmapImage();
                 bgimg.BeginInit();
                 bgimg.UriSource = new Uri(bgurl);
@@ -177,7 +191,6 @@ namespace hapControlGUIApp
                 repone.Visibility = Visibility.Visible;
                 startButton.Visibility = Visibility.Visible;
                 Repeat.Visibility = Visibility.Visible;
-                Mute.Visibility = Visibility.Visible;
                 ipadd.Foreground = new SolidColorBrush(Colors.White);
             }
         }
@@ -233,6 +246,7 @@ namespace hapControlGUIApp
             setJunbi("getmusicinfo");
             if (!extinput)
             {
+                showall();
                 musicName.Text = nowPlaying;
                 musicArtist.Text = artist;
                 musicAlbum.Text = album;
@@ -282,8 +296,16 @@ namespace hapControlGUIApp
                     albumshu.IsChecked = true;
                 }
                 setCenterimg();
-                if(!isDragging) slider.Value = ((posMin * 60 + posSec) / musiclen) * 100;
+                if (!isDragging) slider.Value = ((posMin * 60 + posSec) / musiclen) * 100;
                 getplayqueue();
+            }
+            else
+            {
+                hiddenall();
+                musicName.Text = extMode;
+                dynamic getVolumeObj = getVolumeInfo();
+                serializeJson(getVolumeObj, "audio", 1);
+                volIn.Text = nowVolume.ToString();
             }
         }
 
@@ -450,24 +472,40 @@ namespace hapControlGUIApp
             }
             else if (isNeedParse == 2)//楽曲情報取得
             {
-                musiclen = data.result[0].durationSec;
                 string playmode = data.result[0].state;
-                if (playmode =="PAUSED")
+                if (playmode == "PAUSED")
                 {
                     isPlayNow = false;
                     showall();
                 }
-                else if(playmode == "PLAYING")
+                else if (playmode == "PLAYING")
                 {
                     isPlayNow = true;
                     showall();
                 }
-                else if(playmode == "STOPPED")
+                else if (playmode == "STOPPED")
                 {
+                    string extType = data.result[0].uri;
+                    extType = extType.Replace("extInput:", "");
+                    string type = extType.Substring(0, 4);
+                    if (type == "line")
+                    {
+                        extMode = "Line In " + extType.Substring(extType.Length - 1, 1) + "(外部入力)";
+                    }
+                    else if (type == "coax")
+                    {
+                        extMode = "Coaxial In (外部入力中)";
+                    }
+                    else if(type == "opti")
+                    {
+                        extMode = "Optical In (外部入力中)";
+                    }
                     extinput = true;
-                    hiddenall();
                     return;
                 }
+                musiclen = data.result[0].durationSec;
+
+
                 nowPlaying = data.result[0].title;
                 noAlbum = 0;
                 try
@@ -526,7 +564,6 @@ namespace hapControlGUIApp
 
                 nowRepeat = data.result[0].repeatType;
                 nowShuffle = data.result[0].shuffleType;
-                
             }
             else if (isNeedParse == 3)//ミュートチェック
             {
@@ -748,84 +785,87 @@ namespace hapControlGUIApp
 
         void getplayqueue()
         {
-            string setUrl = rawip + "contentplayer/v100/playqueue/tracks";
-
-            var req = WebRequest.Create(setUrl);
-            var res = req.GetResponse();
-
-            dynamic data = DynamicJson.Parse(res.GetResponseStream());
-            string totalfigure = data.paging.total.ToString();
-
-            setUrl = setUrl + "?offset=0&limit=" + totalfigure;
-            req = WebRequest.Create(setUrl);
-            res = req.GetResponse();
-            queueData = DynamicJson.Parse(res.GetResponseStream());
-
-            int numberoftracks = (int)queueData.paging.total; //アルバム収録曲数の取得
-            string[] Tracks = new string[numberoftracks]; //曲の名前を格納する配列
-            int[] Duration = new int[numberoftracks]; //曲長さ格納
-            string[] Codec = new string[numberoftracks]; //コーデック格納
-            string[] Freq = new string[numberoftracks]; //サンプリング周波数
-            string[] Bitwidth = new string[numberoftracks]; //サンプリング周波数
-            string[] Bitrate = new string[numberoftracks];
-
-            for (int num = 0; num < numberoftracks; num++)
+            if (!extinput)
             {
-                Tracks[num] = queueData.tracks[num].name; //すべての名前の取得
-                Duration[num] = (int)queueData.tracks[num].duration; //曲長さ(秒)
-                Codec[num] = queueData.tracks[num].codec.codec_type; //コーデック
-                Bitrate[num] = (queueData.tracks[num].codec.bit_rate / 1000).ToString(); //ビットレート
-                int fr = (int)queueData.tracks[num].codec.sample_rate / 1000;
-                Freq[num] = fr.ToString(); //サンプリング周波数
-                Bitwidth[num] = queueData.tracks[num].codec.bit_width.ToString(); //ビット深度
+                string setUrl = rawip + "contentplayer/v100/playqueue/tracks";
+
+                var req = WebRequest.Create(setUrl);
+                var res = req.GetResponse();
+
+                dynamic data = DynamicJson.Parse(res.GetResponseStream());
+                string totalfigure = data.paging.total.ToString();
+
+                setUrl = setUrl + "?offset=0&limit=" + totalfigure;
+                req = WebRequest.Create(setUrl);
+                res = req.GetResponse();
+                queueData = DynamicJson.Parse(res.GetResponseStream());
+
+                int numberoftracks = (int)queueData.paging.total; //アルバム収録曲数の取得
+                string[] Tracks = new string[numberoftracks]; //曲の名前を格納する配列
+                int[] Duration = new int[numberoftracks]; //曲長さ格納
+                string[] Codec = new string[numberoftracks]; //コーデック格納
+                string[] Freq = new string[numberoftracks]; //サンプリング周波数
+                string[] Bitwidth = new string[numberoftracks]; //サンプリング周波数
+                string[] Bitrate = new string[numberoftracks];
+
+                for (int num = 0; num < numberoftracks; num++)
+                {
+                    Tracks[num] = queueData.tracks[num].name; //すべての名前の取得
+                    Duration[num] = (int)queueData.tracks[num].duration; //曲長さ(秒)
+                    Codec[num] = queueData.tracks[num].codec.codec_type; //コーデック
+                    Bitrate[num] = (queueData.tracks[num].codec.bit_rate / 1000).ToString(); //ビットレート
+                    int fr = (int)queueData.tracks[num].codec.sample_rate / 1000;
+                    Freq[num] = fr.ToString(); //サンプリング周波数
+                    Bitwidth[num] = queueData.tracks[num].codec.bit_width.ToString(); //ビット深度
+                }
+                string info = "";
+                string min = "";
+                string sec = "";
+                string dur = "";
+
+                TracksdataList = new List<VisibleItem>();
+                VisibleItem tracklist;
+
+                for (int cnt = 0; cnt < numberoftracks; cnt++)
+                {
+                    min = (Duration[cnt] / 60).ToString();
+                    if (Duration[cnt] % 60 < 10)
+                    {
+                        sec = (Duration[cnt] % 60).ToString();
+                        sec = "0" + sec;
+                    }
+                    else
+                    {
+                        sec = (Duration[cnt] % 60).ToString();
+                    }
+
+                    dur = min + ":" + sec;
+
+                    if (Codec[cnt] == "alac" || Codec[cnt] == "flac" || Codec[cnt] == "aiff" || Codec[cnt] == "wav")//可逆圧縮/非圧縮
+                    {
+                        info = Codec[cnt].ToUpper() + " " + Freq[cnt] + "kHz" + "/" + Bitwidth[cnt] + "bit  " + dur;
+                    }
+                    else if (Codec[cnt] == "dsd" || Codec[cnt] == "dsf")//DSD
+                    {
+                        info = Codec[cnt].ToUpper() + " " + Freq[cnt] + "MHz  " + dur;
+                    }
+                    else//圧縮音源
+                    {
+                        info = Codec[cnt].ToUpper() + " " + Bitrate[cnt] + "kbps  " + dur;
+                    }
+
+                    tracklist = new VisibleItem();
+
+                    tracklist.ArtistName = "   " + queueData.tracks[cnt].artist.name;
+                    tracklist.TrackName = queueData.tracks[cnt].name;
+                    tracklist.TrackInfo = info;
+                    tracklist.ContentUrl = queueData.tracks[cnt].album.url;
+                    tracklist.MusicId = (queueData.tracks[cnt].trackid).ToString();
+                    TracksdataList.Add(tracklist);
+                    info = "";
+                }
+                listBoxqueue.ItemsSource = TracksdataList;
             }
-            string info = "";
-            string min = "";
-            string sec = "";
-            string dur = "";
-
-            TracksdataList = new List<VisibleItem>();
-            VisibleItem tracklist;
-
-            for (int cnt = 0; cnt < numberoftracks; cnt++)
-            {
-                min = (Duration[cnt] / 60).ToString();
-                if (Duration[cnt] % 60 < 10)
-                {
-                    sec = (Duration[cnt] % 60).ToString();
-                    sec = "0" + sec;
-                }
-                else
-                {
-                    sec = (Duration[cnt] % 60).ToString();
-                }
-
-                dur = min + ":" + sec;
-
-                if (Codec[cnt] == "alac" || Codec[cnt] == "flac" || Codec[cnt] == "aiff" || Codec[cnt] == "wav")//可逆圧縮/非圧縮
-                {
-                    info = Codec[cnt].ToUpper() + " " + Freq[cnt] + "kHz" + "/" + Bitwidth[cnt] + "bit  " + dur;
-                }
-                else if (Codec[cnt] == "dsd" || Codec[cnt] == "dsf")//DSD
-                {
-                    info = Codec[cnt].ToUpper() + " " + Freq[cnt] + "MHz  " + dur;
-                }
-                else//圧縮音源
-                {
-                    info = Codec[cnt].ToUpper() + " " + Bitrate[cnt] + "kbps  " + dur;
-                }
-
-                tracklist = new VisibleItem();
-
-                tracklist.ArtistName = "   " + queueData.tracks[cnt].artist.name;
-                tracklist.TrackName = queueData.tracks[cnt].name;
-                tracklist.TrackInfo = info;
-                tracklist.ContentUrl = queueData.tracks[cnt].album.url;
-                tracklist.MusicId = (queueData.tracks[cnt].trackid).ToString();
-                TracksdataList.Add(tracklist);
-                info = "";
-            }
-            listBoxqueue.ItemsSource = TracksdataList;
         }
 
         public List<VisibleItem> TracksdataList { get; set; }
