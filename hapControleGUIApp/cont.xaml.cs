@@ -281,7 +281,7 @@ namespace hapControlGUIApp
                 {
                     coverArt.Visibility = Visibility.Hidden;
                 }
-                BG.Background = new SolidColorBrush(Color.FromArgb(Convert.ToByte(a, 16), Convert.ToByte(r, 16), Convert.ToByte(g, 16), Convert.ToByte(g, 16)));
+                BG.Background = new SolidColorBrush(Color.FromArgb(Convert.ToByte(a, 16), Convert.ToByte(r, 16), Convert.ToByte(g, 16), Convert.ToByte(b, 16)));
 
                 if (nowShuffle == "track")
                 {
@@ -383,7 +383,7 @@ namespace hapControlGUIApp
             coverArt.Source = img;
             BG.Background =
                 new SolidColorBrush(Color.FromArgb(Convert.ToByte(a, 16), Convert.ToByte(r, 16), Convert.ToByte(g, 16),
-                    Convert.ToByte(g, 16)));
+                    Convert.ToByte(b, 16)));
 
             coverArt.Visibility = Visibility.Visible;
             ipaButton.Visibility = Visibility.Hidden;

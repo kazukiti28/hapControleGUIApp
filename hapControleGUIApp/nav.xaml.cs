@@ -24,7 +24,7 @@ using Microsoft.Win32;
 using System.Collections;
 using System.Collections.ObjectModel;
 using System.Text.RegularExpressions;
-
+using System.Threading;
 namespace hapControlGUIApp
 {
     /// <summary>
@@ -70,6 +70,7 @@ namespace hapControlGUIApp
         static double playlistModifiedVersion;
         static string playlistUri;
         static int playlistfigure;
+        static int addplaylistmusicid;
 
         public nav()
         {
@@ -97,6 +98,10 @@ namespace hapControlGUIApp
             dispatcherTimer.Interval = new TimeSpan(0, 0, 0, 0, 500);
             dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
             dispatcherTimer.Start();
+            new Thread(new ThreadStart(delegate
+            {
+                MessageBox.Show("アルバム情報を取得中です。しばらくお待ちください……", "処理中…",MessageBoxButton.OK, MessageBoxImage.Information);
+            })).Start();
             getAllAlbumInfo();
             LoadListItems();
             setMinusimg();
@@ -182,7 +187,7 @@ namespace hapControlGUIApp
             {
                 BG.Background =
                     new SolidColorBrush(Color.FromArgb(Convert.ToByte(a, 16), Convert.ToByte(r, 16),
-                        Convert.ToByte(g, 16), Convert.ToByte(g, 16)));
+                        Convert.ToByte(g, 16), Convert.ToByte(b, 16)));
                 serializeJson(getVolumeInfo(), "audio", 1);
                 downloadCoverArt();
                 BitmapImage img = new BitmapImage();
@@ -463,11 +468,57 @@ namespace hapControlGUIApp
             RightClick.Items.Add(addp);
             ListBoxTrack.ContextMenu = RightClick;
         }
-        
+
+        public List<string> originalVerArr = new List<string>();
+        public List<string> playlistIdArr = new List<string>();
 
         private void Addp_Click(object sender, RoutedEventArgs e)
         {
-            Console.WriteLine("addPlaylist");
+            int index = ListBoxTrack.SelectedIndex;
+            addplaylistmusicid = int.Parse(namearr[index]);
+            
+            ListBoxTrack.Visibility = Visibility.Hidden;
+            string url = cont.ip + "contentdb/v100/audio/playlists";
+            dynamic playlist = DynamicJson.Parse(gettrackinfo(url));
+            double cnt = playlist.paging.total;
+            url = url + "?offset=0&limit=" + cnt.ToString();
+            playlist = DynamicJson.Parse(gettrackinfo(url));
+            VisibleItem tracklist;
+            TracksdataList = new List<VisibleItem>();
+            playlistid = new dynamic[(int)cnt];
+            for (int i = 4; i < cnt; i++)
+            {
+                tracklist = new VisibleItem();
+                string name = playlist.playlists[i].name;
+                tracklist.TrackName = name;
+                TracksdataList.Add(tracklist);
+                originalVerArr.Add((playlist.playlists[i].version).ToString());
+                playlistIdArr.Add((playlist.playlists[i].playlistid).ToString());
+            }
+            playlistselectBox.ItemsSource = TracksdataList;
+            playlistselectBox.Visibility = Visibility.Visible;
+        }
+
+        private void playlistselectBox_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            int index = ListBoxTrack.SelectedIndex + 4;
+            ListBoxTrack.Visibility = Visibility.Visible;
+            var obj = new
+            {
+                data = "types=4&trackIds="  + addplaylistmusicid.ToString()  + "&positions=0",
+                @params = new[] {
+                        new
+                        {
+                            uri = "database:list?id=" + playlistIdArr[index] + "&originalVersion=" + originalVerArr[index],
+                        }
+                    },
+                method = "updatePlaylist",
+                version = "1.0",
+                id = 2,
+            };
+            serializeJson(obj, "avContent", 0);
+            playlistselectBox.Visibility = Visibility.Hidden;
+            playlistLoaded = 0;
         }
 
         private void Last_Click(object sender, RoutedEventArgs e)
@@ -1184,5 +1235,7 @@ namespace hapControlGUIApp
         {
 
         }
+
+
     }
 }
