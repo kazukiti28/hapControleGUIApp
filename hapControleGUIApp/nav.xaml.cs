@@ -67,6 +67,9 @@ namespace hapControlGUIApp
         private dynamic dict = new Dictionary<string, int>();
         static dynamic[] playlistid;
         static int playlistLoaded;
+        static double playlistModifiedVersion;
+        static string playlistUri;
+        static int playlistfigure;
 
         public nav()
         {
@@ -236,6 +239,7 @@ namespace hapControlGUIApp
 
         public List<VisibleItem> extList { get; set; }
 
+        public List<string> playlistarr = new List<string>();
 
         private void LoadListItems()
         {
@@ -337,13 +341,16 @@ namespace hapControlGUIApp
                 tracklist.TrackName = name;
                 playlistid[i] = playlist.playlists[i].playlistid;
                 TracksdataList.Add(tracklist);
+                playlistarr.Add(name);
             }
+            playlistfigure = (int)cnt;
             ListBoxConverter.Visibility = Visibility.Hidden;
             ListBoxTrack.Visibility = Visibility.Hidden;
             playlistView.Visibility = Visibility.Visible;
-
             playlistView.ItemsSource = TracksdataList;
         }
+
+        public List<string> namearr = new List<string>();
 
         void DisplayAlbumInfo(int number)
         {
@@ -438,8 +445,41 @@ namespace hapControlGUIApp
                 tracklist.MusicId = (AlbumData.tracks[FileName[cnt, 1]].trackid).ToString();
                 TracksdataList.Add(tracklist);
                 info = "";
+                namearr.Add((AlbumData.tracks[FileName[cnt, 1]].trackid).ToString());
             }
             ListBoxTrack.ItemsSource = TracksdataList;
+            ContextMenu RightClick = new ContextMenu();
+            MenuItem next = new MenuItem();
+            next.Header = "再生キューの次曲に追加";
+            next.Click += Next_Click;
+            MenuItem last = new MenuItem();
+            last.Header = "再生キューの最後に追加";
+            last.Click += Last_Click;
+            MenuItem addp = new MenuItem();
+            addp.Header = "プレイリストに追加";
+            addp.Click += Addp_Click;
+            RightClick.Items.Add(next);
+            RightClick.Items.Add(last);
+            RightClick.Items.Add(addp);
+            ListBoxTrack.ContextMenu = RightClick;
+        }
+        
+
+        private void Addp_Click(object sender, RoutedEventArgs e)
+        {
+            Console.WriteLine("addPlaylist");
+        }
+
+        private void Last_Click(object sender, RoutedEventArgs e)
+        {
+            int index = ListBoxTrack.SelectedIndex;
+            addQueue(namearr[index], "last");
+        }
+
+        private void Next_Click(object sender, RoutedEventArgs e)
+        {
+            int index = ListBoxTrack.SelectedIndex;
+            addQueue(namearr[index], "next");
         }
 
         dynamic gettrackinfo(string url)
@@ -450,7 +490,30 @@ namespace hapControlGUIApp
             return data;
         }
 
-
+        void addQueue(string trackid, string mode)
+        {
+            string mod = playlistModifiedVersion.ToString(); ;
+            string par;
+            if (mode == "next") par = "types=3&trackIds=";
+            else par = "types=4&trackIds=";
+            string url;
+            var obj = new
+            {
+                data = par + trackid + "&positions=0",
+                @params = new[] {
+                        new
+                        {
+                            uri = "audio:list?id=" + playlistUri.Replace("audio:playinglist?id=","")
+                            + "&originalVersion=" + mod,
+                        }
+                    },
+                method = "updatePlaylist",
+                version = "1.0",
+                id = 2,
+            };
+            url = "avContent";
+            serializeJson(obj, url, 0);
+        }
 
         void downloadCoverArt()
         {
@@ -580,7 +643,8 @@ namespace hapControlGUIApp
                     return;
                 }
                 cont.musiclen = data.result[0].durationSec;
-
+                playlistModifiedVersion = data.result[0].playlistModifiedVersion;
+                playlistUri = data.result[0].playlistUri;
 
                 nowPlaying = data.result[0].title;
                 noAlbum = 0;
@@ -990,6 +1054,7 @@ namespace hapControlGUIApp
             playlistView.Visibility = Visibility.Visible;
             ListBoxTrack.Visibility = Visibility.Hidden;
             ListBoxConverter.Visibility = Visibility.Hidden;
+            extBox.Visibility = Visibility.Hidden;
             albumlistBackButton_Copy.Visibility = Visibility.Hidden;
             if (playlistLoaded != 1)
             {
@@ -1036,6 +1101,7 @@ namespace hapControlGUIApp
             ListBoxConverter.Visibility = Visibility.Visible;
             playlistBackButton.Visibility = Visibility.Hidden;
             albumlistBackButton_Copy.Visibility = Visibility.Visible;
+            extBox.Visibility = Visibility.Hidden;
         }
 
         private void hover1(object sender, MouseEventArgs e)
