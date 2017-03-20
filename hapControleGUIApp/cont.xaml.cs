@@ -73,6 +73,8 @@ namespace hapControlGUIApp
         public static dynamic queueData;
         public static string extMode;
         DispatcherTimer dispatcherTimer;
+        static double playlistModifiedVersion;
+        static string playlistUri;
 
         public void hiddenall()
         {
@@ -241,8 +243,54 @@ namespace hapControlGUIApp
             previmage.Source = prev;
         }
 
+        void updatePlaylist(int index,string mode)
+        {
+            string mov = "";
+            string dat = "";
+            if (mode == "up")
+            {
+                mov = "," + (index - 1).ToString();
+                dat = "types=1,0&trackIds=-1,";
+            }
+            else if (mode == "down")
+            {
+                mov = "," + (index + 1).ToString();
+                dat = "types=1,0&trackIds=-1,";
+            }
+            else if (mode == "del")
+            {
+                mov = "";
+                dat = "types=1&trackIds=";
+            }
+            var obj = new
+            {
+                data = dat + musicIdarr[index] + "&positions=" + index.ToString() + mov,
+                @params = new[] {
+                        new
+                        {
+                            uri = "audio:list?id=" + playlistUri.Replace("audio:playinglist?id=","") + "&originalVersion=" + playlistModifiedVersion.ToString(),
+                        }
+                    },
+                method = "updatePlaylist",
+                version = "1.0",
+                id = 2,
+            };
+            serializeJson(obj, "avContent", 0);
+        }
+        static string presskey;
+
         void dispatcherTimer_Tick(object sender, EventArgs e)
         {
+            if ((Keyboard.GetKeyStates(Key.N) & KeyStates.Down) == KeyStates.Down)
+            {
+                presskey = "n";
+            }
+            else if ((Keyboard.GetKeyStates(Key.P) & KeyStates.Down) == KeyStates.Down)
+            {
+                presskey = "p";
+            }
+            else presskey = "null";
+
             setJunbi("getmusicinfo");
             if (!extinput)
             {
@@ -504,7 +552,8 @@ namespace hapControlGUIApp
                     return;
                 }
                 musiclen = data.result[0].durationSec;
-
+                playlistModifiedVersion = data.result[0].playlistModifiedVersion;
+                playlistUri = data.result[0].playlistUri;
 
                 nowPlaying = data.result[0].title;
                 noAlbum = 0;
@@ -783,6 +832,8 @@ namespace hapControlGUIApp
             serializeJson(seekPosObj, "avContent", 0);
         }
 
+        static int queueleng;
+
         void getplayqueue()
         {
             if (!extinput)
@@ -801,6 +852,7 @@ namespace hapControlGUIApp
                 queueData = DynamicJson.Parse(res.GetResponseStream());
 
                 int numberoftracks = (int)queueData.paging.total; //アルバム収録曲数の取得
+                queueleng = numberoftracks;
                 string[] Tracks = new string[numberoftracks]; //曲の名前を格納する配列
                 int[] Duration = new int[numberoftracks]; //曲長さ格納
                 string[] Codec = new string[numberoftracks]; //コーデック格納
@@ -862,11 +914,14 @@ namespace hapControlGUIApp
                     tracklist.ContentUrl = queueData.tracks[cnt].album.url;
                     tracklist.MusicId = (queueData.tracks[cnt].trackid).ToString();
                     TracksdataList.Add(tracklist);
+                    musicIdarr.Add((queueData.tracks[cnt].trackid).ToString());
                     info = "";
                 }
                 listBoxqueue.ItemsSource = TracksdataList;
             }
         }
+
+        public List<string> musicIdarr = new List<string>();
 
         public List<VisibleItem> TracksdataList { get; set; }
 
@@ -1111,25 +1166,69 @@ namespace hapControlGUIApp
             coverArt.Visibility = Visibility.Hidden;
             dispatcherTimer.Start();
             getplayqueue();
+            ContextMenu RightClick = new ContextMenu();
+            if (queueleng > 1)
+            {
+                MenuItem up = new MenuItem();
+                up.Header = "一つ上に移動";
+                up.Click += Up_Click;
+                MenuItem down = new MenuItem();
+                down.Header = "一つ下に移動";
+                down.Click += Down_Click;
+                MenuItem del = new MenuItem();
+                del.Header = "再生キューから削除";
+                del.Click += Del_Click;
+                RightClick.Items.Add(up);
+                RightClick.Items.Add(down);
+                RightClick.Items.Add(del);
+                listBoxqueue.ContextMenu = RightClick;
+            }
+        }
+
+        private void Del_Click(object sender, RoutedEventArgs e)
+        {
+            Console.WriteLine(listBoxqueue.SelectedIndex);
+            updatePlaylist(listBoxqueue.SelectedIndex, "del");
+        }
+
+        private void Down_Click(object sender, RoutedEventArgs e)
+        {
+            if(listBoxqueue.SelectedIndex != queueleng) updatePlaylist(listBoxqueue.SelectedIndex, "down");
+        }
+
+        private void Up_Click(object sender, RoutedEventArgs e)
+        {
+            int item = listBoxqueue.SelectedIndex+1;
+            if(listBoxqueue.SelectedIndex != 0) updatePlaylist(listBoxqueue.SelectedIndex, "up");
         }
 
         private void listBoxqueue_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            int item = listBoxqueue.SelectedIndex;
-            var obj = new
+            if (presskey != "n" && presskey != "p")
             {
-                content_type = "track",
-                content_url = rawip + "contentplayer/v100/playqueue/tracks",
-                firstplay_index = item,
-                firstplay_trackid = queueData.tracks[item].trackid,
-                id = 1,
-                method = "playcontent",
-                play_type = "now",
-                repeat_mode = nowRepeat,
-                shuffle_mode = nowShuffle,
-                version = "1.1",
-            };
-            serializeJson(obj, "contentplayer/v100/operation", 0);
+                int item = listBoxqueue.SelectedIndex;
+                var obj = new
+                {
+                    content_type = "track",
+                    content_url = rawip + "contentplayer/v100/playqueue/tracks",
+                    firstplay_index = item,
+                    firstplay_trackid = queueData.tracks[item].trackid,
+                    id = 1,
+                    method = "playcontent",
+                    play_type = "now",
+                    repeat_mode = nowRepeat,
+                    shuffle_mode = nowShuffle,
+                    version = "1.1",
+                };
+                serializeJson(obj, "contentplayer/v100/operation", 0);
+            }
+            else
+            {
+                string mod;
+                if (presskey == "n") mod = "down";
+                else mod = "up";
+                updatePlaylist(listBoxqueue.SelectedIndex, mod);
+            }
         }
 
         private void button_Click_3(object sender, RoutedEventArgs e)
@@ -1139,6 +1238,15 @@ namespace hapControlGUIApp
             showqueue.Visibility = Visibility.Visible;
             backButton.Visibility = Visibility.Hidden;
             coverArt.Visibility = Visibility.Visible;
+        }
+        static int selectedIndex;
+
+        bool IsCtrlOrShiftKeyPressed()
+        {
+                return ((Keyboard.GetKeyStates(Key.LeftShift) & KeyStates.Down) == KeyStates.Down ||
+                     (Keyboard.GetKeyStates(Key.RightShift) & KeyStates.Down) == KeyStates.Down ||
+                     (Keyboard.GetKeyStates(Key.LeftCtrl) & KeyStates.Down) == KeyStates.Down ||
+                     (Keyboard.GetKeyStates(Key.RightCtrl) & KeyStates.Down) == KeyStates.Down);
         }
     }
 }

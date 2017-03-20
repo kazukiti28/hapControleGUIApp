@@ -543,7 +543,7 @@ namespace hapControlGUIApp
 
         void addQueue(string trackid, string mode)
         {
-            string mod = playlistModifiedVersion.ToString(); ;
+            string mod = playlistModifiedVersion.ToString();
             string par;
             if (mode == "next") par = "types=3&trackIds=";
             else par = "types=4&trackIds=";

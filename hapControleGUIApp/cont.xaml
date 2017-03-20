@@ -10,7 +10,7 @@
             <Canvas Height="45" Width="200" x:Name="albums">
                 <TextBlock x:Name="Track" Text="{Binding TrackName}" Width="270" Height="27" Foreground="White" FontSize="13pt"/>
                 <TextBlock x:Name="Artist" Text="{Binding ArtistName}" Canvas.Top="27" Width="150" Height="15" Foreground="White"/>
-                <TextBlock Text="{Binding TrackInfo}" Canvas.Left="158" Canvas.Top="27" Width="200" Height="15" Foreground="White" FontSize="8pt"/>
+                <TextBlock Text="{Binding TrackInfo}" Canvas.Left="150" Canvas.Top="27" Width="200" Height="15" Foreground="White" FontSize="8pt"/>
             </Canvas>
         </DataTemplate>
     </Page.Resources>
@@ -20,7 +20,7 @@
             <RowDefinition Height="15*"/>
             <RowDefinition Height="14*"/>
         </Grid.RowDefinitions>
-        <Image x:Name="bgimage" Stretch="Fill" HorizontalAlignment="Left" Height="348" VerticalAlignment="Top" Width="723" Grid.RowSpan="2"/>
+        <Image x:Name="bgimage" Stretch="Fill" HorizontalAlignment="Left" Height="348" VerticalAlignment="Top" Width="723" Grid.RowSpan="2" Margin="0,3,0,0"/>
         <Border x:Name="blackbar" BorderBrush="Black" HorizontalAlignment="Left" Height="89" Margin="-3,124,0,0" VerticalAlignment="Top" Width="726" Background="Black" Grid.Row="1"/>
         <Image x:Name="startimage" Height="56" Width="56" Margin="384,9,0,0" Grid.Row="1" VerticalAlignment="Top" HorizontalAlignment="Left"/>
         <Button BorderThickness="0" x:Name="startButton" Click="startButton_Click" MouseEnter="hover2" MouseLeave="leaved2" Grid.Row="1" HorizontalAlignment="Left" Margin="386,9,0,0" VerticalAlignment="Top" Opacity="0">
@@ -66,7 +66,7 @@
         <TextBlock x:Name="minsec" Foreground="White" FontSize="10pt"  HorizontalAlignment="Left" Margin="650,105,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Width="63" Height="21" Grid.Row="1"/>
         <Button x:Name="browse" Content="Browse" HorizontalAlignment="Left" Margin="639,10,0,0" VerticalAlignment="Top" Width="60" Click="button_Click_1"/>
         <Slider x:Name="slider" HorizontalAlignment="Left" Margin="311,81,0,0" Grid.Row="1" VerticalAlignment="Top" Width="382" Height="19" Maximum="100" Minimum="0" Thumb.DragCompleted="slider_DragCompleted" Thumb.DragStarted="slider_DragStarted"/>
-        <ListBox Visibility="Hidden" MouseDoubleClick="listBoxqueue_MouseDoubleClick"  ItemTemplate="{DynamicResource DataTemplateTracks}" ItemsSource="{Binding dataList, Mode=TwoWay}" Background="Transparent" x:Name="listBoxqueue" HorizontalAlignment="Left" Height="285" Margin="5,44,0,0" VerticalAlignment="Top" Width="295" Grid.RowSpan="2"/>
+        <ListBox Visibility="Hidden" MouseDoubleClick="listBoxqueue_MouseDoubleClick" ItemTemplate="{DynamicResource DataTemplateTracks}" ItemsSource="{Binding dataList, Mode=TwoWay}" Background="Transparent" x:Name="listBoxqueue" HorizontalAlignment="Left" Height="275" Margin="5,54,0,0" VerticalAlignment="Top" Width="295" Grid.RowSpan="2"/>
         <Button x:Name="showqueue" Margin="20,45,419,82" Grid.RowSpan="2" Opacity="0" Click="Button_Click_2"/>
         <Button Visibility="Hidden" x:Name="backButton" Content="戻る" HorizontalAlignment="Left" Margin="247,10,0,0" VerticalAlignment="Top" Width="34" Click="button_Click_3"/>
     </Grid>
