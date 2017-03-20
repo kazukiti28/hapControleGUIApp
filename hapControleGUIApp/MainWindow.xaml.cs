@@ -10,6 +10,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Media;
 using System.Windows.Navigation;
 using System.Collections.Generic;
+using System.Windows.Input;
 
 namespace hapControleGUIApp
 {
@@ -47,5 +48,18 @@ namespace hapControleGUIApp
             }
         }
 
+        private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = true;
+        }
+        private void CommandBinding_Executed_1(object sender, ExecutedRoutedEventArgs e)
+        {
+            SystemCommands.MinimizeWindow(this);
+        }
+        
+        private void CommandBinding_Executed_4(object sender, ExecutedRoutedEventArgs e)
+        {
+            SystemCommands.CloseWindow(this);
+        }
     }   
 }

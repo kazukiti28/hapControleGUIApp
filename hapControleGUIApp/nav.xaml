@@ -47,8 +47,8 @@
             <RowDefinition Height="15*"/>
             <RowDefinition Height="14*"/>
         </Grid.RowDefinitions>
-        <Image x:Name="bgimage"  Stretch="Fill" HorizontalAlignment="Left" Height="348" VerticalAlignment="Top" Width="715" Grid.RowSpan="2"/>
-        <Border x:Name="blackbar" BorderBrush="Black" HorizontalAlignment="Left" Height="65" Margin="0,130,-3,0" VerticalAlignment="Top" Width="726" Background="Black" Grid.Row="1">
+        <Image x:Name="bgimage" Stretch="Fill" HorizontalAlignment="Left" Height="350" VerticalAlignment="Top" Width="720" Grid.RowSpan="2"/>
+        <Border x:Name="blackbar" BorderBrush="Black" HorizontalAlignment="Left" Height="70" Margin="0,132,0,0" VerticalAlignment="Top" Width="726" Background="Black" Grid.Row="1">
             <Image x:Name="coverArt" Stretch="Uniform" HorizontalAlignment="Center" Height="59" Margin="2,6,666,0" VerticalAlignment="Center" Width="58" />
         </Border>
 
@@ -59,8 +59,8 @@
         <Button Opacity="0" x:Name="nextButton" HorizontalAlignment="Left" Margin="410,143.5,0,0" VerticalAlignment="Top" Width="40" Height="40" Click="nextButton_Click" Grid.Row="1" MouseEnter="hover3" MouseLeave="leaved3"/>
         <Image x:Name="previmage" HorizontalAlignment="Left" Margin="310,143.5,0,0" VerticalAlignment="Top" Width="40" Height="40" Grid.Row="1"/>
         <Button Opacity="0" x:Name="prevButton" HorizontalAlignment="Left" Margin="310,143.5,0,0" VerticalAlignment="Top" Width="40" Height="40" Click="prevButton_Click" Grid.Row="1" MouseEnter="hover1" MouseLeave="leaved1"/>
-        <TextBlock x:Name="ipadd" Foreground="Black" HorizontalAlignment="Left" Margin="10,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Text="IPアドレス:" Width="55" Height="20"/>
-        <TextBox x:Name="ipaddInput" HorizontalAlignment="Left" Height="20" Margin="70,10,0,0" TextWrapping="Wrap" Text="http://" VerticalAlignment="Top" Width="150"/>
+        <TextBlock x:Name="ipadd" Foreground="Black" HorizontalAlignment="Left" Margin="10,30,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Text="IPアドレス:" Width="55" Height="20"/>
+        <TextBox x:Name="ipaddInput" HorizontalAlignment="Left" Height="20" Margin="70,30,0,0" TextWrapping="Wrap" Text="http://" VerticalAlignment="Top" Width="150"/>
         <Image x:Name="pimg" HorizontalAlignment="Left" Margin="630,143.5,0,0" VerticalAlignment="Top" Width="40" Height="40" Grid.Row="1"/>
         <Button Opacity="0" x:Name="volPlu" HorizontalAlignment="Left" Margin="630,143.5,0,0" VerticalAlignment="Top" Width="40" Height="40" RenderTransformOrigin="1.875,0.525" Click="volPlu_Click" Grid.Row="1" MouseEnter="volPlu_MouseEnter" MouseLeave="volPlu_MouseLeave"/>
         <Image x:Name="mimg" HorizontalAlignment="Left" Margin="550,143.5,0,0" VerticalAlignment="Top" Width="40" Height="40" Grid.Row="1"/>
@@ -72,7 +72,7 @@
         <TextBlock x:Name="musicAlbum" Foreground="White" FontSize="8pt" HorizontalAlignment="Left" Margin="79,165.5,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Width="207" Height="16" Grid.Row="1"/>
 
 
-        <Button x:Name="control" Content="Control" HorizontalAlignment="Left" Margin="639,10,0,0" VerticalAlignment="Top" Width="60" Click="change_click"/>
+        <Button x:Name="control" Content="Control" HorizontalAlignment="Left" Margin="639,30,0,0" VerticalAlignment="Top" Width="60" Click="change_click"/>
 
         <ListBox Visibility="Hidden" MouseDoubleClick="playlistTracks_MouseDoubleClick" Background="Transparent" x:Name="playlistTracks" ItemTemplate="{DynamicResource DataTemplatePlaylistTracks}" ItemsSource="{Binding dataList, Mode=TwoWay}" IsSynchronizedWithCurrentItem="True" HorizontalContentAlignment="Left" Margin="120,63,10,79" Grid.RowSpan="2"/>
 
@@ -84,18 +84,19 @@
         <ListBox Visibility="Hidden" MouseDoubleClick="extBox_MouseDoubleClick"  Background="Transparent" x:Name="extBox" ItemTemplate="{DynamicResource DataTemplateItemConverter}" ItemsSource="{Binding dataList}" IsSynchronizedWithCurrentItem="True" HorizontalContentAlignment="Left" Margin="120,63,10,79" Grid.RowSpan="2"/>
         <ListBox Visibility="Hidden" MouseDoubleClick="playlistselectBox_MouseDoubleClick" Background="Transparent" x:Name="playlistselectBox" ItemTemplate="{DynamicResource DataTemplatePlaylist}" ItemsSource="{Binding dataList}" IsSynchronizedWithCurrentItem="True" HorizontalContentAlignment="Left" Margin="120,63,10,79" Grid.RowSpan="2"/>
 
-        <Button x:Name="BackButton" Click="BackButton_OnClick" Content="←" HorizontalAlignment="Left" Margin="120,36,0,0" VerticalAlignment="Top" Width="22" Height="22"/>
-        <Button Visibility="Hidden" x:Name="playlistBackButton" Click="playlistBackButton_Click" Content="←" HorizontalAlignment="Left" Margin="120,36,0,0" VerticalAlignment="Top" Width="22" Height="22"/>
+        <Button x:Name="BackButton" Click="BackButton_OnClick" Content="←" HorizontalAlignment="Left" Margin="96,65,0,0" VerticalAlignment="Top" Width="22" Height="22"/>
+        <Button Visibility="Hidden" x:Name="playlistBackButton" Click="playlistBackButton_Click" Content="←" HorizontalAlignment="Left" Margin="96,65,0,0" VerticalAlignment="Top" Width="22" Height="22"/>
 
        
 
-        <Image x:Name="albu" HorizontalAlignment="Left" Height="80" Margin="15,63,0,0" Grid.RowSpan="2" VerticalAlignment="Top" Width="80"/>
-        <Button Opacity="0" x:Name="albumbutton" HorizontalAlignment="Left" Height="80" Margin="15,63,0,0" Grid.RowSpan="2" VerticalAlignment="Top" Width="80" Click="albumbutton_Click"/>
-        <Image x:Name="playlist" HorizontalAlignment="Left" Height="80" Margin="15,149,0,0" Grid.RowSpan="2" VerticalAlignment="Top" Width="80"/>
-        <Button Opacity="0" x:Name="playlistbutton" Click="playlistbutton_Click" HorizontalAlignment="Left" Height="80" Margin="15,149,0,0" Grid.RowSpan="2" VerticalAlignment="Top" Width="80"/>
-        <Image x:Name="ext" HorizontalAlignment="Left" Height="80" Margin="15,235,0,0" Grid.RowSpan="2" VerticalAlignment="Top" Width="80"/>
-        <Button Opacity="0" x:Name="extbutton" Click="extbutton_Click" HorizontalAlignment="Left" Height="80" Margin="15,235,0,0" Grid.RowSpan="2" VerticalAlignment="Top" Width="80"/>
-        <Button x:Name="albumlistBackButton_Copy" Click="albumlistBackButton_Copy_Click" Content="←" HorizontalAlignment="Left" Margin="120,36,0,0" VerticalAlignment="Top" Width="22" Height="22"/>
+        <Image x:Name="albu" HorizontalAlignment="Left" Height="80" Margin="13,63,0,0" Grid.RowSpan="2" VerticalAlignment="Top" Width="80"/>
+        <Button Opacity="0" x:Name="albumbutton" HorizontalAlignment="Left" Height="80" Margin="13,63,0,0" Grid.RowSpan="2" VerticalAlignment="Top" Width="80" Click="albumbutton_Click"/>
+        <Image x:Name="playlist" HorizontalAlignment="Left" Height="80" Margin="13,149,0,0" Grid.RowSpan="2" VerticalAlignment="Top" Width="80"/>
+        <Button Opacity="0" x:Name="playlistbutton" Click="playlistbutton_Click" HorizontalAlignment="Left" Height="80" Margin="13,149,0,0" Grid.RowSpan="2" VerticalAlignment="Top" Width="80"/>
+        <Image x:Name="ext" HorizontalAlignment="Left" Height="80" Margin="13,235,0,0" Grid.RowSpan="2" VerticalAlignment="Top" Width="80"/>
+        <Button Opacity="0" x:Name="extbutton" Click="extbutton_Click" HorizontalAlignment="Left" Height="80" Margin="13,235,0,0" Grid.RowSpan="2" VerticalAlignment="Top" Width="80"/>
+        
+        <Button x:Name="albumlistBackButton_Copy" Click="albumlistBackButton_Copy_Click" Content="←" HorizontalAlignment="Left" Margin="96,65,0,0" VerticalAlignment="Top" Width="22" Height="22"/>
 
     </Grid>
 </Page>

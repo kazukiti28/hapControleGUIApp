@@ -15,15 +15,15 @@
       <requestedPrivileges xmlns="urn:schemas-microsoft-com:asm.v3">
         <!--
           UAC マニフェスト オプション
-          Windows のユーザー アカウント制御のレベルを変更するには、
-          requestedExecutionLevel ノードを以下のいずれかで置換します。
+         Windows のユーザー アカウント制御のレベルを変更するには、
+         requestedExecutionLevel ノードを以下のいずれかで置換します。
 
-        <requestedExecutionLevel  level="asInvoker" uiAccess="false" />
-        <requestedExecutionLevel  level="requireAdministrator" uiAccess="false" />
-        <requestedExecutionLevel  level="highestAvailable" uiAccess="false" />
+       <requestedExecutionLevel  level="asInvoker" uiAccess="false" />
+       <requestedExecutionLevel  level="requireAdministrator" uiAccess="false" />
+       <requestedExecutionLevel  level="highestAvailable" uiAccess="false" />
 
-         下位互換性を保つためにファイルおよびレジストリの仮想化を使用する場合、
-         requestedExecutionLevel ノードを削除します。
+        下位互換性を保つためにファイルおよびレジストリの仮想化を使用する場合、
+        requestedExecutionLevel ノードを削除します。
     -->
         <requestedExecutionLevel level="asInvoker" uiAccess="false" />
       </requestedPrivileges>
@@ -42,14 +42,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="hapControlGUIApp.exe" size="184320">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="hapControlGUIApp.exe" size="191488">
       <assemblyIdentity name="hapControlGUIApp" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>D48JjT5GhZUNE4Dy4CN/4emd3KwsRr5Sn0cvwIsi9Qo=</dsig:DigestValue>
+        <dsig:DigestValue>XIw2f6lSiyCvLLyPxnYq7pMUHM3qI+rKhTWbWvha2H0=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>

@@ -1,20 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Windows.Threading;
 using Codeplex.Data;
 
@@ -114,6 +108,7 @@ namespace hapControlGUIApp
             repone.Visibility = Visibility.Visible;
             startButton.Visibility = Visibility.Visible;
             Repeat.Visibility = Visibility.Visible;
+            musicName.Visibility = Visibility.Visible;
             musicAlbum.Visibility = Visibility.Visible;
             musicCodec.Visibility = Visibility.Visible;
             minsec.Visibility = Visibility.Visible;
@@ -124,6 +119,11 @@ namespace hapControlGUIApp
             shuffle.Visibility = Visibility.Visible;
             previmage.Visibility = Visibility.Visible;
             nextimage.Visibility = Visibility.Visible;
+            startimage.Visibility = Visibility.Visible;
+            pimg.Visibility = Visibility.Visible;
+            mimg.Visibility = Visibility.Visible;
+            volIn.Visibility = Visibility.Visible;
+            browse.Visibility = Visibility.Visible;
         }
 
         public cont()
@@ -180,23 +180,9 @@ namespace hapControlGUIApp
                 dispatcherTimer.Interval = new TimeSpan(0, 0, 0, 0, 500);
                 dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
                 dispatcherTimer.Start();
-
-                coverArt.Visibility = Visibility.Visible;
+                
                 ipaButton.Visibility = Visibility.Hidden;
-                prevButton.Visibility = Visibility.Visible;
-                nextButton.Visibility = Visibility.Visible;
-                prevButton.Visibility = Visibility.Visible;
-                blackbar.Visibility = Visibility.Visible;
-                volPlu.Visibility = Visibility.Visible;
-                volMin.Visibility = Visibility.Visible;
-                offshu.Visibility = Visibility.Visible;
-                albumshu.Visibility = Visibility.Visible;
-                allshu.Visibility = Visibility.Visible;
-                repoff.Visibility = Visibility.Visible;
-                repall.Visibility = Visibility.Visible;
-                repone.Visibility = Visibility.Visible;
-                startButton.Visibility = Visibility.Visible;
-                Repeat.Visibility = Visibility.Visible;
+                
                 ipadd.Foreground = new SolidColorBrush(Colors.White);
             }
         }
@@ -281,14 +267,13 @@ namespace hapControlGUIApp
             };
             serializeJson(obj, "avContent", 0);
         }
-        static string presskey;
+        static int first = 1;
 
         void dispatcherTimer_Tick(object sender, EventArgs e)
         {
             setJunbi("getmusicinfo");
             if (!extinput)
             {
-                showall();
                 musicName.Text = nowPlaying;
                 musicArtist.Text = artist;
                 musicAlbum.Text = album;
@@ -340,6 +325,11 @@ namespace hapControlGUIApp
                 setCenterimg();
                 if (!isDragging) slider.Value = ((posMin * 60 + posSec) / musiclen) * 100;
                 getplayqueue();
+                if (first == 1)
+                {
+                    showall();
+                    first = 0;
+                }
             }
             else
             {
@@ -426,28 +416,13 @@ namespace hapControlGUIApp
             BG.Background =
                 new SolidColorBrush(Color.FromArgb(Convert.ToByte(a, 16), Convert.ToByte(r, 16), Convert.ToByte(g, 16),
                     Convert.ToByte(b, 16)));
-
-            coverArt.Visibility = Visibility.Visible;
             ipaButton.Visibility = Visibility.Hidden;
-            prevButton.Visibility = Visibility.Visible;
-            nextButton.Visibility = Visibility.Visible;
-            prevButton.Visibility = Visibility.Visible;
-            blackbar.Visibility = Visibility.Visible;
-            volPlu.Visibility = Visibility.Visible;
-            volMin.Visibility = Visibility.Visible;
-            offshu.Visibility = Visibility.Visible;
-            albumshu.Visibility = Visibility.Visible;
-            allshu.Visibility = Visibility.Visible;
-            repoff.Visibility = Visibility.Visible;
-            repall.Visibility = Visibility.Visible;
-            repone.Visibility = Visibility.Visible;
-            startButton.Visibility = Visibility.Visible;
-            Repeat.Visibility = Visibility.Visible;
-            Mute.Visibility = Visibility.Visible;
+
             dispatcherTimer = new DispatcherTimer(DispatcherPriority.Normal);
             dispatcherTimer.Interval = new TimeSpan(0, 0, 0, 0, 250);
             dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
             dispatcherTimer.Start();
+           
         }
 
         void downloadCoverArt()
@@ -518,12 +493,12 @@ namespace hapControlGUIApp
                 if (playmode == "PAUSED")
                 {
                     isPlayNow = false;
-                    showall();
+                    if(first != 1) showall();
                 }
                 else if (playmode == "PLAYING")
                 {
                     isPlayNow = true;
-                    showall();
+                    if(first != 1) showall();
                 }
                 else if (playmode == "STOPPED")
                 {
@@ -548,7 +523,7 @@ namespace hapControlGUIApp
                 musiclen = data.result[0].durationSec;
                 playlistModifiedVersion = data.result[0].playlistModifiedVersion;
                 playlistUri = data.result[0].playlistUri;
-
+                nowalbumId = data.result[0].albumID;
                 nowPlaying = data.result[0].title;
                 noAlbum = 0;
                 try
@@ -620,6 +595,8 @@ namespace hapControlGUIApp
                 }
             }
         }
+
+        static string nowalbumId;
 
         void makeMutejson(int mode)//ミュート状態により処理変更
         {
@@ -921,6 +898,16 @@ namespace hapControlGUIApp
                     }
 
                     oldqueuedata = queueData;
+                    var border = VisualTreeHelper.GetChild(listBoxqueue, 0) as Border;
+                    if (border != null)
+                    {
+                        dynamic listBoxScroll = border.Child as ScrollViewer;
+                        if (listBoxScroll != null)
+                        {
+                            // スクロールバー非表示
+                            listBoxScroll.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
+                        }
+                    }
                 }
                 catch { }
             }
@@ -1208,7 +1195,6 @@ namespace hapControlGUIApp
         private void listBoxqueue_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             var listBoxItem = (ListBoxItem)listBoxqueue.ItemContainerGenerator.ContainerFromItem(listBoxqueue.SelectedItem);
-            // ヒットテストでアイテム上
             if (listBoxItem.InputHitTest(e.GetPosition(listBoxItem)) != null)
             {
                 int item = listBoxqueue.SelectedIndex;
@@ -1237,6 +1223,16 @@ namespace hapControlGUIApp
             showqueue.Visibility = Visibility.Visible;
             backButton.Visibility = Visibility.Hidden;
             coverArt.Visibility = Visibility.Visible;
+        }
+
+        private void Button_Click_4(object sender, RoutedEventArgs e)
+        {
+            dispatcherTimer.Stop();
+            double alid = int.Parse(nowalbumId.Replace("audio:album?id=", ""));
+            nav.reqMusicId = alid;
+            nav.req = 1;
+            nav navig = new nav();
+            NavigationService?.Navigate(navig);
         }
     }
 }

@@ -1,30 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Json;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Windows.Threading;
 using Codeplex.Data;
-using Microsoft.Win32;
-using System.Collections;
-using System.Collections.ObjectModel;
 using System.Text.RegularExpressions;
-using System.Threading;
 namespace hapControlGUIApp
 {
     /// <summary>
@@ -71,6 +58,8 @@ namespace hapControlGUIApp
         static string playlistUri;
         static int playlistfigure;
         static int addplaylistmusicid;
+        public static int req;
+        public static double reqMusicId;
 
         public nav()
         {
@@ -81,7 +70,7 @@ namespace hapControlGUIApp
             musicName.Text = cont.nowPlaying;
             musicAlbum.Text = cont.album;
             volIn.Text = cont.nowVolume.ToString();
-
+            BG.Background = new SolidColorBrush(Color.FromArgb(Convert.ToByte(cont.a, 16), Convert.ToByte(cont.r, 16), Convert.ToByte(cont.g, 16), Convert.ToByte(cont.b, 16)));
             BitmapImage bgimg = new BitmapImage();
             bgimg.BeginInit();
             bgimg.UriSource = new Uri(cont.shabgurl);
@@ -104,9 +93,26 @@ namespace hapControlGUIApp
             setCenterimg();
             setRightimg();
             getAllAlbumInfo();
-            LoadListItems();         
+            LoadListItems();
             playlistBackButton.Visibility = Visibility.Hidden;
+            if (req == 1)
+            {
+                searchNum();
+                req = 0;
+                reqMusicId = -1;
+                playlistView.Visibility = Visibility.Visible;
+            }
         }
+
+        void searchNum()
+        {
+            for (int i = 0; i < allalbumdata.paging.total ; i++)
+            {
+                if (reqMusicId == allalbumdata.albums[i].albumid) DisplayAlbumInfo(i);
+            }
+        
+        }
+
 
         void setImage()
         {
@@ -178,6 +184,7 @@ namespace hapControlGUIApp
 
         void dispatcherTimer_Tick(object sender, EventArgs e)
         {
+            
             setJunbi("getmusicinfo");
             if (!cont.extinput)
             {
@@ -957,6 +964,7 @@ namespace hapControlGUIApp
 
         private void change_click(object sender, RoutedEventArgs e)
         {
+            dispatcherTimer.Stop();
             cont con = new cont();
             NavigationService?.Navigate(con);
         }
