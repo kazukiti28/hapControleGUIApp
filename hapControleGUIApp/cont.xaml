@@ -20,7 +20,7 @@
             <RowDefinition Height="15*"/>
             <RowDefinition Height="14*"/>
         </Grid.RowDefinitions>
-        <Image x:Name="bgimage" Stretch="Fill" HorizontalAlignment="Left" Height="348" VerticalAlignment="Top" Width="723" Grid.RowSpan="2" Margin="0,3,0,0"/>
+        <Image x:Name="bgimage" Stretch="Fill" HorizontalAlignment="Left" Height="348" VerticalAlignment="Top" Width="723" Grid.RowSpan="2"/>
         <Border x:Name="blackbar" BorderBrush="Black" HorizontalAlignment="Left" Height="89" Margin="-3,124,0,0" VerticalAlignment="Top" Width="726" Background="Black" Grid.Row="1"/>
         <Image x:Name="startimage" Height="56" Width="56" Margin="384,9,0,0" Grid.Row="1" VerticalAlignment="Top" HorizontalAlignment="Left"/>
         <Button BorderThickness="0" x:Name="startButton" Click="startButton_Click" MouseEnter="hover2" MouseLeave="leaved2" Grid.Row="1" HorizontalAlignment="Left" Margin="386,9,0,0" VerticalAlignment="Top" Opacity="0">

@@ -81,13 +81,13 @@
         <ListBox Visibility="Hidden" MouseDoubleClick="TrackClick" Background="Transparent" x:Name="ListBoxTrack" ItemTemplate="{DynamicResource DataTemplateTracks}" ItemsSource="{Binding dataList, Mode=TwoWay}" IsSynchronizedWithCurrentItem="True" HorizontalContentAlignment="Left" Margin="120,63,10,79" Grid.RowSpan="2"/>
 
         <ListBox MouseDoubleClick="listClick" Background="Transparent" x:Name="ListBoxConverter" ItemTemplate="{DynamicResource DataTemplateItemConverter}" ItemsSource="{Binding dataList}" IsSynchronizedWithCurrentItem="True" HorizontalContentAlignment="Left" Margin="120,63,10,79" Grid.RowSpan="2"/>
-        <ListBox Visibility="Hidden" MouseDoubleClick="extBox_MouseDoubleClick" Background="Transparent" x:Name="extBox" ItemTemplate="{DynamicResource DataTemplateItemConverter}" ItemsSource="{Binding dataList}" IsSynchronizedWithCurrentItem="True" HorizontalContentAlignment="Left" Margin="120,63,10,79" Grid.RowSpan="2"/>
+        <ListBox Visibility="Hidden" MouseDoubleClick="extBox_MouseDoubleClick"  Background="Transparent" x:Name="extBox" ItemTemplate="{DynamicResource DataTemplateItemConverter}" ItemsSource="{Binding dataList}" IsSynchronizedWithCurrentItem="True" HorizontalContentAlignment="Left" Margin="120,63,10,79" Grid.RowSpan="2"/>
         <ListBox Visibility="Hidden" MouseDoubleClick="playlistselectBox_MouseDoubleClick" Background="Transparent" x:Name="playlistselectBox" ItemTemplate="{DynamicResource DataTemplatePlaylist}" ItemsSource="{Binding dataList}" IsSynchronizedWithCurrentItem="True" HorizontalContentAlignment="Left" Margin="120,63,10,79" Grid.RowSpan="2"/>
 
         <Button x:Name="BackButton" Click="BackButton_OnClick" Content="←" HorizontalAlignment="Left" Margin="120,36,0,0" VerticalAlignment="Top" Width="22" Height="22"/>
         <Button Visibility="Hidden" x:Name="playlistBackButton" Click="playlistBackButton_Click" Content="←" HorizontalAlignment="Left" Margin="120,36,0,0" VerticalAlignment="Top" Width="22" Height="22"/>
 
-        <ComboBox x:Name="comboBox" ItemsSource="{Binding headChara}" SelectedItem="{Binding ref}"  SelectionChanged="HeadChanged" HorizontalAlignment="Left" Margin="661,36,0,0" VerticalAlignment="Top" Width="38"/>
+       
 
         <Image x:Name="albu" HorizontalAlignment="Left" Height="80" Margin="15,63,0,0" Grid.RowSpan="2" VerticalAlignment="Top" Width="80"/>
         <Button Opacity="0" x:Name="albumbutton" HorizontalAlignment="Left" Height="80" Margin="15,63,0,0" Grid.RowSpan="2" VerticalAlignment="Top" Width="80" Click="albumbutton_Click"/>
