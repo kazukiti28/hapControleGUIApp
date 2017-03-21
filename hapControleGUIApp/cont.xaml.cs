@@ -14,9 +14,6 @@ using Codeplex.Data;
 
 namespace hapControlGUIApp
 {
-    /// <summary>
-    /// cont.xaml の相互作用ロジック
-    /// </summary>
     public partial class cont : Page
     {
         public static int nowVolume = 0;
@@ -69,10 +66,13 @@ namespace hapControlGUIApp
         DispatcherTimer dispatcherTimer;
         static double playlistModifiedVersion;
         static string playlistUri;
+        static string power;
 
         public void hiddenall()
         {
+            musicArtist.Visibility = Visibility.Hidden;
             coverArt.Visibility = Visibility.Hidden;
+            prevButton.Visibility = Visibility.Hidden;
             nextButton.Visibility = Visibility.Hidden;
             prevButton.Visibility = Visibility.Hidden;
             offshu.Visibility = Visibility.Hidden;
@@ -83,15 +83,23 @@ namespace hapControlGUIApp
             repone.Visibility = Visibility.Hidden;
             startButton.Visibility = Visibility.Hidden;
             Repeat.Visibility = Visibility.Hidden;
+            musicName.Visibility = Visibility.Hidden;
             musicAlbum.Visibility = Visibility.Hidden;
-            musicArtist.Visibility = Visibility.Hidden;
             musicCodec.Visibility = Visibility.Hidden;
             minsec.Visibility = Visibility.Hidden;
             slider.Visibility = Visibility.Hidden;
+            nextButton.Visibility = Visibility.Hidden;
+            prevButton.Visibility = Visibility.Hidden;
             slider.Visibility = Visibility.Hidden;
             shuffle.Visibility = Visibility.Hidden;
             previmage.Visibility = Visibility.Hidden;
             nextimage.Visibility = Visibility.Hidden;
+            startimage.Visibility = Visibility.Hidden;
+            pimg.Visibility = Visibility.Hidden;
+            mimg.Visibility = Visibility.Hidden;
+            volIn.Visibility = Visibility.Hidden;
+            browse.Visibility = Visibility.Hidden;
+            muteimg.Visibility = Visibility.Hidden;
         }
         public void showall()
         {
@@ -124,6 +132,36 @@ namespace hapControlGUIApp
             mimg.Visibility = Visibility.Visible;
             volIn.Visibility = Visibility.Visible;
             browse.Visibility = Visibility.Visible;
+            muteimg.Visibility = Visibility.Visible;
+        }
+
+        void checkPower()
+        {
+            var req = WebRequest.Create(ip + "contentplayer/v100/powerstate");
+            var res = req.GetResponse();
+
+            dynamic data = DynamicJson.Parse(res.GetResponseStream());
+
+            if (data.power_state == "off") power = "off";
+            else power = "on";
+        }
+
+        void powerCont(string mode)
+        {
+            var obj = new
+            {
+                @params = new[] {
+                        new
+                        {
+                            standbyDetail = "",
+                            status = mode,
+                        }
+                    },
+                method = "setPowerStatus",
+                version = "1.1",
+                id = 8,
+            };
+            serializeJson(obj, "system", 0);
         }
 
         public cont()
@@ -133,6 +171,8 @@ namespace hapControlGUIApp
             myDocument = Environment.GetFolderPath(Environment.SpecialFolder.Personal) + "/HAPControlApp";
             DirectoryInfo di = new DirectoryInfo(myDocument);
             di.Create();
+
+            
 
             string bgurl = myDocument + "/bg_overlay.png";
             shabgurl = bgurl;
@@ -147,6 +187,21 @@ namespace hapControlGUIApp
                 hostUrl = ip;
                 ipaddInput.Text = ip;
                 rawip = ip;
+                checkPower();
+                if (power == "off")
+                {
+                    if (MessageBox.Show("電源がOFFです。ONにしますか？", "Information", MessageBoxButton.YesNo,
+                    MessageBoxImage.Information) == MessageBoxResult.Yes)
+                    {
+                        powerCont("active");
+                    }
+                    ProcessingSplash ps = new ProcessingSplash("起動待ちです。しばらくお待ちください…", () =>
+                    {
+                        System.Threading.Thread.Sleep(19000);
+                    });
+                    ps.ShowDialog();
+                }
+                
                 setJunbi("getmusicinfo");
                 if (!File.Exists(myDocument + "/bg_overlay.png"))
                 {
@@ -191,7 +246,7 @@ namespace hapControlGUIApp
         {
             BitmapImage volminus = new BitmapImage();
             volminus.BeginInit();
-            volminus.UriSource = new Uri(myDocument + volm);
+            volminus.UriSource = new Uri("pack://application:,,,/Image" + volm);
             volminus.EndInit();
             mimg.Source = volminus;
         }
@@ -200,7 +255,7 @@ namespace hapControlGUIApp
         {
             BitmapImage volplus = new BitmapImage();
             volplus.BeginInit();
-            volplus.UriSource = new Uri(myDocument + volp);
+            volplus.UriSource = new Uri("pack://application:,,,/Image" + volp);
             volplus.EndInit();
             pimg.Source = volplus;
         }
@@ -209,7 +264,7 @@ namespace hapControlGUIApp
         {
             BitmapImage next = new BitmapImage();
             next.BeginInit();
-            next.UriSource = new Uri(myDocument + nextimg);
+            next.UriSource = new Uri("pack://application:,,,/Image" + nextimg);
             next.EndInit();
             nextimage.Source = next;
         }
@@ -218,8 +273,8 @@ namespace hapControlGUIApp
         {
             BitmapImage butimg = new BitmapImage();
             butimg.BeginInit();
-            if (isPlayNow) butimg.UriSource = new Uri(myDocument + playimg);
-            else butimg.UriSource = new Uri(myDocument + stopimg);
+            if (isPlayNow) butimg.UriSource = new Uri("pack://application:,,,/Image" + playimg);
+            else butimg.UriSource = new Uri("pack://application:,,,/Image" + stopimg);
             butimg.EndInit();
             startimage.Source = butimg;
         }
@@ -228,7 +283,7 @@ namespace hapControlGUIApp
         {
             BitmapImage prev = new BitmapImage();
             prev.BeginInit();
-            prev.UriSource = new Uri(myDocument + previmg);
+            prev.UriSource = new Uri("pack://application:,,,/Image" + previmg);
             prev.EndInit();
             previmage.Source = prev;
         }
@@ -271,6 +326,8 @@ namespace hapControlGUIApp
 
         void dispatcherTimer_Tick(object sender, EventArgs e)
         {
+            checkPower();
+            if (power == "off") dispatcherTimer.Stop();
             setJunbi("getmusicinfo");
             if (!extinput)
             {
@@ -419,7 +476,7 @@ namespace hapControlGUIApp
             ipaButton.Visibility = Visibility.Hidden;
 
             dispatcherTimer = new DispatcherTimer(DispatcherPriority.Normal);
-            dispatcherTimer.Interval = new TimeSpan(0, 0, 0, 0, 250);
+            dispatcherTimer.Interval = new TimeSpan(0, 0, 0, 0, 1000);
             dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
             dispatcherTimer.Start();
            
@@ -459,7 +516,7 @@ namespace hapControlGUIApp
         {
             BitmapImage mute = new BitmapImage();
             mute.BeginInit();
-            mute.UriSource = new Uri(myDocument + name);
+            mute.UriSource = new Uri("pack://application:,,,/Image" + name);
             mute.EndInit();
             muteimg.Source = mute;
         }
@@ -469,7 +526,7 @@ namespace hapControlGUIApp
             HttpClient client = new HttpClient();
             string setUrl = hostUrl + url;
             Uri Url = new Uri(setUrl);
-            client.DefaultRequestHeaders.ExpectContinue = false;//これは絶対いる
+            client.DefaultRequestHeaders.ExpectContinue = false;
             StringContent theContent = new StringContent(json, Encoding.UTF8, "application/x-www-form-urlencoded");
             dynamic result = client.PostAsync(Url, theContent).Result.Content.ReadAsStringAsync().Result;
             dynamic data = DynamicJson.Parse(result);
@@ -577,8 +634,8 @@ namespace hapControlGUIApp
                 }
                 positionSec = data.result[0].positionSec;
                 posSec = (int)positionSec;
-                posMin = posSec / 60;//分数
-                posSec = posSec % 60;//秒数
+                posMin = posSec / 60;
+                posSec = posSec % 60;
 
                 nowRepeat = data.result[0].repeatType;
                 nowShuffle = data.result[0].shuffleType;
@@ -632,10 +689,10 @@ namespace hapControlGUIApp
             connectHap(json, url, isNeedParse);
         }
 
-        void setJunbi(string mode)//コマンドの場合分け
+        void setJunbi(string mode)
         {
             string url = null;
-            if (mode == "previous")//前の曲(頭出し)
+            if (mode == "previous")
             {
                 var obj = new
                 {
@@ -647,7 +704,7 @@ namespace hapControlGUIApp
                 url = "avContent";
                 serializeJson(obj, url, 0);
             }
-            if (mode == "poweron")//電源オン
+            if (mode == "poweron")
             {
                 var obj = new
                 {
@@ -665,7 +722,7 @@ namespace hapControlGUIApp
                 url = "system";
                 serializeJson(obj, url, 0);
             }
-            if (mode == "poweroff")//電源オフ
+            if (mode == "poweroff")
             {
                 var obj = new
                 {
@@ -683,7 +740,7 @@ namespace hapControlGUIApp
                 url = "system";
                 serializeJson(obj, url, 0);
             }
-            if (mode == "start" || mode == "stop")//再生、停止
+            if (mode == "start" || mode == "stop")
             {
                 var obj = new
                 {
@@ -828,24 +885,24 @@ namespace hapControlGUIApp
                     queueData = DynamicJson.Parse(res.GetResponseStream());
                     if (oldqueuedata.ToString() != queueData.ToString())
                     {
-                        int numberoftracks = (int)queueData.paging.total; //アルバム収録曲数の取得
+                        int numberoftracks = (int)queueData.paging.total;
                         queueleng = numberoftracks;
-                        string[] Tracks = new string[numberoftracks]; //曲の名前を格納する配列
-                        int[] Duration = new int[numberoftracks]; //曲長さ格納
-                        string[] Codec = new string[numberoftracks]; //コーデック格納
-                        string[] Freq = new string[numberoftracks]; //サンプリング周波数
-                        string[] Bitwidth = new string[numberoftracks]; //サンプリング周波数
+                        string[] Tracks = new string[numberoftracks];
+                        int[] Duration = new int[numberoftracks];
+                        string[] Codec = new string[numberoftracks];
+                        string[] Freq = new string[numberoftracks];
+                        string[] Bitwidth = new string[numberoftracks];
                         string[] Bitrate = new string[numberoftracks];
 
                         for (int num = 0; num < numberoftracks; num++)
                         {
-                            Tracks[num] = queueData.tracks[num].name; //すべての名前の取得
-                            Duration[num] = (int)queueData.tracks[num].duration; //曲長さ(秒)
-                            Codec[num] = queueData.tracks[num].codec.codec_type; //コーデック
-                            Bitrate[num] = (queueData.tracks[num].codec.bit_rate / 1000).ToString(); //ビットレート
+                            Tracks[num] = queueData.tracks[num].name;
+                            Duration[num] = (int)queueData.tracks[num].duration;
+                            Codec[num] = queueData.tracks[num].codec.codec_type;
+                            Bitrate[num] = (queueData.tracks[num].codec.bit_rate / 1000).ToString();
                             int fr = (int)queueData.tracks[num].codec.sample_rate / 1000;
-                            Freq[num] = fr.ToString(); //サンプリング周波数
-                            Bitwidth[num] = queueData.tracks[num].codec.bit_width.ToString(); //ビット深度
+                            Freq[num] = fr.ToString();
+                            Bitwidth[num] = queueData.tracks[num].codec.bit_width.ToString();
                         }
                         string info = "";
                         string min = "";
@@ -904,7 +961,6 @@ namespace hapControlGUIApp
                         dynamic listBoxScroll = border.Child as ScrollViewer;
                         if (listBoxScroll != null)
                         {
-                            // スクロールバー非表示
                             listBoxScroll.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
                         }
                     }
@@ -1233,6 +1289,29 @@ namespace hapControlGUIApp
             nav.req = 1;
             nav navig = new nav();
             NavigationService?.Navigate(navig);
+        }
+
+        private void button_Click_5(object sender, RoutedEventArgs e)
+        {
+            if (powerbutton.Content.ToString() == "PowerOff")
+            {
+                powerCont("off");
+                powerbutton.Content = "PowerOn";
+                hiddenall();
+                dispatcherTimer.Stop();
+            }
+            else if (powerbutton.Content.ToString() == "PowerOn")
+            {
+                powerCont("active");
+                powerbutton.Content = "PowerOff";
+                ProcessingSplash ps = new ProcessingSplash("起動待ちです。しばらくお待ちください…", () =>
+                {
+                    System.Threading.Thread.Sleep(19000);
+                });
+                ps.ShowDialog();
+                showall();
+                dispatcherTimer.Start();
+            }
         }
     }
 }

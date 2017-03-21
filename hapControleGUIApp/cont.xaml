@@ -39,7 +39,7 @@
         <Image Visibility="Hidden"  x:Name="coverArt" Stretch="Uniform" HorizontalAlignment="Center" Height="285" Margin="-399,44,0,82" VerticalAlignment="Center" Width="285" Grid.RowSpan="2" />
         <Button Opacity="0" x:Name="listview" Width="285" Height="285" Margin="-399,44,0,82" VerticalAlignment="Center" Grid.RowSpan="2"/>
         <Button x:Name="ipaButton" Content="確定" HorizontalAlignment="Left" Margin="225,24,0,0" VerticalAlignment="Top" Width="56" Height="20" Click="button_Click"/>
-        <TextBlock x:Name="ipadd" Foreground="Black" HorizontalAlignment="Left" Margin="10,24,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Text="IPアドレス:" Width="55" Height="20"/>
+        <TextBlock x:Name="ipadd" Foreground="White" HorizontalAlignment="Left" Margin="10,24,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Text="IPアドレス:" Width="55" Height="20"/>
         <TextBox x:Name="ipaddInput" HorizontalAlignment="Left" Height="20" Margin="70,24,0,0" TextWrapping="Wrap" Text="http://" VerticalAlignment="Top" Width="150"/>
         <Image Visibility="Hidden" x:Name="pimg" HorizontalAlignment="Left" Margin="380,150,0,0" VerticalAlignment="Top" Width="40" Height="40" RenderTransformOrigin="1.875,0.525" Grid.Row="1" />
         <Button BorderThickness="0" x:Name="volPlu" Click="volPlu_Click" MouseEnter="volPlu_MouseEnter" MouseLeave="volPlu_MouseLeave" Grid.Row="1" HorizontalAlignment="Left" Margin="380,150.5,0,0" VerticalAlignment="Top" Opacity="0">
@@ -71,5 +71,6 @@
         <ListBox Visibility="Hidden" MouseDoubleClick="listBoxqueue_MouseDoubleClick" ItemTemplate="{DynamicResource DataTemplateTracks}" ItemsSource="{Binding dataList, Mode=TwoWay}" Background="Transparent" x:Name="listBoxqueue" HorizontalAlignment="Left" Height="275" Margin="5,54,0,0" VerticalAlignment="Top" Width="295" Grid.RowSpan="2"/>
         <Button x:Name="showqueue" Margin="20,45,419,82" Grid.RowSpan="2" Opacity="0" Click="Button_Click_2"/>
         <Button Visibility="Hidden"  x:Name="backButton" Content="戻る" HorizontalAlignment="Left" Margin="247,24,0,0" VerticalAlignment="Top" Width="34" Click="button_Click_3"/>
+        <Button x:Name="powerbutton" Content="PowerOff" HorizontalAlignment="Left" Margin="10,160,0,0" Grid.Row="1" VerticalAlignment="Top" Width="55" RenderTransformOrigin="0.014,1.8" Click="button_Click_5"/>
     </Grid>
 </Page>

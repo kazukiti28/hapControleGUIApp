@@ -20,15 +20,13 @@
                      VerticalAlignment="Center"
                      HorizontalAlignment="Stretch"
                      Height="20"
-                     Margin="22,24,22,28"
+                     Margin="20,10,24,1"
                      Width="250"
-                     IsIndeterminate="True" Grid.RowSpan="2" />
+                     IsIndeterminate="True" Grid.Row="1" />
         <Label x:Name="label_status"
-                Grid.Row="1"
-                HorizontalAlignment="Center" Margin="22,3,262,-3"
+                HorizontalAlignment="Center" Margin="17,8,267,2"
                 />
-        <TextBlock x:Name="textBlock" HorizontalAlignment="Left" Margin="22,5,0,0" TextWrapping="Wrap" Text="データ取得中です…(初回起動時は時間がかかります)" VerticalAlignment="Top" Width="250" FontSize="8pt"/>
-        <Label x:Name="label" Content="{Binding}" HorizontalAlignment="Left" Margin="22,3,0,0" Grid.Row="1" VerticalAlignment="Top"/>
+        <Label x:Name="label" Content="{Binding}" HorizontalAlignment="Left" Margin="32,3,0,0" VerticalAlignment="Top"/>
 
     </Grid>
 </Window>

@@ -53,20 +53,20 @@
         </Border>
 
         <Button Opacity="0" Click="change_click" x:Name="backControle" HorizontalAlignment="Left" Height="59" Margin="-3,124,0,0" VerticalAlignment="Top" Width="59" Grid.Row="1"/>
-        <Image x:Name="startimage" HorizontalAlignment="Left" Margin="360,143.5,0,0" VerticalAlignment="Top" Width="40" Height="40" Grid.Row="1"/>
+        <Image Source="Image/play.png" x:Name="startimage" HorizontalAlignment="Left" Margin="360,143.5,0,0" VerticalAlignment="Top" Width="40" Height="40" Grid.Row="1"/>
         <Button Opacity="0" x:Name="startButton" HorizontalAlignment="Left" Margin="360,143.5,0,0" VerticalAlignment="Top" Width="40" Height="40" Click="startButton_Click" Grid.Row="1" MouseEnter="hover2" MouseLeave="leaved2"/>
-        <Image x:Name="nextimage" HorizontalAlignment="Left" Margin="410,143.5,0,0" VerticalAlignment="Top" Width="40" Height="40" Grid.Row="1"/>
+        <Image Source="Image/next.png" x:Name="nextimage" HorizontalAlignment="Left" Margin="410,143.5,0,0" VerticalAlignment="Top" Width="40" Height="40" Grid.Row="1"/>
         <Button Opacity="0" x:Name="nextButton" HorizontalAlignment="Left" Margin="410,143.5,0,0" VerticalAlignment="Top" Width="40" Height="40" Click="nextButton_Click" Grid.Row="1" MouseEnter="hover3" MouseLeave="leaved3"/>
-        <Image x:Name="previmage" HorizontalAlignment="Left" Margin="310,143.5,0,0" VerticalAlignment="Top" Width="40" Height="40" Grid.Row="1"/>
+        <Image Source="Image/prev.png" x:Name="previmage" HorizontalAlignment="Left" Margin="310,143.5,0,0" VerticalAlignment="Top" Width="40" Height="40" Grid.Row="1"/>
         <Button Opacity="0" x:Name="prevButton" HorizontalAlignment="Left" Margin="310,143.5,0,0" VerticalAlignment="Top" Width="40" Height="40" Click="prevButton_Click" Grid.Row="1" MouseEnter="hover1" MouseLeave="leaved1"/>
         <TextBlock x:Name="ipadd" Foreground="Black" HorizontalAlignment="Left" Margin="10,30,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Text="IPアドレス:" Width="55" Height="20"/>
         <TextBox x:Name="ipaddInput" HorizontalAlignment="Left" Height="20" Margin="70,30,0,0" TextWrapping="Wrap" Text="http://" VerticalAlignment="Top" Width="150"/>
-        <Image x:Name="pimg" HorizontalAlignment="Left" Margin="630,143.5,0,0" VerticalAlignment="Top" Width="40" Height="40" Grid.Row="1"/>
+        <Image Source="Image/plus.png" x:Name="pimg" HorizontalAlignment="Left" Margin="630,143.5,0,0" VerticalAlignment="Top" Width="40" Height="40" Grid.Row="1"/>
         <Button Opacity="0" x:Name="volPlu" HorizontalAlignment="Left" Margin="630,143.5,0,0" VerticalAlignment="Top" Width="40" Height="40" RenderTransformOrigin="1.875,0.525" Click="volPlu_Click" Grid.Row="1" MouseEnter="volPlu_MouseEnter" MouseLeave="volPlu_MouseLeave"/>
-        <Image x:Name="mimg" HorizontalAlignment="Left" Margin="550,143.5,0,0" VerticalAlignment="Top" Width="40" Height="40" Grid.Row="1"/>
+        <Image Source="Image/minus.png" x:Name="mimg" HorizontalAlignment="Left" Margin="550,143.5,0,0" VerticalAlignment="Top" Width="40" Height="40" Grid.Row="1"/>
         <Button Opacity="0" x:Name="volMin" HorizontalAlignment="Left" Margin="550,143.5,0,0" VerticalAlignment="Top" Width="40" Height="40" Click="volMin_Click" Grid.Row="1" MouseEnter="volMin_MouseEnter" MouseLeave="volMin_MouseLeave"/>
         <TextBlock x:Name="volIn"  HorizontalAlignment="Left" Height="22" Margin="600,153.5,0,0" TextWrapping="NoWrap" Text="vol" VerticalAlignment="Top" Width="20" Foreground="White" Grid.Row="1"/>
-        <Image x:Name="muteimg" HorizontalAlignment="Left" Margin="498,143.5,0,0" VerticalAlignment="Top" Width="40" Height="40" Grid.Row="1"/>
+        <Image Source="Image/muteoff.png" x:Name="muteimg" HorizontalAlignment="Left" Margin="498,143.5,0,0" VerticalAlignment="Top" Width="40" Height="40" Grid.Row="1"/>
         <Button Opacity="0" x:Name="Mute" HorizontalAlignment="Left" Margin="498,143.5,0,0" Grid.Row="1" VerticalAlignment="Top" Width="40" Height="40" Click="Mute_OnClick" MouseEnter="Mute_MouseEnter" MouseLeave="Mute_MouseLeave"/>
         <TextBlock x:Name="musicName" Foreground="White" FontSize="10pt" HorizontalAlignment="Left" Margin="63,143.5,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Width="223" Height="16" Grid.Row="1"/>
         <TextBlock x:Name="musicAlbum" Foreground="White" FontSize="8pt" HorizontalAlignment="Left" Margin="79,165.5,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Width="207" Height="16" Grid.Row="1"/>
@@ -89,11 +89,11 @@
 
        
 
-        <Image x:Name="albu" HorizontalAlignment="Left" Height="80" Margin="13,63,0,0" Grid.RowSpan="2" VerticalAlignment="Top" Width="80"/>
+        <Image Source="Image/album.png" x:Name="albu" HorizontalAlignment="Left" Height="80" Margin="13,63,0,0" Grid.RowSpan="2" VerticalAlignment="Top" Width="80"/>
         <Button Opacity="0" x:Name="albumbutton" HorizontalAlignment="Left" Height="80" Margin="13,63,0,0" Grid.RowSpan="2" VerticalAlignment="Top" Width="80" Click="albumbutton_Click"/>
-        <Image x:Name="playlist" HorizontalAlignment="Left" Height="80" Margin="13,149,0,0" Grid.RowSpan="2" VerticalAlignment="Top" Width="80"/>
+        <Image Source="Image/playlist.png" x:Name="playlist" HorizontalAlignment="Left" Height="80" Margin="13,149,0,0" Grid.RowSpan="2" VerticalAlignment="Top" Width="80"/>
         <Button Opacity="0" x:Name="playlistbutton" Click="playlistbutton_Click" HorizontalAlignment="Left" Height="80" Margin="13,149,0,0" Grid.RowSpan="2" VerticalAlignment="Top" Width="80"/>
-        <Image x:Name="ext" HorizontalAlignment="Left" Height="80" Margin="13,235,0,0" Grid.RowSpan="2" VerticalAlignment="Top" Width="80"/>
+        <Image Source="Image/ext.png" x:Name="ext" HorizontalAlignment="Left" Height="80" Margin="13,235,0,0" Grid.RowSpan="2" VerticalAlignment="Top" Width="80"/>
         <Button Opacity="0" x:Name="extbutton" Click="extbutton_Click" HorizontalAlignment="Left" Height="80" Margin="13,235,0,0" Grid.RowSpan="2" VerticalAlignment="Top" Width="80"/>
         
         <Button x:Name="albumlistBackButton_Copy" Click="albumlistBackButton_Copy_Click" Content="←" HorizontalAlignment="Left" Margin="96,65,0,0" VerticalAlignment="Top" Width="22" Height="22"/>

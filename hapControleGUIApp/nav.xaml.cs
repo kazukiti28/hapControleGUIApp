@@ -76,8 +76,7 @@ namespace hapControlGUIApp
             bgimg.UriSource = new Uri(cont.shabgurl);
             bgimg.EndInit();
             bgimage.Source = bgimg;
-
-            setImage();
+            
             playlistLoaded = 0;
 
             ipaddInput.Text = cont.ip;
@@ -113,25 +112,11 @@ namespace hapControlGUIApp
         
         }
 
-
-        void setImage()
-        {
-            string[] name = new string[3] { "album.png", "playlist.png", "ext.png", };
-            for (int i = 0; i < name.Length; i++) {
-                BitmapImage img = new BitmapImage();
-                img.BeginInit();
-                img.UriSource = new Uri(myDocument + "/" + name[i]);
-                img.EndInit();
-                if (i == 0) albu.Source = img;
-                else if (i == 1) playlist.Source = img;
-                else if (i == 2) ext.Source = img;
-            }
-        }
         void setMinusimg()
         {
             BitmapImage volminus = new BitmapImage();
             volminus.BeginInit();
-            volminus.UriSource = new Uri(myDocument + cont.volm);
+            volminus.UriSource = new Uri("pack://application:,,,/Image" + cont.volm);
             volminus.EndInit();
             mimg.Source = volminus;
         }
@@ -140,7 +125,7 @@ namespace hapControlGUIApp
         {
             BitmapImage mute = new BitmapImage();
             mute.BeginInit();
-            mute.UriSource = new Uri(myDocument + name);
+            mute.UriSource = new Uri("pack://application:,,,/Image" + name);
             mute.EndInit();
             muteimg.Source = mute;
         }
@@ -149,7 +134,7 @@ namespace hapControlGUIApp
         {
             BitmapImage volplus = new BitmapImage();
             volplus.BeginInit();
-            volplus.UriSource = new Uri(myDocument + cont.volp);
+            volplus.UriSource = new Uri("pack://application:,,,/Image" + cont.volp);
             volplus.EndInit();
             pimg.Source = volplus;
         }
@@ -158,7 +143,7 @@ namespace hapControlGUIApp
         {
             BitmapImage next = new BitmapImage();
             next.BeginInit();
-            next.UriSource = new Uri(myDocument + cont.nextimg);
+            next.UriSource = new Uri("pack://application:,,,/Image" + cont.nextimg);
             next.EndInit();
             nextimage.Source = next;
         }
@@ -167,8 +152,8 @@ namespace hapControlGUIApp
         {
             BitmapImage butimg = new BitmapImage();
             butimg.BeginInit();
-            if (cont.isPlayNow) butimg.UriSource = new Uri(myDocument + cont.playimg);
-            else butimg.UriSource = new Uri(myDocument + cont.stopimg);
+            if (cont.isPlayNow) butimg.UriSource = new Uri("pack://application:,,,/Image" + cont.playimg);
+            else butimg.UriSource = new Uri("pack://application:,,,/Image" + cont.stopimg);
             butimg.EndInit();
             startimage.Source = butimg;
         }
@@ -177,7 +162,7 @@ namespace hapControlGUIApp
         {
             BitmapImage prev = new BitmapImage();
             prev.BeginInit();
-            prev.UriSource = new Uri(myDocument + cont.previmg);
+            prev.UriSource = new Uri("pack://application:,,,/Image" + cont.previmg);
             prev.EndInit();
             previmage.Source = prev;
         }
