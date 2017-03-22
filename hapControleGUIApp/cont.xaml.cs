@@ -11,6 +11,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using Codeplex.Data;
+using System.Threading.Tasks;
+using System.Timers;
 
 namespace hapControlGUIApp
 {
@@ -64,9 +66,11 @@ namespace hapControlGUIApp
         public static dynamic queueData;
         public static string extMode;
         DispatcherTimer dispatcherTimer;
+        static Timer myTimer = new Timer();
         static double playlistModifiedVersion;
         static string playlistUri;
         static string power;
+        public static int retur = 0;
 
         public void hiddenall()
         {
@@ -137,10 +141,22 @@ namespace hapControlGUIApp
 
         void checkPower()
         {
-            var req = WebRequest.Create(ip + "contentplayer/v100/powerstate");
-            var res = req.GetResponse();
+            //var req = WebRequest.Create(ip + "contentplayer/v100/powerstate");
+            //var res = req.GetResponse();
 
-            dynamic data = DynamicJson.Parse(res.GetResponseStream());
+            WebClient wc = new WebClient();
+            wc.Encoding = Encoding.UTF8;
+            try
+            {
+                wc.DownloadStringCompleted += Wc_DownloadStringCompleted;
+                wc.DownloadStringAsync(new Uri(ip + "contentplayer/v100/powerstate"));
+            }
+            catch { }
+        }
+
+        private void Wc_DownloadStringCompleted(object sender, DownloadStringCompletedEventArgs e)
+        {
+            dynamic data = DynamicJson.Parse(e.Result);
 
             if (data.power_state == "off") power = "off";
             else power = "on";
@@ -172,8 +188,36 @@ namespace hapControlGUIApp
             DirectoryInfo di = new DirectoryInfo(myDocument);
             di.Create();
 
-            
+            if(retur == 1)
+            {
+                if (nowRepeat == "all")
+                {
+                    repall.IsChecked = true;
+                }
+                else if (nowRepeat == "off")
+                {
+                    repoff.IsChecked = true;
+                }
+                else if (nowRepeat == "one")
+                {
+                    repone.IsChecked = true;
+                }
 
+                if (nowShuffle == "track")
+                {
+                    allshu.IsChecked = true;
+                }
+                else if (nowShuffle == "off")
+                {
+                    offshu.IsChecked = true;
+                }
+                else if (nowShuffle == "album")
+                {
+                    albumshu.IsChecked = true;
+                }
+            }
+
+            fst = 1;
             string bgurl = myDocument + "/bg_overlay.png";
             shabgurl = bgurl;
             Encoding utf = Encoding.GetEncoding("UTF-8");
@@ -187,7 +231,11 @@ namespace hapControlGUIApp
                 hostUrl = ip;
                 ipaddInput.Text = ip;
                 rawip = ip;
-                checkPower();
+                var req = WebRequest.Create(ip + "contentplayer/v100/powerstate");
+                var res = req.GetResponse();
+                dynamic data = DynamicJson.Parse(res.GetResponseStream());
+                if (data.power_state == "off") power = "off";
+                else power = "on";
                 if (power == "off")
                 {
                     if (MessageBox.Show("電源がOFFです。ONにしますか？", "Information", MessageBoxButton.YesNo,
@@ -210,14 +258,18 @@ namespace hapControlGUIApp
                     string url = ipad + ":60100/img/bg_overlay.png";
                     wc.DownloadFile(url, bgurl);
                 }
-                try
+                for (int i = 0; i < 5; i++)
                 {
-                    WebClient wec = new WebClient();
-                    wec.DownloadFile(hostUrl.Replace(":60200/sony/", "") + ":60100/img/icon_input_optical.png", myDocument + "/optical.png");
-                    wec.DownloadFile(hostUrl.Replace(":60200/sony/", "") + ":60100/img/icon_input_coaxial.png", myDocument + "/coaxial.png");
-                    wec.DownloadFile(hostUrl.Replace(":60200/sony/", "") + ":60100/img/icon_input_analog.png", myDocument + "/line.png");
+                    try
+                    {
+                        WebClient wec = new WebClient();
+                        wec.DownloadFile(hostUrl.Replace(":60200/sony/", "") + ":60100/img/icon_input_optical.png", myDocument + "/optical.png");
+                        wec.DownloadFile(hostUrl.Replace(":60200/sony/", "") + ":60100/img/icon_input_coaxial.png", myDocument + "/coaxial.png");
+                        wec.DownloadFile(hostUrl.Replace(":60200/sony/", "") + ":60100/img/icon_input_analog.png", myDocument + "/line.png");
+                        break;
+                    }
+                    catch { }
                 }
-                catch { }
                 BitmapImage bgimg = new BitmapImage();
                 bgimg.BeginInit();
                 bgimg.UriSource = new Uri(bgurl);
@@ -232,15 +284,21 @@ namespace hapControlGUIApp
                 setMinusimg();
 
                 dispatcherTimer = new DispatcherTimer(DispatcherPriority.Normal);
-                dispatcherTimer.Interval = new TimeSpan(0, 0, 0, 0, 500);
+                dispatcherTimer.Interval = new TimeSpan(0, 0, 0, 0, 333);
                 dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
                 dispatcherTimer.Start();
                 
+                myTimer.Enabled = true;
+                myTimer.AutoReset = true;
+                myTimer.Interval = 500;
+                myTimer.Elapsed += new ElapsedEventHandler(Time);
+
                 ipaButton.Visibility = Visibility.Hidden;
                 
                 ipadd.Foreground = new SolidColorBrush(Colors.White);
             }
         }
+        
 
         void setMinusimg()
         {
@@ -320,6 +378,7 @@ namespace hapControlGUIApp
                 version = "1.0",
                 id = 2,
             };
+            isPa = 0;
             serializeJson(obj, "avContent", 0);
         }
         static int first = 1;
@@ -328,73 +387,236 @@ namespace hapControlGUIApp
         {
             checkPower();
             if (power == "off") dispatcherTimer.Stop();
-            setJunbi("getmusicinfo");
-            if (!extinput)
+            var obj = new
             {
-                musicName.Text = nowPlaying;
-                musicArtist.Text = artist;
-                musicAlbum.Text = album;
-                string addi = codec.ToUpper() + " " + freq + "kHz/" + bandwidth + "bit " + bitrate + "kbps";
-                musicCodec.Text = addi;
-                minsec.Text = (posMin.ToString("00")) + ":" + (posSec.ToString("00"));
-                dynamic getVolumeObj = getVolumeInfo();
-                serializeJson(getVolumeObj, "audio", 1);
-                volIn.Text = nowVolume.ToString();
-                downloadCoverArt();
-                if (nowRepeat == "all")
-                {
-                    repall.IsChecked = true;
-                }
-                else if (nowRepeat == "off")
-                {
-                    repoff.IsChecked = true;
-                }
-                else if (nowRepeat == "one")
-                {
-                    repone.IsChecked = true;
-                }
-                if (coverartStop == 1)
-                {
-                    BitmapImage img = new BitmapImage();
-                    img.BeginInit();
-                    img.UriSource = new Uri(nowMusicCover);
-                    img.EndInit();
-                    coverArt.Source = img;
-                }
-                else
-                {
-                    coverArt.Visibility = Visibility.Hidden;
-                }
-                BG.Background = new SolidColorBrush(Color.FromArgb(Convert.ToByte(a, 16), Convert.ToByte(r, 16), Convert.ToByte(g, 16), Convert.ToByte(b, 16)));
+                @params = new[] {
+                        new
+                        {
+                            level ="detail",
+                        }
+                    },
+                method = "getPlayingContentInfo",
+                version = "1.2",
+                id = 3,
+            };
+            var json = DynamicJson.Serialize(obj);
+            string setUrl = hostUrl + "avContent";
 
-                if (nowShuffle == "track")
-                {
-                    allshu.IsChecked = true;
-                }
-                else if (nowShuffle == "off")
-                {
-                    offshu.IsChecked = true;
-                }
-                else if (nowShuffle == "album")
-                {
-                    albumshu.IsChecked = true;
-                }
-                setCenterimg();
-                if (!isDragging) slider.Value = ((posMin * 60 + posSec) / musiclen) * 100;
-                getplayqueue();
-                if (first == 1)
-                {
-                    showall();
-                    first = 0;
-                }
-            }
-            else
+            WebClient wc = new WebClient();
+            wc.Encoding = Encoding.UTF8;
+            try
             {
-                hiddenall();
-                musicName.Text = extMode;
-                dynamic getVolumeObj = getVolumeInfo();
-                serializeJson(getVolumeObj, "audio", 1);
-                volIn.Text = nowVolume.ToString();
+                wc.UploadStringCompleted += Wc_UploadStringComplete;
+                wc.UploadStringAsync(new Uri(setUrl),json);
+                
+            }
+            catch { }
+        }
+        void Wc_UploadStringComplete(object sender, UploadStringCompletedEventArgs e)
+        {
+            resDist = e.Result;
+        }
+
+        static dynamic resDist;
+
+        public static int fst = 1;
+
+        static int repoffradioLock;
+        static int reponeradioLock;
+        static int repallradioLock;
+        static int shuoffradioLock;
+        static int shualbradioLock;
+        static int shuallradioLock;
+
+        private void Time(object sender, EventArgs e)
+        {
+            if (resDist != null)
+            {
+                Dispatcher.Invoke(new Action(() =>
+                {
+                    dynamic result = resDist;
+                    dynamic data = DynamicJson.Parse(result);
+                    string playmode = data.result[0].state;
+                    if (playmode == "PAUSED")
+                    {
+                        isPlayNow = false;
+                        if (first != 1) showall();
+                    }
+                    else if (playmode == "PLAYING")
+                    {
+                        isPlayNow = true;
+                        if (first != 1) showall();
+                    }
+                    else if (playmode == "STOPPED")
+                    {
+                        string extType = data.result[0].uri;
+                        extType = extType.Replace("extInput:", "");
+                        string type = extType.Substring(0, 4);
+                        if (type == "line")
+                        {
+                            extMode = "Line In " + extType.Substring(extType.Length - 1, 1) + "(外部入力中)";
+                        }
+                        else if (type == "coax")
+                        {
+                            extMode = "Coaxial In (外部入力中)";
+                        }
+                        else if (type == "opti")
+                        {
+                            extMode = "Optical In (外部入力中)";
+                        }
+                        extinput = true;
+                        return;
+                    }
+                    musiclen = data.result[0].durationSec;
+                    playlistModifiedVersion = data.result[0].playlistModifiedVersion;
+                    playlistUri = data.result[0].playlistUri;
+                    nowalbumId = data.result[0].albumID;
+                    nowPlaying = data.result[0].title;
+                    noAlbum = 0;
+                    try
+                    {
+                        album = data.result[0].albumName;
+                    }
+                    catch
+                    {
+                        noAlbum = 1;
+                        album = "undefined album";
+                    }
+                    noArtist = 0;
+                    try
+                    {
+                        artist = data.result[0].artist;
+                    }
+                    catch
+                    {
+                        noArtist = 1;
+                        artist = "undefined artist";
+                    }
+                    codec = data.result[0].audioInfo[0].codec;
+                    bandwidth = data.result[0].audioInfo[0].bandwidth;
+                    bitrate = (double.Parse(data.result[0].audioInfo[0].bitrate)) / 1000;
+                    freq = data.result[0].audioInfo[0].frequency;
+                    double f = double.Parse(freq);
+                    f = f / 1000;
+                    freq = f.ToString();
+                    noCoverArt = 0;
+                    try
+                    {
+                        coverArtUrl = data.result[0].coverArtUrl;
+                        int findsla = coverArtUrl.LastIndexOf("/") + 1;
+                        musicId = coverArtUrl.Substring(findsla);
+                        if (prevMusicId == null)
+                        {
+                            prevMusicId = musicId;
+                        }
+
+                    }
+                    catch
+                    {
+                        noCoverArt = 1;
+                    }
+                    if (noCoverArt != 1)
+                    {
+                        r = Convert.ToString((int)data.result[0].backgroundColorR, 16);
+                        g = Convert.ToString((int)data.result[0].backgroundColorG, 16);
+                        b = Convert.ToString((int)data.result[0].backgroundColorB, 16);
+                        a = Convert.ToString((int)data.result[0].backgroundColorA, 16);
+                    }
+                    positionSec = data.result[0].positionSec;
+                    posSec = (int)positionSec;
+                    posMin = posSec / 60;
+                    posSec = posSec % 60;
+
+                    nowRepeat = data.result[0].repeatType;
+                    nowShuffle = data.result[0].shuffleType;
+
+                    if (!extinput)
+                    {
+                        musicName.Text = nowPlaying;
+                        musicArtist.Text = artist;
+                        musicAlbum.Text = album;
+                        string addi = codec.ToUpper() + " " + freq + "kHz/" + bandwidth + "bit " + bitrate + "kbps";
+                        musicCodec.Text = addi;
+                        minsec.Text = (posMin.ToString("00")) + ":" + (posSec.ToString("00"));
+                        dynamic getVolumeObj = getVolumeInfo();
+                        serializeJson(getVolumeObj, "audio", 1);
+                        volIn.Text = nowVolume.ToString();
+                        downloadCoverArt();
+                        if(fst < 3)
+                        {
+                            if (nowRepeat == "all") repallradioLock = 1;
+                            else if (nowRepeat == "off") repoffradioLock = 1;
+                            else if (nowRepeat == "one") reponeradioLock = 1;
+                            if (nowShuffle == "track") shuallradioLock = 1;
+                            else if (nowShuffle == "off") shuoffradioLock = 1;
+                            else if (nowShuffle == "album") shualbradioLock = 1;
+                        }
+                        if (nowRepeat == "all" && repallradioLock == 1 || fst < 3)
+                        {
+                            repallradioLock = 0;
+                            repall.IsChecked = true;
+                        }
+                        else if (nowRepeat == "off" && repoffradioLock == 1 || fst < 3)
+                        {
+                            repoffradioLock = 0;
+                            repoff.IsChecked = true;
+                        }
+                        else if (nowRepeat == "one" && reponeradioLock == 1 || fst < 3)
+                        {
+                            reponeradioLock = 0;
+                            repone.IsChecked = true;
+                        }
+                        if (coverartStop == 1)
+                        {
+                            BitmapImage img = new BitmapImage();
+                            img.BeginInit();
+                            img.UriSource = new Uri(nowMusicCover);
+                            img.EndInit();
+                            coverArt.Source = img;
+                        }
+                        else
+                        {
+                            coverArt.Visibility = Visibility.Hidden;
+                        }
+                        BG.Background = new SolidColorBrush(Color.FromArgb(Convert.ToByte(a, 16), Convert.ToByte(r, 16), Convert.ToByte(g, 16), Convert.ToByte(b, 16)));
+
+                        if (nowShuffle == "track" && shuallradioLock == 1 || fst < 3)
+                        {
+                            fst++;
+                            allshu.IsChecked = true;
+                            shuallradioLock = 0;
+                        }
+                        else if (nowShuffle == "off" && shuoffradioLock == 1 || fst < 3)
+                        {
+                            fst++;
+                            offshu.IsChecked = true;
+                            shuoffradioLock = 0;
+                        }
+                        else if (nowShuffle == "album" && shualbradioLock == 1 || fst < 3)
+                        {
+                            fst++;
+                            albumshu.IsChecked = true;
+                            shualbradioLock = 0;
+                        }
+                        
+                        setCenterimg();
+                        if (!isDragging) slider.Value = ((posMin * 60 + posSec) / musiclen) * 100;
+                        getplayqueue();
+                        if (first == 1)
+                        {
+                            showall();
+                            first = 0;
+                        }
+                    }
+                    else
+                    {
+                        hiddenall();
+                        musicName.Text = extMode;
+                        dynamic getVolumeObj = getVolumeInfo();
+                        serializeJson(getVolumeObj, "audio", 1);
+                        volIn.Text = nowVolume.ToString();
+                    }
+                }));
             }
         }
 
@@ -464,7 +686,6 @@ namespace hapControlGUIApp
 
             ipadd.Foreground = new SolidColorBrush(Colors.White);
 
-
             BitmapImage img = new BitmapImage();
             img.BeginInit();
             img.UriSource = new Uri(nowMusicCover);
@@ -479,7 +700,6 @@ namespace hapControlGUIApp
             dispatcherTimer.Interval = new TimeSpan(0, 0, 0, 0, 1000);
             dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
             dispatcherTimer.Start();
-           
         }
 
         void downloadCoverArt()
@@ -521,136 +741,154 @@ namespace hapControlGUIApp
             muteimg.Source = mute;
         }
 
-        void connectHap(dynamic json, string url, int isNeedParse)//帰ってきたJSONが意味をなさないやつはこれ
+        async void connectHap(dynamic json, string url, int isNeedParse)//帰ってきたJSONが意味をなさないやつはこれ
         {
-            HttpClient client = new HttpClient();
             string setUrl = hostUrl + url;
             Uri Url = new Uri(setUrl);
-            client.DefaultRequestHeaders.ExpectContinue = false;
-            StringContent theContent = new StringContent(json, Encoding.UTF8, "application/x-www-form-urlencoded");
-            dynamic result = client.PostAsync(Url, theContent).Result.Content.ReadAsStringAsync().Result;
-            dynamic data = DynamicJson.Parse(result);
-            if (isNeedParse == 1)//現在音量取得
-            {
-                nowVolume = (int)data.result[0].volume;
-                if (data.result[0].mute == "on")
-                {
-                    setMute(muteon);
-                    isMute = true;
-                }
-                if (data.result[0].mute == "off")
-                {
-                    setMute(muteoff);
-                    isMute = false;
-                }
-            }
-            else if (isNeedParse == 2)//楽曲情報取得
-            {
-                string playmode = data.result[0].state;
-                if (playmode == "PAUSED")
-                {
-                    isPlayNow = false;
-                    if(first != 1) showall();
-                }
-                else if (playmode == "PLAYING")
-                {
-                    isPlayNow = true;
-                    if(first != 1) showall();
-                }
-                else if (playmode == "STOPPED")
-                {
-                    string extType = data.result[0].uri;
-                    extType = extType.Replace("extInput:", "");
-                    string type = extType.Substring(0, 4);
-                    if (type == "line")
-                    {
-                        extMode = "Line In " + extType.Substring(extType.Length - 1, 1) + "(外部入力)";
-                    }
-                    else if (type == "coax")
-                    {
-                        extMode = "Coaxial In (外部入力中)";
-                    }
-                    else if(type == "opti")
-                    {
-                        extMode = "Optical In (外部入力中)";
-                    }
-                    extinput = true;
-                    return;
-                }
-                musiclen = data.result[0].durationSec;
-                playlistModifiedVersion = data.result[0].playlistModifiedVersion;
-                playlistUri = data.result[0].playlistUri;
-                nowalbumId = data.result[0].albumID;
-                nowPlaying = data.result[0].title;
-                noAlbum = 0;
-                try
-                {
-                    album = data.result[0].albumName;
-                }
-                catch
-                {
-                    noAlbum = 1;
-                    album = "undefined album";
-                }
-                noArtist = 0;
-                try
-                {
-                    artist = data.result[0].artist;
-                }
-                catch
-                {
-                    noArtist = 1;
-                    artist = "undefined artist";
-                }
-                codec = data.result[0].audioInfo[0].codec;
-                bandwidth = data.result[0].audioInfo[0].bandwidth;
-                bitrate = (double.Parse(data.result[0].audioInfo[0].bitrate)) / 1000;
-                freq = data.result[0].audioInfo[0].frequency;
-                double f = double.Parse(freq);
-                f = f / 1000;
-                freq = f.ToString();
-                noCoverArt = 0;
-                try
-                {
-                    coverArtUrl = data.result[0].coverArtUrl;
-                    int findsla = coverArtUrl.LastIndexOf("/") + 1;
-                    musicId = coverArtUrl.Substring(findsla);
-                    if (prevMusicId == null)
-                    {
-                        prevMusicId = musicId;
-                    }
 
-                }
-                catch (Exception e)
+            isPa = isNeedParse;
+            dynamic res = null;
+            StringContent theContent = new StringContent(json);
+            using (var client = new HttpClient())
+                await Task.Run(() =>
                 {
-                    noCoverArt = 1;
-                }
-                if (noCoverArt != 1)
-                {
-                    r = Convert.ToString((int)data.result[0].backgroundColorR, 16);
-                    g = Convert.ToString((int)data.result[0].backgroundColorG, 16);
-                    b = Convert.ToString((int)data.result[0].backgroundColorB, 16);
-                    a = Convert.ToString((int)data.result[0].backgroundColorA, 16);
-                }
-                positionSec = data.result[0].positionSec;
-                posSec = (int)positionSec;
-                posMin = posSec / 60;
-                posSec = posSec % 60;
-
-                nowRepeat = data.result[0].repeatType;
-                nowShuffle = data.result[0].shuffleType;
-            }
-            else if (isNeedParse == 3)//ミュートチェック
+                    client.DefaultRequestHeaders.ExpectContinue = false;
+                    res = client.PostAsync(Url, theContent).Result.Content.ReadAsStringAsync().Result;
+                });
+            Wc_UploadStringCompleted1(res);
+        }
+        static int isPa;
+        private void Wc_UploadStringCompleted1(dynamic e)
+        {
+            try
             {
-                if (data.result[0].mute == "on")
+                dynamic result = e;
+                dynamic data = DynamicJson.Parse(result);
+                if (data.id != 0)
                 {
-                    makeMutejson(1);
-                }
-                if (data.result[0].mute == "off")
-                {
-                    makeMutejson(0);
+                    if (isPa == 1 && data.id != 1 && data.id != 2)//現在音量取得
+                    {
+                        nowVolume = (int)data.result[0].volume;
+                        if (data.result[0].mute == "on")
+                        {
+                            setMute(muteon);
+                            isMute = true;
+                        }
+                        if (data.result[0].mute == "off")
+                        {
+                            setMute(muteoff);
+                            isMute = false;
+                        }
+                    }
+                    else if (isPa == 2)//楽曲情報取得
+                    {
+                        string playmode = data.result[0].state;
+                        if (playmode == "PAUSED")
+                        {
+                            isPlayNow = false;
+                            if (first != 1) showall();
+                        }
+                        else if (playmode == "PLAYING")
+                        {
+                            isPlayNow = true;
+                            if (first != 1) showall();
+                        }
+                        else if (playmode == "STOPPED")
+                        {
+                            string extType = data.result[0].uri;
+                            extType = extType.Replace("extInput:", "");
+                            string type = extType.Substring(0, 4);
+                            if (type == "line")
+                            {
+                                extMode = "Line In " + extType.Substring(extType.Length - 1, 1) + "(外部入力)";
+                            }
+                            else if (type == "coax")
+                            {
+                                extMode = "Coaxial In (外部入力中)";
+                            }
+                            else if (type == "opti")
+                            {
+                                extMode = "Optical In (外部入力中)";
+                            }
+                            extinput = true;
+                            return;
+                        }
+                        musiclen = data.result[0].durationSec;
+                        playlistModifiedVersion = data.result[0].playlistModifiedVersion;
+                        playlistUri = data.result[0].playlistUri;
+                        nowalbumId = data.result[0].albumID;
+                        nowPlaying = data.result[0].title;
+                        noAlbum = 0;
+                        try
+                        {
+                            album = data.result[0].albumName;
+                        }
+                        catch
+                        {
+                            noAlbum = 1;
+                            album = "undefined album";
+                        }
+                        noArtist = 0;
+                        try
+                        {
+                            artist = data.result[0].artist;
+                        }
+                        catch
+                        {
+                            noArtist = 1;
+                            artist = "undefined artist";
+                        }
+                        codec = data.result[0].audioInfo[0].codec;
+                        bandwidth = data.result[0].audioInfo[0].bandwidth;
+                        bitrate = (double.Parse(data.result[0].audioInfo[0].bitrate)) / 1000;
+                        freq = data.result[0].audioInfo[0].frequency;
+                        double f = double.Parse(freq);
+                        f = f / 1000;
+                        freq = f.ToString();
+                        noCoverArt = 0;
+                        try
+                        {
+                            coverArtUrl = data.result[0].coverArtUrl;
+                            int findsla = coverArtUrl.LastIndexOf("/") + 1;
+                            musicId = coverArtUrl.Substring(findsla);
+                            if (prevMusicId == null)
+                            {
+                                prevMusicId = musicId;
+                            }
+                        }
+                        catch
+                        {
+                            noCoverArt = 1;
+                        }
+                        if (noCoverArt != 1)
+                        {
+                            r = Convert.ToString((int)data.result[0].backgroundColorR, 16);
+                            g = Convert.ToString((int)data.result[0].backgroundColorG, 16);
+                            b = Convert.ToString((int)data.result[0].backgroundColorB, 16);
+                            a = Convert.ToString((int)data.result[0].backgroundColorA, 16);
+                        }
+                        positionSec = data.result[0].positionSec;
+                        posSec = (int)positionSec;
+                        posMin = posSec / 60;
+                        posSec = posSec % 60;
+
+                        nowRepeat = data.result[0].repeatType;
+                        nowShuffle = data.result[0].shuffleType;
+                    }
+                    else if (isPa == 3)//ミュートチェック
+                    {
+                        if (data.result[0].mute == "on")
+                        {
+                            makeMutejson(1);
+                        }
+                        if (data.result[0].mute == "off")
+                        {
+                            makeMutejson(0);
+                        }
+                    }
                 }
             }
+            catch{ }
         }
 
         static string nowalbumId;
@@ -686,6 +924,7 @@ namespace hapControlGUIApp
         void serializeJson(dynamic obje, string url, int isNeedParse)//シリアライズして次に流すだけのメソッド
         {
             var json = DynamicJson.Serialize(obje);
+            isPa = isNeedParse;
             connectHap(json, url, isNeedParse);
         }
 
@@ -864,25 +1103,39 @@ namespace hapControlGUIApp
 
         dynamic oldqueuedata = null;
 
-        void getplayqueue()
+        static dynamic queueres;
+
+        async void getplayqueue()
         {
             if (!extinput)
             {
                 try
                 {
                     string setUrl = rawip + "contentplayer/v100/playqueue/tracks";
-
-                    var req = WebRequest.Create(setUrl);
-                    var res = req.GetResponse();
-
-                    dynamic data = DynamicJson.Parse(res.GetResponseStream());
+                    
+                    Uri Url = new Uri(setUrl);
+                    
+                    using (var client = new HttpClient())
+                        await Task.Run(() =>
+                        {
+                            client.DefaultRequestHeaders.ExpectContinue = false;
+                            queueres = client.GetAsync(Url).Result.Content.ReadAsStringAsync().Result;
+                        });
+                    
+                    dynamic data = DynamicJson.Parse(queueres);
                     string totalfigure = data.paging.total.ToString();
 
                     setUrl = setUrl + "?offset=0&limit=" + totalfigure;
-                    req = WebRequest.Create(setUrl);
-                    res = req.GetResponse();
+
+                    using (var clients = new HttpClient())
+                        await Task.Run(() =>
+                        {
+                            clients.DefaultRequestHeaders.ExpectContinue = false;
+                            queueres = clients.GetAsync(setUrl).Result.Content.ReadAsStringAsync().Result;
+                        });
+
                     if (oldqueuedata == null) oldqueuedata = data;
-                    queueData = DynamicJson.Parse(res.GetResponseStream());
+                    queueData = DynamicJson.Parse(queueres);
                     if (oldqueuedata.ToString() != queueData.ToString())
                     {
                         int numberoftracks = (int)queueData.paging.total;
@@ -900,7 +1153,7 @@ namespace hapControlGUIApp
                             Duration[num] = (int)queueData.tracks[num].duration;
                             Codec[num] = queueData.tracks[num].codec.codec_type;
                             Bitrate[num] = (queueData.tracks[num].codec.bit_rate / 1000).ToString();
-                            int fr = (int)queueData.tracks[num].codec.sample_rate / 1000;
+                            double fr = (double)queueData.tracks[num].codec.sample_rate / 1000;
                             Freq[num] = fr.ToString();
                             Bitwidth[num] = queueData.tracks[num].codec.bit_width.ToString();
                         }
@@ -1001,104 +1254,134 @@ namespace hapControlGUIApp
 
         private void repall_Checked(object sender, RoutedEventArgs e)
         {
-            var obj = new
+            repallradioLock = 1;
+            if (reponeradioLock != 1 && repoffradioLock != 1)
             {
-                @params = new[] {
+                var obj = new
+                {
+                    @params = new[] {
                         new
                         {
                             type ="all",
                         }
                     },
-                method = "setRepeatType",
-                version = "1.0",
-                id = 0,
-            };
-            serializeJson(obj, "avContent", 0);
+                    method = "setRepeatType",
+                    version = "1.0",
+                    id = 0,
+                };
+                serializeJson(obj, "avContent", 0);
+                repall.IsChecked = true;
+            }
         }
 
         private void repone_Checked(object sender, RoutedEventArgs e)
         {
-            var obj = new
+            reponeradioLock = 1;
+            if (repoffradioLock != 1 && repallradioLock != 1)
             {
-                @params = new[] {
+                var obj = new
+                {
+                    @params = new[] {
                         new
                         {
                             type ="one",
                         }
                     },
-                method = "setRepeatType",
-                version = "1.0",
-                id = 0,
-            };
-            serializeJson(obj, "avContent", 0);
+                    method = "setRepeatType",
+                    version = "1.0",
+                    id = 0,
+                };
+                serializeJson(obj, "avContent", 0);
+                repone.IsChecked = true;
+            }
         }
 
         private void repoff_Checked(object sender, RoutedEventArgs e)
         {
-            var obj = new
+            repoffradioLock = 1;
+            if (repallradioLock != 1 && reponeradioLock != 1)
             {
-                @params = new[] {
+                var obj = new
+                {
+                    @params = new[] {
                         new
                         {
                             type ="off",
                         }
                     },
-                method = "setRepeatType",
-                version = "1.0",
-                id = 0,
-            };
-            serializeJson(obj, "avContent", 0);
+                    method = "setRepeatType",
+                    version = "1.0",
+                    id = 0,
+                };
+                serializeJson(obj, "avContent", 0);
+                repoff.IsChecked = true;
+            }
         }
 
         private void allshu_Checked(object sender, RoutedEventArgs e)
         {
-            var obj = new
+            shuallradioLock = 1;
+            if (shuoffradioLock != 1 && shualbradioLock != 1)
             {
-                @params = new[] {
+                var obj = new
+                {
+                    @params = new[] {
                         new
                         {
                             type ="track",
                         }
                     },
-                method = "setShuffleType",
-                version = "1.0",
-                id = 0,
-            };
-            serializeJson(obj, "avContent", 0);
+                    method = "setShuffleType",
+                    version = "1.0",
+                    id = 0,
+                };
+                serializeJson(obj, "avContent", 0);
+                allshu.IsChecked = true;
+            }
         }
 
         private void albumshu_Checked(object sender, RoutedEventArgs e)
         {
-            var obj = new
+            shualbradioLock = 1;
+            if (shuallradioLock != 1 && shuoffradioLock != 1)
             {
-                @params = new[] {
+                var obj = new
+                {
+                    @params = new[] {
                         new
                         {
                             type ="album",
                         }
                     },
-                method = "setShuffleType",
-                version = "1.0",
-                id = 0,
-            };
-            serializeJson(obj, "avContent", 0);
+                    method = "setShuffleType",
+                    version = "1.0",
+                    id = 0,
+                };
+                serializeJson(obj, "avContent", 0);
+                albumshu.IsChecked = true;
+            }
         }
 
         private void offshu_Checked(object sender, RoutedEventArgs e)
         {
-            var obj = new
+            shuoffradioLock = 1;
+            if (shuallradioLock != 1 && shualbradioLock != 1)
             {
-                @params = new[] {
+                var obj = new
+                {
+                    @params = new[] {
                         new
                         {
                             type ="off",
                         }
                     },
-                method = "setShuffleType",
-                version = "1.0",
-                id = 0,
-            };
-            serializeJson(obj, "avContent", 0);
+                    method = "setShuffleType",
+                    version = "1.0",
+                    id = 0,
+                };
+                serializeJson(obj, "avContent", 0);
+                offshu.IsChecked = true;
+            }
         }
 
         private void Mute_OnClick(object sender, RoutedEventArgs e)
@@ -1110,6 +1393,7 @@ namespace hapControlGUIApp
         {
             coverartStop = 1;
             dispatcherTimer.Stop();
+            myTimer.Stop();
             nav navig = new nav();
             NavigationService?.Navigate(navig);
         }
@@ -1192,20 +1476,20 @@ namespace hapControlGUIApp
 
         private void slider_DragCompleted(object sender, System.Windows.Controls.Primitives.DragCompletedEventArgs e)
         {
+            isPa = 0;
             isDragging = false;
             posTime = (slider.Value / 100) * musiclen;
-            Console.WriteLine(posTime);
             seekPosition();
         }
 
         private void slider_DragStarted(object sender, System.Windows.Controls.Primitives.DragStartedEventArgs e)
         {
             isDragging = true;
-            Console.WriteLine(sender);
         }
 
         private void Button_Click_2(object sender, RoutedEventArgs e)
         {
+            isPa = 0;
             backButton.Visibility = Visibility.Visible;
             dispatcherTimer.Stop();
             listBoxqueue.Visibility = Visibility.Visible;
@@ -1235,17 +1519,32 @@ namespace hapControlGUIApp
 
         private void Del_Click(object sender, RoutedEventArgs e)
         {
-            updatePlaylist(listBoxqueue.SelectedIndex, "del");
+            int item = listBoxqueue.SelectedIndex;
+            isPa = 0;
+            if (item >= 0 && item < queueleng)
+            {
+                updatePlaylist(item, "del");
+            }
         }
 
         private void Down_Click(object sender, RoutedEventArgs e)
         {
-            updatePlaylist(listBoxqueue.SelectedIndex, "down");
+            int item = listBoxqueue.SelectedIndex;
+            isPa = 0;
+            if (item >= 0 && item < queueleng)
+            {
+                updatePlaylist(item, "down");
+            }
         }
 
         private void Up_Click(object sender, RoutedEventArgs e)
         {
-            updatePlaylist(listBoxqueue.SelectedIndex, "up");
+            int item = listBoxqueue.SelectedIndex;
+            isPa = 0;
+            if (item >= 0 && item < queueleng)
+            {
+                updatePlaylist(item, "up");
+            }
         }
 
         private void listBoxqueue_MouseDoubleClick(object sender, MouseButtonEventArgs e)
@@ -1268,7 +1567,6 @@ namespace hapControlGUIApp
                     version = "1.1",
                 };
                 serializeJson(obj, "contentplayer/v100/operation", 0);
-
             }
         }
 

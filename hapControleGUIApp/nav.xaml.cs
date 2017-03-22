@@ -12,6 +12,9 @@ using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using Codeplex.Data;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using System.Threading;
+
 namespace hapControlGUIApp
 {
     /// <summary>
@@ -60,6 +63,8 @@ namespace hapControlGUIApp
         static int addplaylistmusicid;
         public static int req;
         public static double reqMusicId;
+        public static int albumChacked = 0;
+        static int setmusicId = 0;
 
         public nav()
         {
@@ -81,7 +86,13 @@ namespace hapControlGUIApp
 
             ipaddInput.Text = cont.ip;
             ipadd.Foreground = new SolidColorBrush(Colors.White);
-
+            if (albumChacked == 0)
+            {
+                Console.WriteLine("getCall");
+                getAllAlbumInfo();
+                albumChacked = 1;
+            }
+            
             dispatcherTimer = new DispatcherTimer(DispatcherPriority.Normal);
             dispatcherTimer.Interval = new TimeSpan(0, 0, 0, 0, 500);
             dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
@@ -91,7 +102,8 @@ namespace hapControlGUIApp
             setLeftimg();
             setCenterimg();
             setRightimg();
-            getAllAlbumInfo();
+
+            
             LoadListItems();
             playlistBackButton.Visibility = Visibility.Hidden;
             if (req == 1)
@@ -100,6 +112,7 @@ namespace hapControlGUIApp
                 req = 0;
                 reqMusicId = -1;
                 playlistView.Visibility = Visibility.Visible;
+                req = 0;
             }
         }
 
@@ -178,11 +191,14 @@ namespace hapControlGUIApp
                         Convert.ToByte(g, 16), Convert.ToByte(b, 16)));
                 serializeJson(getVolumeInfo(), "audio", 1);
                 downloadCoverArt();
-                BitmapImage img = new BitmapImage();
-                img.BeginInit();
-                img.UriSource = new Uri(nowMusicCover);
-                img.EndInit();
-                coverArt.Source = img;
+                if (setmusicId != 0)
+                {
+                    BitmapImage img = new BitmapImage();
+                    img.BeginInit();
+                    img.UriSource = new Uri(nowMusicCover);
+                    img.EndInit();
+                    coverArt.Source = img;
+                }
                 musicName.Text = nowPlaying;
                 musicAlbum.Text = album;
                 volIn.Text = nowVolume.ToString();
@@ -315,6 +331,7 @@ namespace hapControlGUIApp
                     }
                     prev = h;
                 }
+            musicId = null;
             dispatcherTimer.Start(); //再開
             return dataList;
         }
@@ -567,13 +584,16 @@ namespace hapControlGUIApp
                 noCoverArt = 1;
             }
             WebClient wc = new WebClient();
-            nowMusicCover = myDocument + "/" + musicId;//現在のカバーアートのローカルアドレス
-            if (musicId.IndexOf(".") == -1 && noCoverArt != 1)
+            if (musicId != null)
             {
-                nowMusicCover = nowMusicCover + ".jpg";
-                if (!File.Exists(nowMusicCover))
+                nowMusicCover = myDocument + "/" + musicId;//現在のカバーアートのローカルアドレス
+                if (musicId.IndexOf(".") == -1 && noCoverArt != 1)
                 {
-                    wc.DownloadFile(coverArtUrl, nowMusicCover);
+                    nowMusicCover = nowMusicCover + ".jpg";
+                    if (!File.Exists(nowMusicCover))
+                    {
+                        wc.DownloadFile(coverArtUrl, nowMusicCover);
+                    }
                 }
             }
             if (noCoverArt == 1)
@@ -622,17 +642,22 @@ namespace hapControlGUIApp
         void serializeJson(dynamic obje, string url, int isNeedParse)
         {
             var json = DynamicJson.Serialize(obje);
-            connectHap(json, url, isNeedParse);
+            ConnectHap(json, url, isNeedParse);
         }
 
-        void connectHap(dynamic json, string url, int isNeedParse)
+        async void ConnectHap(dynamic json, string url, int isNeedParse)
         {
-            HttpClient client = new HttpClient();
+            HttpClient client = new HttpClient() { Timeout = TimeSpan.FromSeconds(2) };
             string setUrl = cont.hostUrl + url;
             Uri Url = new Uri(setUrl);
             client.DefaultRequestHeaders.ExpectContinue = false;
             StringContent theContent = new StringContent(json, Encoding.UTF8, "application/x-www-form-urlencoded");
-            dynamic result = client.PostAsync(Url, theContent).Result.Content.ReadAsStringAsync().Result;
+            dynamic result = null;
+            await Task.Run(() =>
+            {
+                result = client.PostAsync(Url, theContent).Result.Content.ReadAsStringAsync().Result;
+            });
+
             dynamic data = DynamicJson.Parse(result);
             if (isNeedParse == 1)//現在音量取得
             {
@@ -723,11 +748,11 @@ namespace hapControlGUIApp
                     coverArtUrl = data.result[0].coverArtUrl;
                     int findsla = coverArtUrl.LastIndexOf("/") + 1;
                     musicId = coverArtUrl.Substring(findsla);
+                    setmusicId = 1;
                     if (prevMusicId == null)
                     {
                         prevMusicId = musicId;
                     }
-
                 }
                 catch (Exception e)
                 {
@@ -949,7 +974,9 @@ namespace hapControlGUIApp
 
         private void change_click(object sender, RoutedEventArgs e)
         {
+            cont.fst = 1;
             dispatcherTimer.Stop();
+            cont.retur = 1;
             cont con = new cont();
             NavigationService?.Navigate(con);
         }
@@ -1089,9 +1116,11 @@ namespace hapControlGUIApp
             extBox.ItemsSource = extList;
             extBox.Visibility = Visibility.Visible;
             playlistBackButton.Visibility = Visibility.Hidden;
+            playlistTracks.Visibility = Visibility.Hidden;
             playlistView.Visibility = Visibility.Hidden;
             ListBoxTrack.Visibility = Visibility.Hidden;
             ListBoxConverter.Visibility = Visibility.Hidden;
+            BackButton.Visibility = Visibility.Hidden;
             albumlistBackButton_Copy.Visibility = Visibility.Hidden;
         }
 
@@ -1099,6 +1128,7 @@ namespace hapControlGUIApp
         private void playlistbutton_Click(object sender, RoutedEventArgs e)
         {
             playlistBackButton.Visibility = Visibility.Visible;
+            playlistTracks.Visibility = Visibility.Hidden;
             playlistView.Visibility = Visibility.Visible;
             ListBoxTrack.Visibility = Visibility.Hidden;
             ListBoxConverter.Visibility = Visibility.Hidden;
@@ -1144,6 +1174,7 @@ namespace hapControlGUIApp
 
         private void albumlistBackButton_Copy_Click(object sender, RoutedEventArgs e)
         {
+            Console.WriteLine("albumlistBackButton_Copy");
             ListBoxConverter.Visibility = Visibility.Visible;
             ListBoxTrack.Visibility = Visibility.Hidden;
         }
@@ -1153,6 +1184,7 @@ namespace hapControlGUIApp
             playlistView.Visibility = Visibility.Hidden;
             playlistTracks.Visibility = Visibility.Hidden;
             ListBoxConverter.Visibility = Visibility.Visible;
+            ListBoxTrack.Visibility = Visibility.Hidden;
             playlistBackButton.Visibility = Visibility.Hidden;
             albumlistBackButton_Copy.Visibility = Visibility.Visible;
             extBox.Visibility = Visibility.Hidden;
