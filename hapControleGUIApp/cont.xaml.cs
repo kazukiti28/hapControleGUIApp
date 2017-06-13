@@ -49,7 +49,7 @@ namespace hapControlGUIApp
         public static string shabgurl;
         public static string rawip = null;
         public static bool isPlayNow;
-        public static bool extinput;
+        public static int extinput = 0;
         public static string nextimg = "/next.png";
         public static string previmg = "/prev.png";
         public static string playimg = "/play.png";
@@ -66,6 +66,7 @@ namespace hapControlGUIApp
         public static dynamic queueData;
         public static string extMode;
         DispatcherTimer dispatcherTimer;
+        static Timer queueTimer = new Timer();
         static Timer myTimer = new Timer();
         static double playlistModifiedVersion;
         static string playlistUri;
@@ -187,7 +188,7 @@ namespace hapControlGUIApp
             myDocument = Environment.GetFolderPath(Environment.SpecialFolder.Personal) + "/HAPControlApp";
             DirectoryInfo di = new DirectoryInfo(myDocument);
             di.Create();
-
+            browse.Visibility = Visibility.Visible;
             if(retur == 1)
             {
                 if (nowRepeat == "all")
@@ -283,16 +284,32 @@ namespace hapControlGUIApp
 
                 setMinusimg();
 
-                dispatcherTimer = new DispatcherTimer(DispatcherPriority.Normal);
+                /*dispatcherTimer = new DispatcherTimer(DispatcherPriority.Normal);
                 dispatcherTimer.Interval = new TimeSpan(0, 0, 0, 0, 333);
                 dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
-                dispatcherTimer.Start();
+                dispatcherTimer.Start();*/
                 
+                checkPower();
+                if (power != "off")
+                {
+                    dispatcherTimer = new DispatcherTimer(DispatcherPriority.Normal);
+                    dispatcherTimer.Interval = new TimeSpan(0, 0, 0, 0, 333);
+                    dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
+                    dispatcherTimer.Start();
+                }
+                getplayqueue();
+
+                queueTimer.Enabled = true;
+                queueTimer.AutoReset = true;
+                queueTimer.Interval = 1500;
+                queueTimer.Elapsed += new ElapsedEventHandler(queueTime);
+
                 myTimer.Enabled = true;
                 myTimer.AutoReset = true;
                 myTimer.Interval = 500;
                 myTimer.Elapsed += new ElapsedEventHandler(Time);
 
+                
                 ipaButton.Visibility = Visibility.Hidden;
                 
                 ipadd.Foreground = new SolidColorBrush(Colors.White);
@@ -385,8 +402,6 @@ namespace hapControlGUIApp
 
         void dispatcherTimer_Tick(object sender, EventArgs e)
         {
-            checkPower();
-            if (power == "off") dispatcherTimer.Stop();
             var obj = new
             {
                 @params = new[] {
@@ -428,6 +443,20 @@ namespace hapControlGUIApp
         static int shualbradioLock;
         static int shuallradioLock;
 
+        private void queueTime(object sender, EventArgs e)
+        {
+            checkPower();
+            if (power == "off")
+            {
+                try
+                {
+                    dispatcherTimer.Stop();
+                }
+                catch { }
+            }
+            getplayqueue();
+        }
+
         private void Time(object sender, EventArgs e)
         {
             if (resDist != null)
@@ -441,13 +470,15 @@ namespace hapControlGUIApp
                     {
                         isPlayNow = false;
                         if (first != 1) showall();
+                        extinput = 0;
                     }
                     else if (playmode == "PLAYING")
                     {
                         isPlayNow = true;
                         if (first != 1) showall();
+                        extinput = 0;
                     }
-                    else if (playmode == "STOPPED")
+                    else if (playmode == "STOPPED" && data.result[0].uri != "")
                     {
                         string extType = data.result[0].uri;
                         extType = extType.Replace("extInput:", "");
@@ -464,73 +495,74 @@ namespace hapControlGUIApp
                         {
                             extMode = "Optical In (外部入力中)";
                         }
-                        extinput = true;
-                        return;
+                        extinput = 1;
                     }
-                    musiclen = data.result[0].durationSec;
-                    playlistModifiedVersion = data.result[0].playlistModifiedVersion;
-                    playlistUri = data.result[0].playlistUri;
-                    nowalbumId = data.result[0].albumID;
-                    nowPlaying = data.result[0].title;
-                    noAlbum = 0;
-                    try
+                    if (data.result[0].uri == "") extinput = 2;
+                    if (playmode != "STOPPED")
                     {
-                        album = data.result[0].albumName;
-                    }
-                    catch
-                    {
-                        noAlbum = 1;
-                        album = "undefined album";
-                    }
-                    noArtist = 0;
-                    try
-                    {
-                        artist = data.result[0].artist;
-                    }
-                    catch
-                    {
-                        noArtist = 1;
-                        artist = "undefined artist";
-                    }
-                    codec = data.result[0].audioInfo[0].codec;
-                    bandwidth = data.result[0].audioInfo[0].bandwidth;
-                    bitrate = (double.Parse(data.result[0].audioInfo[0].bitrate)) / 1000;
-                    freq = data.result[0].audioInfo[0].frequency;
-                    double f = double.Parse(freq);
-                    f = f / 1000;
-                    freq = f.ToString();
-                    noCoverArt = 0;
-                    try
-                    {
-                        coverArtUrl = data.result[0].coverArtUrl;
-                        int findsla = coverArtUrl.LastIndexOf("/") + 1;
-                        musicId = coverArtUrl.Substring(findsla);
-                        if (prevMusicId == null)
+                        musiclen = data.result[0].durationSec;
+                        playlistModifiedVersion = data.result[0].playlistModifiedVersion;
+                        playlistUri = data.result[0].playlistUri;
+                        nowalbumId = data.result[0].albumID;
+                        nowPlaying = data.result[0].title;
+                        noAlbum = 0;
+                        try
                         {
-                            prevMusicId = musicId;
+                            album = data.result[0].albumName;
                         }
+                        catch
+                        {
+                            noAlbum = 1;
+                            album = "undefined album";
+                        }
+                        noArtist = 0;
+                        try
+                        {
+                            artist = data.result[0].artist;
+                        }
+                        catch
+                        {
+                            noArtist = 1;
+                            artist = "undefined artist";
+                        }
+                        codec = data.result[0].audioInfo[0].codec;
+                        bandwidth = data.result[0].audioInfo[0].bandwidth;
+                        bitrate = (double.Parse(data.result[0].audioInfo[0].bitrate)) / 1000;
+                        freq = data.result[0].audioInfo[0].frequency;
+                        double f = double.Parse(freq);
+                        f = f / 1000;
+                        freq = f.ToString();
+                        noCoverArt = 0;
+                        try
+                        {
+                            coverArtUrl = data.result[0].coverArtUrl;
+                            int findsla = coverArtUrl.LastIndexOf("/") + 1;
+                            musicId = coverArtUrl.Substring(findsla);
+                            if (prevMusicId == null)
+                            {
+                                prevMusicId = musicId;
+                            }
+                        }
+                        catch
+                        {
+                            noCoverArt = 1;
+                        }
+                        if (noCoverArt != 1)
+                        {
+                            r = Convert.ToString((int)data.result[0].backgroundColorR, 16);
+                            g = Convert.ToString((int)data.result[0].backgroundColorG, 16);
+                            b = Convert.ToString((int)data.result[0].backgroundColorB, 16);
+                            a = Convert.ToString((int)data.result[0].backgroundColorA, 16);
+                        }
+                        positionSec = data.result[0].positionSec;
+                        posSec = (int)positionSec;
+                        posMin = posSec / 60;
+                        posSec = posSec % 60;
 
+                        nowRepeat = data.result[0].repeatType;
+                        nowShuffle = data.result[0].shuffleType;
                     }
-                    catch
-                    {
-                        noCoverArt = 1;
-                    }
-                    if (noCoverArt != 1)
-                    {
-                        r = Convert.ToString((int)data.result[0].backgroundColorR, 16);
-                        g = Convert.ToString((int)data.result[0].backgroundColorG, 16);
-                        b = Convert.ToString((int)data.result[0].backgroundColorB, 16);
-                        a = Convert.ToString((int)data.result[0].backgroundColorA, 16);
-                    }
-                    positionSec = data.result[0].positionSec;
-                    posSec = (int)positionSec;
-                    posMin = posSec / 60;
-                    posSec = posSec % 60;
-
-                    nowRepeat = data.result[0].repeatType;
-                    nowShuffle = data.result[0].shuffleType;
-
-                    if (!extinput)
+                    if (extinput == 0)
                     {
                         musicName.Text = nowPlaying;
                         musicArtist.Text = artist;
@@ -551,17 +583,17 @@ namespace hapControlGUIApp
                             else if (nowShuffle == "off") shuoffradioLock = 1;
                             else if (nowShuffle == "album") shualbradioLock = 1;
                         }
-                        if (nowRepeat == "all" && repallradioLock == 1 || fst < 3)
+                        if (nowRepeat == "all" && repallradioLock == 1/* || fst < 3*/)
                         {
                             repallradioLock = 0;
                             repall.IsChecked = true;
                         }
-                        else if (nowRepeat == "off" && repoffradioLock == 1 || fst < 3)
+                        else if (nowRepeat == "off" && repoffradioLock == 1/* || fst < 3*/)
                         {
                             repoffradioLock = 0;
                             repoff.IsChecked = true;
                         }
-                        else if (nowRepeat == "one" && reponeradioLock == 1 || fst < 3)
+                        else if (nowRepeat == "one" && reponeradioLock == 1/* || fst < 3*/)
                         {
                             reponeradioLock = 0;
                             repone.IsChecked = true;
@@ -580,19 +612,19 @@ namespace hapControlGUIApp
                         }
                         BG.Background = new SolidColorBrush(Color.FromArgb(Convert.ToByte(a, 16), Convert.ToByte(r, 16), Convert.ToByte(g, 16), Convert.ToByte(b, 16)));
 
-                        if (nowShuffle == "track" && shuallradioLock == 1 || fst < 3)
+                        if (nowShuffle == "track" && shuallradioLock == 1/* || fst < 3*/)
                         {
                             fst++;
                             allshu.IsChecked = true;
                             shuallradioLock = 0;
                         }
-                        else if (nowShuffle == "off" && shuoffradioLock == 1 || fst < 3)
+                        else if (nowShuffle == "off" && shuoffradioLock == 1/* || fst < 3*/)
                         {
                             fst++;
                             offshu.IsChecked = true;
                             shuoffradioLock = 0;
                         }
-                        else if (nowShuffle == "album" && shualbradioLock == 1 || fst < 3)
+                        else if (nowShuffle == "album" && shualbradioLock == 1/* || fst < 3*/)
                         {
                             fst++;
                             albumshu.IsChecked = true;
@@ -601,20 +633,58 @@ namespace hapControlGUIApp
                         
                         setCenterimg();
                         if (!isDragging) slider.Value = ((posMin * 60 + posSec) / musiclen) * 100;
-                        getplayqueue();
+                        
                         if (first == 1)
                         {
                             showall();
                             first = 0;
                         }
                     }
-                    else
+                    else if(extinput == 1)
                     {
                         hiddenall();
+                        browse.Visibility = Visibility.Visible;
                         musicName.Text = extMode;
+                        musicName.Visibility = Visibility.Visible;
                         dynamic getVolumeObj = getVolumeInfo();
                         serializeJson(getVolumeObj, "audio", 1);
                         volIn.Text = nowVolume.ToString();
+                        volIn.Visibility = Visibility.Visible;
+                        mimg.Visibility = Visibility.Visible;
+                        pimg.Visibility = Visibility.Visible;
+                        muteimg.Visibility = Visibility.Visible;
+                        volPlu.Visibility = Visibility.Visible;
+                        volMin.Visibility = Visibility.Visible;
+                        Mute.Visibility = Visibility.Visible;
+                    }
+                    else
+                    {
+                        musicArtist.Visibility = Visibility.Hidden;
+                        coverArt.Visibility = Visibility.Hidden;
+                        prevButton.Visibility = Visibility.Hidden;
+                        nextButton.Visibility = Visibility.Hidden;
+                        prevButton.Visibility = Visibility.Hidden;
+                        offshu.Visibility = Visibility.Hidden;
+                        albumshu.Visibility = Visibility.Hidden;
+                        allshu.Visibility = Visibility.Hidden;
+                        repoff.Visibility = Visibility.Hidden;
+                        repall.Visibility = Visibility.Hidden;
+                        repone.Visibility = Visibility.Hidden;
+                        startButton.Visibility = Visibility.Hidden;
+                        Repeat.Visibility = Visibility.Hidden;
+                        musicName.Visibility = Visibility.Hidden;
+                        musicAlbum.Visibility = Visibility.Hidden;
+                        musicCodec.Visibility = Visibility.Hidden;
+                        minsec.Visibility = Visibility.Hidden;
+                        slider.Visibility = Visibility.Hidden;
+                        nextButton.Visibility = Visibility.Hidden;
+                        prevButton.Visibility = Visibility.Hidden;
+                        slider.Visibility = Visibility.Hidden;
+                        shuffle.Visibility = Visibility.Hidden;
+                        previmage.Visibility = Visibility.Hidden;
+                        nextimage.Visibility = Visibility.Hidden;
+                        startimage.Visibility = Visibility.Hidden;
+                        muteimg.Visibility = Visibility.Hidden;
                     }
                 }));
             }
@@ -749,7 +819,7 @@ namespace hapControlGUIApp
             isPa = isNeedParse;
             dynamic res = null;
             StringContent theContent = new StringContent(json);
-            using (var client = new HttpClient())
+            using (var client = new HttpClient { Timeout = TimeSpan.FromMilliseconds(5000) })
                 await Task.Run(() =>
                 {
                     client.DefaultRequestHeaders.ExpectContinue = false;
@@ -787,13 +857,15 @@ namespace hapControlGUIApp
                         {
                             isPlayNow = false;
                             if (first != 1) showall();
+                            extinput = 0;
                         }
                         else if (playmode == "PLAYING")
                         {
                             isPlayNow = true;
                             if (first != 1) showall();
+                            extinput = 0;
                         }
-                        else if (playmode == "STOPPED")
+                        else if (playmode == "STOPPED" && data.result[0].uri != "")
                         {
                             string extType = data.result[0].uri;
                             extType = extType.Replace("extInput:", "");
@@ -810,7 +882,7 @@ namespace hapControlGUIApp
                             {
                                 extMode = "Optical In (外部入力中)";
                             }
-                            extinput = true;
+                            extinput = 1;
                             return;
                         }
                         musiclen = data.result[0].durationSec;
@@ -1107,7 +1179,7 @@ namespace hapControlGUIApp
 
         async void getplayqueue()
         {
-            if (!extinput)
+            if (extinput != 1)
             {
                 try
                 {
@@ -1204,19 +1276,12 @@ namespace hapControlGUIApp
                             musicIdarr.Add((queueData.tracks[cnt].trackid).ToString());
                             info = "";
                         }
-                        listBoxqueue.ItemsSource = TracksdataList;
-                    }
-
-                    oldqueuedata = queueData;
-                    var border = VisualTreeHelper.GetChild(listBoxqueue, 0) as Border;
-                    if (border != null)
-                    {
-                        dynamic listBoxScroll = border.Child as ScrollViewer;
-                        if (listBoxScroll != null)
+                        Dispatcher.Invoke(new Action(() =>
                         {
-                            listBoxScroll.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
-                        }
+                            listBoxqueue.ItemsSource = TracksdataList;
+                        }));
                     }
+                    oldqueuedata = queueData;
                 }
                 catch { }
             }
@@ -1394,6 +1459,7 @@ namespace hapControlGUIApp
             coverartStop = 1;
             dispatcherTimer.Stop();
             myTimer.Stop();
+            queueTimer.Stop();
             nav navig = new nav();
             NavigationService?.Navigate(navig);
         }
@@ -1597,6 +1663,8 @@ namespace hapControlGUIApp
                 powerbutton.Content = "PowerOn";
                 hiddenall();
                 dispatcherTimer.Stop();
+                queueTimer.Stop();
+                myTimer.Stop();
             }
             else if (powerbutton.Content.ToString() == "PowerOn")
             {
@@ -1609,6 +1677,8 @@ namespace hapControlGUIApp
                 ps.ShowDialog();
                 showall();
                 dispatcherTimer.Start();
+                queueTimer.Start();
+                myTimer.Start();
             }
         }
     }

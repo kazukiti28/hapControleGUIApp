@@ -182,23 +182,19 @@ namespace hapControlGUIApp
 
         void dispatcherTimer_Tick(object sender, EventArgs e)
         {
-            
             setJunbi("getmusicinfo");
-            if (!cont.extinput)
+            if (cont.extinput != 1)
             {
                 BG.Background =
                     new SolidColorBrush(Color.FromArgb(Convert.ToByte(a, 16), Convert.ToByte(r, 16),
                         Convert.ToByte(g, 16), Convert.ToByte(b, 16)));
                 serializeJson(getVolumeInfo(), "audio", 1);
                 downloadCoverArt();
-                if (setmusicId != 0)
-                {
-                    BitmapImage img = new BitmapImage();
-                    img.BeginInit();
-                    img.UriSource = new Uri(nowMusicCover);
-                    img.EndInit();
-                    coverArt.Source = img;
-                }
+                BitmapImage img = new BitmapImage();
+                img.BeginInit();
+                img.UriSource = new Uri(nowMusicCover);
+                img.EndInit();
+                coverArt.Source = img;
                 musicName.Text = nowPlaying;
                 musicAlbum.Text = album;
                 volIn.Text = nowVolume.ToString();
@@ -209,7 +205,9 @@ namespace hapControlGUIApp
                 startimage.Visibility = Visibility.Visible;
                 prevButton.Visibility = Visibility.Visible;
                 previmage.Visibility = Visibility.Visible;
-            } else
+                musicAlbum.Visibility = Visibility.Visible;
+            }
+            else
             {
                 musicName.Text = cont.extMode;
                 dynamic getVolumeObj = getVolumeInfo();
@@ -221,6 +219,7 @@ namespace hapControlGUIApp
                 startimage.Visibility = Visibility.Hidden;
                 prevButton.Visibility = Visibility.Hidden;
                 previmage.Visibility = Visibility.Hidden;
+                musicAlbum.Visibility = Visibility.Hidden;
             }
         }
 
@@ -266,11 +265,10 @@ namespace hapControlGUIApp
 
         private List<VisibleItem> getDataList()
         {
-            dispatcherTimer.Stop(); //情報定期取得一時停止
+            dispatcherTimer.Stop();
 
             VisibleItem vItem;
             vItem = new VisibleItem();
-            //albums[0]のみ例外
             vItem.CoverArt = myDocument + "/" + "default.png";
             vItem.ArtistName = "不明なアーティスト";
             vItem.AlbumName = "不明なアルバム";
@@ -647,143 +645,154 @@ namespace hapControlGUIApp
 
         async void ConnectHap(dynamic json, string url, int isNeedParse)
         {
-            HttpClient client = new HttpClient() { Timeout = TimeSpan.FromSeconds(2) };
-            string setUrl = cont.hostUrl + url;
-            Uri Url = new Uri(setUrl);
-            client.DefaultRequestHeaders.ExpectContinue = false;
-            StringContent theContent = new StringContent(json, Encoding.UTF8, "application/x-www-form-urlencoded");
-            dynamic result = null;
-            await Task.Run(() =>
+            try
             {
-                result = client.PostAsync(Url, theContent).Result.Content.ReadAsStringAsync().Result;
-            });
+                HttpClient client = new HttpClient() { Timeout = TimeSpan.FromSeconds(2) };
+                string setUrl = cont.hostUrl + url;
+                Uri Url = new Uri(setUrl);
+                client.DefaultRequestHeaders.ExpectContinue = false;
+                StringContent theContent = new StringContent(json, Encoding.UTF8, "application/x-www-form-urlencoded");
+                dynamic result = null;
+                await Task.Run(() =>
+                {
+                    try
+                    {
+                        result = client.PostAsync(Url, theContent).Result.Content.ReadAsStringAsync().Result;
+                    }
+                    catch { }
+                });
 
-            dynamic data = DynamicJson.Parse(result);
-            if (isNeedParse == 1)//現在音量取得
-            {
-                nowVolume = (int)data.result[0].volume;
-                if (data.result[0].mute == "on")
+                dynamic data = DynamicJson.Parse(result);
+                if (isNeedParse == 1)//現在音量取得
                 {
-                    setMuteimg(cont.muteon);
-                    Mute.Content = "Mute On";
+                    nowVolume = (int)data.result[0].volume;
+                    if (data.result[0].mute == "on")
+                    {
+                        setMuteimg(cont.muteon);
+                        Mute.Content = "Mute On";
+                    }
+                    if (data.result[0].mute == "off")
+                    {
+                        setMuteimg(cont.muteoff);
+                        Mute.Content = "Mute Off";
+                    }
                 }
-                if (data.result[0].mute == "off")
+                else if (isNeedParse == 2)//楽曲情報取得
                 {
-                    setMuteimg(cont.muteoff);
-                    Mute.Content = "Mute Off";
-                }
-            }
-            else if (isNeedParse == 2)//楽曲情報取得
-            {
-                string playmode = data.result[0].state;
-                if (playmode == "PAUSED")
-                {
-                    cont.isPlayNow = false;
-                }
-                else if (playmode == "PLAYING")
-                {
-                    cont.isPlayNow = true;
-                }
-                else if (playmode == "STOPPED")
-                {
-                    try {
-                        string extType = data.result[0].uri;
-                        extType = extType.Replace("extInput:", "");
-                        string type = extType.Substring(0, 4);
-                        if (type == "line")
+                    string playmode = data.result[0].state;
+                    if (playmode == "PAUSED")
+                    {
+                        cont.isPlayNow = false;
+                        cont.extinput = 0;
+                    }
+                    else if (playmode == "PLAYING")
+                    {
+                        cont.isPlayNow = true;
+                        cont.extinput = 0;
+                    }
+                    else if (playmode == "STOPPED" && data.result[0].uri != "")
+                    {
+                        try
                         {
-                            cont.extMode = "Line In " + extType.Substring(extType.Length - 1, 1) + "(外部入力)";
+                            string extType = data.result[0].uri;
+                            extType = extType.Replace("extInput:", "");
+                            string type = extType.Substring(0, 4);
+                            if (type == "line")
+                            {
+                                cont.extMode = "Line In " + extType.Substring(extType.Length - 1, 1) + "(外部入力)";
+                            }
+                            else if (type == "coax")
+                            {
+                                cont.extMode = "Coaxial In (外部入力中)";
+                            }
+                            else if (type == "opti")
+                            {
+                                cont.extMode = "Optical In (外部入力中)";
+                            }
+                            cont.extinput = 1;
                         }
-                        else if (type == "coax")
+                        catch
                         {
-                            cont.extMode = "Coaxial In (外部入力中)";
+                            cont.extMode = "";
                         }
-                        else if (type == "opti")
-                        {
-                            cont.extMode = "Optical In (外部入力中)";
-                        }
-                        cont.extinput = true;
+                        return;
+                    }
+                    cont.musiclen = data.result[0].durationSec;
+                    playlistModifiedVersion = data.result[0].playlistModifiedVersion;
+                    playlistUri = data.result[0].playlistUri;
+
+                    nowPlaying = data.result[0].title;
+                    noAlbum = 0;
+                    try
+                    {
+                        album = data.result[0].albumName;
                     }
                     catch
                     {
-                        cont.extMode = "";
+                        noAlbum = 1;
+                        album = "undefined album";
                     }
-                    return;
-                }
-                cont.musiclen = data.result[0].durationSec;
-                playlistModifiedVersion = data.result[0].playlistModifiedVersion;
-                playlistUri = data.result[0].playlistUri;
-
-                nowPlaying = data.result[0].title;
-                noAlbum = 0;
-                try
-                {
-                    album = data.result[0].albumName;
-                }
-                catch
-                {
-                    noAlbum = 1;
-                    album = "undefined album";
-                }
-                noArtist = 0;
-                try
-                {
-                    artist = data.result[0].artist;
-                }
-                catch
-                {
-                    noArtist = 1;
-                    artist = "undefined artist";
-                }
-                cont.codec = data.result[0].audioInfo[0].codec;
-                cont.bandwidth = data.result[0].audioInfo[0].bandwidth;
-                cont.bitrate = (double.Parse(data.result[0].audioInfo[0].bitrate)) / 1000;
-                freq = data.result[0].audioInfo[0].frequency;
-                double f = double.Parse(freq);
-                f = f / 1000;
-                freq = f.ToString();
-                noCoverArt = 0;
-                try
-                {
-                    coverArtUrl = data.result[0].coverArtUrl;
-                    int findsla = coverArtUrl.LastIndexOf("/") + 1;
-                    musicId = coverArtUrl.Substring(findsla);
-                    setmusicId = 1;
-                    if (prevMusicId == null)
+                    noArtist = 0;
+                    try
                     {
-                        prevMusicId = musicId;
+                        artist = data.result[0].artist;
+                    }
+                    catch
+                    {
+                        noArtist = 1;
+                        artist = "undefined artist";
+                    }
+                    cont.codec = data.result[0].audioInfo[0].codec;
+                    cont.bandwidth = data.result[0].audioInfo[0].bandwidth;
+                    cont.bitrate = (double.Parse(data.result[0].audioInfo[0].bitrate)) / 1000;
+                    freq = data.result[0].audioInfo[0].frequency;
+                    double f = double.Parse(freq);
+                    f = f / 1000;
+                    freq = f.ToString();
+                    noCoverArt = 0;
+                    try
+                    {
+                        coverArtUrl = data.result[0].coverArtUrl;
+                        int findsla = coverArtUrl.LastIndexOf("/") + 1;
+                        musicId = coverArtUrl.Substring(findsla);
+                        setmusicId = 1;
+                        if (prevMusicId == null)
+                        {
+                            prevMusicId = musicId;
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        noCoverArt = 1;
+                    }
+                    if (noCoverArt != 1)
+                    {
+                        r = Convert.ToString((int)data.result[0].backgroundColorR, 16);
+                        g = Convert.ToString((int)data.result[0].backgroundColorG, 16);
+                        b = Convert.ToString((int)data.result[0].backgroundColorB, 16);
+                        a = Convert.ToString((int)data.result[0].backgroundColorA, 16);
+                    }
+                    positionSec = data.result[0].positionSec;
+                    posSec = (int)positionSec;
+                    posMin = posSec / 60;//分数
+                    posSec = posSec % 60;//秒数
+
+                    cont.nowRepeat = data.result[0].repeatType;
+                    cont.nowShuffle = data.result[0].shuffleType;
+                }
+                else if (isNeedParse == 3)//ミュートチェック
+                {
+                    if (data.result[0].mute == "on")
+                    {
+                        makeMutejson(1);
+                    }
+                    if (data.result[0].mute == "off")
+                    {
+                        makeMutejson(0);
                     }
                 }
-                catch (Exception e)
-                {
-                    noCoverArt = 1;
-                }
-                if (noCoverArt != 1)
-                {
-                    r = Convert.ToString((int)data.result[0].backgroundColorR, 16);
-                    g = Convert.ToString((int)data.result[0].backgroundColorG, 16);
-                    b = Convert.ToString((int)data.result[0].backgroundColorB, 16);
-                    a = Convert.ToString((int)data.result[0].backgroundColorA, 16);
-                }
-                positionSec = data.result[0].positionSec;
-                posSec = (int)positionSec;
-                posMin = posSec / 60;//分数
-                posSec = posSec % 60;//秒数
-
-                cont.nowRepeat = data.result[0].repeatType;
-                cont.nowShuffle = data.result[0].shuffleType;
             }
-            else if (isNeedParse == 3)//ミュートチェック
-            {
-                if (data.result[0].mute == "on")
-                {
-                    makeMutejson(1);
-                }
-                if (data.result[0].mute == "off")
-                {
-                    makeMutejson(0);
-                }
-            }
+            catch { }
         }
 
 
