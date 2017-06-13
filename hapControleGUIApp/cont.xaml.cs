@@ -225,94 +225,103 @@ namespace hapControlGUIApp
             string fileName = myDocument + "/ipadd";
             if (File.Exists(fileName))
             {
-                ipaButton.Visibility = Visibility.Hidden;
-                StreamReader sr = new StreamReader(fileName, utf);
-                ip = sr.ReadLine();
-                sr.Close();
-                hostUrl = ip;
-                ipaddInput.Text = ip;
-                rawip = ip;
-                var req = WebRequest.Create(ip + "contentplayer/v100/powerstate");
-                var res = req.GetResponse();
-                dynamic data = DynamicJson.Parse(res.GetResponseStream());
-                if (data.power_state == "off") power = "off";
-                else power = "on";
-                if (power == "off")
+                try
                 {
-                    if (MessageBox.Show("電源がOFFです。ONにしますか？", "Information", MessageBoxButton.YesNo,
-                    MessageBoxImage.Information) == MessageBoxResult.Yes)
+                    ipaButton.Visibility = Visibility.Hidden;
+                    StreamReader sr = new StreamReader(fileName, utf);
+                    ip = sr.ReadLine();
+                    sr.Close();
+                    hostUrl = ip;
+                    ipaddInput.Text = ip;
+                    rawip = ip;
+                    var req = WebRequest.Create(ip + "contentplayer/v100/powerstate");
+                    var res = req.GetResponse();
+                    dynamic data = DynamicJson.Parse(res.GetResponseStream());
+                    if (data.power_state == "off") power = "off";
+                    else power = "on";
+                    if (power == "off")
                     {
-                        powerCont("active");
+                        if (MessageBox.Show("電源がOFFです。ONにしますか？", "Information", MessageBoxButton.YesNo,
+                        MessageBoxImage.Information) == MessageBoxResult.Yes)
+                        {
+                            powerCont("active");
+                        }
+                        ProcessingSplash ps = new ProcessingSplash("起動待ちです。しばらくお待ちください…", () =>
+                        {
+                            System.Threading.Thread.Sleep(19000);
+                        });
+                        ps.ShowDialog();
                     }
-                    ProcessingSplash ps = new ProcessingSplash("起動待ちです。しばらくお待ちください…", () =>
+
+                    setJunbi("getmusicinfo");
+                    if (!File.Exists(myDocument + "/bg_overlay.png"))
                     {
-                        System.Threading.Thread.Sleep(19000);
-                    });
-                    ps.ShowDialog();
-                }
-                
-                setJunbi("getmusicinfo");
-                if (!File.Exists(myDocument + "/bg_overlay.png"))
-                {
-                    WebClient wc = new WebClient();
-                    string ipad = hostUrl.Replace(":60200/sony/", "");
-                    string url = ipad + ":60100/img/bg_overlay.png";
-                    wc.DownloadFile(url, bgurl);
-                }
-                for (int i = 0; i < 5; i++)
-                {
-                    try
-                    {
-                        WebClient wec = new WebClient();
-                        wec.DownloadFile(hostUrl.Replace(":60200/sony/", "") + ":60100/img/icon_input_optical.png", myDocument + "/optical.png");
-                        wec.DownloadFile(hostUrl.Replace(":60200/sony/", "") + ":60100/img/icon_input_coaxial.png", myDocument + "/coaxial.png");
-                        wec.DownloadFile(hostUrl.Replace(":60200/sony/", "") + ":60100/img/icon_input_analog.png", myDocument + "/line.png");
-                        break;
+                        WebClient wc = new WebClient();
+                        string ipad = hostUrl.Replace(":60200/sony/", "");
+                        string url = ipad + ":60100/img/bg_overlay.png";
+                        wc.DownloadFile(url, bgurl);
                     }
-                    catch { }
-                }
-                BitmapImage bgimg = new BitmapImage();
-                bgimg.BeginInit();
-                bgimg.UriSource = new Uri(bgurl);
-                bgimg.EndInit();
-                bgimage.Source = bgimg;
+                    for (int i = 0; i < 5; i++)
+                    {
+                        try
+                        {
+                            WebClient wec = new WebClient();
+                            wec.DownloadFile(hostUrl.Replace(":60200/sony/", "") + ":60100/img/icon_input_optical.png", myDocument + "/optical.png");
+                            wec.DownloadFile(hostUrl.Replace(":60200/sony/", "") + ":60100/img/icon_input_coaxial.png", myDocument + "/coaxial.png");
+                            wec.DownloadFile(hostUrl.Replace(":60200/sony/", "") + ":60100/img/icon_input_analog.png", myDocument + "/line.png");
+                            break;
+                        }
+                        catch { }
+                    }
+                    BitmapImage bgimg = new BitmapImage();
+                    bgimg.BeginInit();
+                    bgimg.UriSource = new Uri(bgurl);
+                    bgimg.EndInit();
+                    bgimage.Source = bgimg;
 
-                setRightimg();
-                setLeftimg();
+                    setRightimg();
+                    setLeftimg();
 
-                setPlusimg();
+                    setPlusimg();
 
-                setMinusimg();
+                    setMinusimg();
 
-                /*dispatcherTimer = new DispatcherTimer(DispatcherPriority.Normal);
-                dispatcherTimer.Interval = new TimeSpan(0, 0, 0, 0, 333);
-                dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
-                dispatcherTimer.Start();*/
-                
-                checkPower();
-                if (power != "off")
-                {
-                    dispatcherTimer = new DispatcherTimer(DispatcherPriority.Normal);
+                    /*dispatcherTimer = new DispatcherTimer(DispatcherPriority.Normal);
                     dispatcherTimer.Interval = new TimeSpan(0, 0, 0, 0, 333);
                     dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
-                    dispatcherTimer.Start();
+                    dispatcherTimer.Start();*/
+
+                    checkPower();
+                    if (power != "off")
+                    {
+                        dispatcherTimer = new DispatcherTimer(DispatcherPriority.Normal);
+                        dispatcherTimer.Interval = new TimeSpan(0, 0, 0, 0, 333);
+                        dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
+                        dispatcherTimer.Start();
+                    }
+                    getplayqueue();
+
+                    queueTimer.Enabled = true;
+                    queueTimer.AutoReset = true;
+                    queueTimer.Interval = 1500;
+                    queueTimer.Elapsed += new ElapsedEventHandler(queueTime);
+
+                    myTimer.Enabled = true;
+                    myTimer.AutoReset = true;
+                    myTimer.Interval = 500;
+                    myTimer.Elapsed += new ElapsedEventHandler(Time);
+
+
+                    ipaButton.Visibility = Visibility.Hidden;
+
+                    ipadd.Foreground = new SolidColorBrush(Colors.White);
                 }
-                getplayqueue();
-
-                queueTimer.Enabled = true;
-                queueTimer.AutoReset = true;
-                queueTimer.Interval = 1500;
-                queueTimer.Elapsed += new ElapsedEventHandler(queueTime);
-
-                myTimer.Enabled = true;
-                myTimer.AutoReset = true;
-                myTimer.Interval = 500;
-                myTimer.Elapsed += new ElapsedEventHandler(Time);
-
-                
-                ipaButton.Visibility = Visibility.Hidden;
-                
-                ipadd.Foreground = new SolidColorBrush(Colors.White);
+                catch {
+                    Console.WriteLine("IPアドレスが違います");
+                    File.Delete(fileName);
+                    ipaButton.Visibility = Visibility.Visible;
+                    ipaddInput.Text = "http://";
+                }
             }
         }
         
@@ -692,10 +701,13 @@ namespace hapControlGUIApp
 
         private void button_Click(object sender, RoutedEventArgs e)
         {
+            try
+            {
             string str = ipaddInput.Text;
             ip = str;
             hostUrl = str + ":60200/sony/";
-
+            var req = WebRequest.Create(ip + "contentplayer/v100/powerstate");
+            var res = req.GetResponse();
             StreamWriter writer = new StreamWriter(myDocument + "/ipadd", true, Encoding.GetEncoding("UTF-8"));
             writer.WriteLine(hostUrl);
             writer.Close();
@@ -770,6 +782,11 @@ namespace hapControlGUIApp
             dispatcherTimer.Interval = new TimeSpan(0, 0, 0, 0, 1000);
             dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
             dispatcherTimer.Start();
+            }
+            catch
+            {
+                MessageBox.Show("入力されたIPアドレスの機器が見つかりませんでした。","エラー", MessageBoxButton.YesNo, MessageBoxImage.Error);
+            }
         }
 
         void downloadCoverArt()
