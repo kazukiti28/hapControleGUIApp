@@ -13,6 +13,7 @@ using System.Windows.Threading;
 using Codeplex.Data;
 using System.Threading.Tasks;
 using System.Timers;
+using System.Data.SQLite;
 
 namespace hapControlGUIApp
 {
@@ -72,6 +73,7 @@ namespace hapControlGUIApp
         static string playlistUri;
         static string power;
         public static int retur = 0;
+        public static string db;
 
         public void hiddenall()
         {
@@ -252,7 +254,7 @@ namespace hapControlGUIApp
                         });
                         ps.ShowDialog();
                     }
-
+                    
                     setJunbi("getmusicinfo");
                     if (!File.Exists(myDocument + "/bg_overlay.png"))
                     {
@@ -261,6 +263,17 @@ namespace hapControlGUIApp
                         string url = ipad + ":60100/img/bg_overlay.png";
                         wc.DownloadFile(url, bgurl);
                     }
+
+                    WebClient w = new WebClient();
+                    string dbcon = hostUrl + "database/storage/hdd_browse.db";
+                    db = myDocument + "/hdd_browse.db";
+                    w.DownloadFile(dbcon, db);
+                    w.Dispose();
+
+                    SQLiteConnection connection = new SQLiteConnection("Data Source=" + db);
+                    connection.Open();
+                    SQLiteCommand command = connection.CreateCommand();
+
                     for (int i = 0; i < 5; i++)
                     {
                         try
@@ -706,12 +719,11 @@ namespace hapControlGUIApp
             string str = ipaddInput.Text;
             ip = str;
             hostUrl = str + ":60200/sony/";
-            var req = WebRequest.Create(ip + "contentplayer/v100/powerstate");
+            var req = WebRequest.Create(hostUrl + "contentplayer/v100/powerstate");
             var res = req.GetResponse();
             StreamWriter writer = new StreamWriter(myDocument + "/ipadd", true, Encoding.GetEncoding("UTF-8"));
             writer.WriteLine(hostUrl);
             writer.Close();
-
             setJunbi("getmusicinfo");
             musicName.Text = nowPlaying;
             musicArtist.Text = artist;

@@ -44,3 +44,4 @@ C:\Users\Kazuki Fujii\Documents\GitHub\hapControleGUIApp\hapControleGUIApp\obj\D
 C:\Users\Kazuki Fujii\Documents\GitHub\hapControleGUIApp\hapControleGUIApp\obj\Debug\hapControlGUIApp.application
 C:\Users\Kazuki Fujii\Documents\GitHub\hapControleGUIApp\hapControleGUIApp\obj\Debug\ProcessingSplash.g.cs
 C:\Users\Kazuki Fujii\Documents\GitHub\hapControleGUIApp\hapControleGUIApp\obj\Debug\ProcessingSplash.baml
+C:\Users\Kazuki Fujii\Documents\GitHub\hapControleGUIApp\hapControleGUIApp\bin\Debug\System.Data.SQLite.dll
