@@ -1790,15 +1790,14 @@ namespace hapControlGUIApp
                     pathLen -= count;//長さを減す
                     getDirectry = getDirectry.Substring(count);//抽出した数字を消す(/は残す)
                 }
-            } else
+            }
+            else
             {
                 //HAP_Internal直下の場合
             }
             
-            //double alid = int.Parse(nowalbumId.Replace("audio:album?id=", "")); --アルバムidが出る
             string dst = myDocument + "/" + trackfilename;
-            string src = source+ trackfilename;
-            //string terst = @"\\192.168.0.7\HAP_Internal\test.flac";
+            string src = source + trackfilename;
             File.Copy(src, dst, true);
         }
     }
