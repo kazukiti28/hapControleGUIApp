@@ -45,3 +45,37 @@ C:\Users\Kazuki Fujii\Documents\GitHub\hapControleGUIApp\hapControleGUIApp\obj\D
 C:\Users\Kazuki Fujii\Documents\GitHub\hapControleGUIApp\hapControleGUIApp\obj\Debug\ProcessingSplash.g.cs
 C:\Users\Kazuki Fujii\Documents\GitHub\hapControleGUIApp\hapControleGUIApp\obj\Debug\ProcessingSplash.baml
 C:\Users\Kazuki Fujii\Documents\GitHub\hapControleGUIApp\hapControleGUIApp\bin\Debug\System.Data.SQLite.dll
+D:\GitHub\hapControleGUIApp\hapControleGUIApp\bin\Debug\hapControlGUIApp.exe.config
+D:\GitHub\hapControleGUIApp\hapControleGUIApp\bin\Debug\hapControlGUIApp.exe.manifest
+D:\GitHub\hapControleGUIApp\hapControleGUIApp\bin\Debug\hapControlGUIApp.application
+D:\GitHub\hapControleGUIApp\hapControleGUIApp\bin\Debug\hapControlGUIApp.exe
+D:\GitHub\hapControleGUIApp\hapControleGUIApp\bin\Debug\hapControlGUIApp.pdb
+D:\GitHub\hapControleGUIApp\hapControleGUIApp\bin\Debug\EntityFramework.dll
+D:\GitHub\hapControleGUIApp\hapControleGUIApp\bin\Debug\EntityFramework.SqlServer.dll
+D:\GitHub\hapControleGUIApp\hapControleGUIApp\bin\Debug\System.Data.SQLite.dll
+D:\GitHub\hapControleGUIApp\hapControleGUIApp\bin\Debug\System.Data.SQLite.EF6.dll
+D:\GitHub\hapControleGUIApp\hapControleGUIApp\bin\Debug\System.Data.SQLite.Linq.dll
+D:\GitHub\hapControleGUIApp\hapControleGUIApp\bin\Debug\EntityFramework.xml
+D:\GitHub\hapControleGUIApp\hapControleGUIApp\bin\Debug\EntityFramework.SqlServer.xml
+D:\GitHub\hapControleGUIApp\hapControleGUIApp\bin\Debug\System.Data.SQLite.xml
+D:\GitHub\hapControleGUIApp\hapControleGUIApp\bin\Debug\System.Data.SQLite.dll.config
+D:\GitHub\hapControleGUIApp\hapControleGUIApp\obj\Debug\hapControlGUIApp.csprojResolveAssemblyReference.cache
+D:\GitHub\hapControleGUIApp\hapControleGUIApp\obj\Debug\MainWindow.baml
+D:\GitHub\hapControleGUIApp\hapControleGUIApp\obj\Debug\cont.g.cs
+D:\GitHub\hapControleGUIApp\hapControleGUIApp\obj\Debug\MainWindow.g.cs
+D:\GitHub\hapControleGUIApp\hapControleGUIApp\obj\Debug\nav.g.cs
+D:\GitHub\hapControleGUIApp\hapControleGUIApp\obj\Debug\ProcessingSplash.g.cs
+D:\GitHub\hapControleGUIApp\hapControleGUIApp\obj\Debug\App.g.cs
+D:\GitHub\hapControleGUIApp\hapControleGUIApp\obj\Debug\hapControlGUIApp_MarkupCompile.cache
+D:\GitHub\hapControleGUIApp\hapControleGUIApp\obj\Debug\hapControlGUIApp_MarkupCompile.lref
+D:\GitHub\hapControleGUIApp\hapControleGUIApp\obj\Debug\cont.baml
+D:\GitHub\hapControleGUIApp\hapControleGUIApp\obj\Debug\nav.baml
+D:\GitHub\hapControleGUIApp\hapControleGUIApp\obj\Debug\ProcessingSplash.baml
+D:\GitHub\hapControleGUIApp\hapControleGUIApp\obj\Debug\hapControlGUIApp.g.resources
+D:\GitHub\hapControleGUIApp\hapControleGUIApp\obj\Debug\hapControlGUIApp.Properties.Resources.resources
+D:\GitHub\hapControleGUIApp\hapControleGUIApp\obj\Debug\hapControlGUIApp.csproj.GenerateResource.Cache
+D:\GitHub\hapControleGUIApp\hapControleGUIApp\obj\Debug\hapControlGUIApp.csproj.CoreCompileInputs.cache
+D:\GitHub\hapControleGUIApp\hapControleGUIApp\obj\Debug\hapControlGUIApp.exe.manifest
+D:\GitHub\hapControleGUIApp\hapControleGUIApp\obj\Debug\hapControlGUIApp.application
+D:\GitHub\hapControleGUIApp\hapControleGUIApp\obj\Debug\hapControlGUIApp.exe
+D:\GitHub\hapControleGUIApp\hapControleGUIApp\obj\Debug\hapControlGUIApp.pdb

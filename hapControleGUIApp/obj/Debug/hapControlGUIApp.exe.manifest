@@ -43,6 +43,30 @@
     </dependentAssembly>
   </dependency>
   <dependency>
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="EntityFramework.dll" size="5062304">
+      <assemblyIdentity name="EntityFramework" version="6.0.0.0" publicKeyToken="B77A5C561934E089" language="neutral" processorArchitecture="msil" />
+      <hash>
+        <dsig:Transforms>
+          <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+        </dsig:Transforms>
+        <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+        <dsig:DigestValue>ME/k2DGnnEXXRv8PbQPIB/oznXx46EIYOYjb9nQ2US8=</dsig:DigestValue>
+      </hash>
+    </dependentAssembly>
+  </dependency>
+  <dependency>
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="EntityFramework.SqlServer.dll" size="580768">
+      <assemblyIdentity name="EntityFramework.SqlServer" version="6.0.0.0" publicKeyToken="B77A5C561934E089" language="neutral" processorArchitecture="msil" />
+      <hash>
+        <dsig:Transforms>
+          <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+        </dsig:Transforms>
+        <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+        <dsig:DigestValue>iU2DBXuEJ4l5e2Up1a2QeNBvmdWHbhB91cwMpi/p8Nc=</dsig:DigestValue>
+      </hash>
+    </dependentAssembly>
+  </dependency>
+  <dependency>
     <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="hapControlGUIApp.exe" size="704512">
       <assemblyIdentity name="hapControlGUIApp" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
       <hash>
@@ -50,7 +74,7 @@
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>Fd7vM1lGj4lJLntDIIhNQWI+1zxVr84j4Zuy+GTEMV0=</dsig:DigestValue>
+        <dsig:DigestValue>8qRFjoFEScFXFutPd/lZasQWIOXwP6kvaMuFDpCPz94=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
@@ -66,13 +90,37 @@
       </hash>
     </dependentAssembly>
   </dependency>
-  <file name="hapControlGUIApp.exe.config" size="198">
+  <dependency>
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="System.Data.SQLite.EF6.dll" size="184320">
+      <assemblyIdentity name="System.Data.SQLite.EF6" version="1.0.105.2" publicKeyToken="DB937BC2D44FF139" language="neutral" processorArchitecture="msil" />
+      <hash>
+        <dsig:Transforms>
+          <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+        </dsig:Transforms>
+        <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+        <dsig:DigestValue>kclhuVWWAzxSvn7/a8UdOH6fxBDNl910L+F65xGEjZU=</dsig:DigestValue>
+      </hash>
+    </dependentAssembly>
+  </dependency>
+  <dependency>
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="System.Data.SQLite.Linq.dll" size="184320">
+      <assemblyIdentity name="System.Data.SQLite.Linq" version="1.0.105.2" publicKeyToken="DB937BC2D44FF139" language="neutral" processorArchitecture="msil" />
+      <hash>
+        <dsig:Transforms>
+          <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+        </dsig:Transforms>
+        <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+        <dsig:DigestValue>3VkiLq9CMvhWTcvlRR+gRHThv5Ac8hbmtrUmDbcxy+w=</dsig:DigestValue>
+      </hash>
+    </dependentAssembly>
+  </dependency>
+  <file name="hapControlGUIApp.exe.config" size="1754">
     <hash>
       <dsig:Transforms>
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>Th8KB+I3C/MhLa/zlDk24S02CpdcSDlSRxjbTX4kAwI=</dsig:DigestValue>
+      <dsig:DigestValue>ctarG7B7nRtUpcqF4avCiA/Ax8oesmO50D66sy5NUyk=</dsig:DigestValue>
     </hash>
   </file>
   <file name="Image\favicon.ico" size="11502">

@@ -186,6 +186,13 @@ namespace hapControlGUIApp
         public cont()
         {
             InitializeComponent();
+            if (retur == 1) {
+                dispatcherTimer = new DispatcherTimer(DispatcherPriority.Normal);
+                dispatcherTimer.Interval = new TimeSpan(0, 0, 0, 0, 333);
+                dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
+                dispatcherTimer.Start();
+                showall();
+            }
             isDragging = false;
             myDocument = Environment.GetFolderPath(Environment.SpecialFolder.Personal) + "/HAPControlApp";
             DirectoryInfo di = new DirectoryInfo(myDocument);
@@ -254,7 +261,7 @@ namespace hapControlGUIApp
                         });
                         ps.ShowDialog();
                     }
-                    
+
                     setJunbi("getmusicinfo");
                     if (!File.Exists(myDocument + "/bg_overlay.png"))
                     {
@@ -263,17 +270,18 @@ namespace hapControlGUIApp
                         string url = ipad + ":60100/img/bg_overlay.png";
                         wc.DownloadFile(url, bgurl);
                     }
+                    if (retur != 1)
+                    {
+                        WebClient w = new WebClient();
+                        string dbcon = hostUrl + "database/storage/hdd_browse.db";
+                        db = myDocument + "/hdd_browse.db";
+                        w.DownloadFile(dbcon, db);
+                        w.Dispose();
 
-                    WebClient w = new WebClient();
-                    string dbcon = hostUrl + "database/storage/hdd_browse.db";
-                    db = myDocument + "/hdd_browse.db";
-                    w.DownloadFile(dbcon, db);
-                    w.Dispose();
-
-                    SQLiteConnection connection = new SQLiteConnection("Data Source=" + db);
-                    connection.Open();
-                    SQLiteCommand command = connection.CreateCommand();
-
+                        SQLiteConnection connection = new SQLiteConnection("Data Source=" + db);
+                        connection.Open();
+                        SQLiteCommand command = connection.CreateCommand();
+                    }
                     for (int i = 0; i < 5; i++)
                     {
                         try
@@ -323,7 +331,6 @@ namespace hapControlGUIApp
                     myTimer.AutoReset = true;
                     myTimer.Interval = 500;
                     myTimer.Elapsed += new ElapsedEventHandler(Time);
-
 
                     ipaButton.Visibility = Visibility.Hidden;
 
