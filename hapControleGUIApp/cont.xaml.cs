@@ -14,6 +14,8 @@ using Codeplex.Data;
 using System.Threading.Tasks;
 using System.Timers;
 using System.Data.SQLite;
+using SharpCifs.Smb;
+using Microsoft.Win32;
 
 namespace hapControlGUIApp
 {
@@ -74,6 +76,7 @@ namespace hapControlGUIApp
         static string power;
         public static int retur = 0;
         public static string db;
+        public static string nowmusicId;
 
         public void hiddenall()
         {
@@ -186,7 +189,8 @@ namespace hapControlGUIApp
         public cont()
         {
             InitializeComponent();
-            if (retur == 1) {
+            if (retur == 1)
+            {
                 dispatcherTimer = new DispatcherTimer(DispatcherPriority.Normal);
                 dispatcherTimer.Interval = new TimeSpan(0, 0, 0, 0, 333);
                 dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
@@ -198,7 +202,7 @@ namespace hapControlGUIApp
             DirectoryInfo di = new DirectoryInfo(myDocument);
             di.Create();
             browse.Visibility = Visibility.Visible;
-            if(retur == 1)
+            if (retur == 1)
             {
                 if (nowRepeat == "all")
                 {
@@ -242,6 +246,7 @@ namespace hapControlGUIApp
                     sr.Close();
                     hostUrl = ip;
                     ipaddInput.Text = ip;
+                    smbip = ip;
                     rawip = ip;
                     var req = WebRequest.Create(ip + "contentplayer/v100/powerstate");
                     var res = req.GetResponse();
@@ -278,9 +283,7 @@ namespace hapControlGUIApp
                         w.DownloadFile(dbcon, db);
                         w.Dispose();
 
-                        SQLiteConnection connection = new SQLiteConnection("Data Source=" + db);
-                        connection.Open();
-                        SQLiteCommand command = connection.CreateCommand();
+                        
                     }
                     for (int i = 0; i < 5; i++)
                     {
@@ -336,7 +339,8 @@ namespace hapControlGUIApp
 
                     ipadd.Foreground = new SolidColorBrush(Colors.White);
                 }
-                catch {
+                catch
+                {
                     Console.WriteLine("IPアドレスが違います");
                     File.Delete(fileName);
                     ipaButton.Visibility = Visibility.Visible;
@@ -344,7 +348,7 @@ namespace hapControlGUIApp
                 }
             }
         }
-        
+
 
         void setMinusimg()
         {
@@ -392,7 +396,7 @@ namespace hapControlGUIApp
             previmage.Source = prev;
         }
 
-        void updatePlaylist(int index,string mode)
+        void updatePlaylist(int index, string mode)
         {
             string mov = "";
             string dat = "";
@@ -451,8 +455,8 @@ namespace hapControlGUIApp
             try
             {
                 wc.UploadStringCompleted += Wc_UploadStringComplete;
-                wc.UploadStringAsync(new Uri(setUrl),json);
-                
+                wc.UploadStringAsync(new Uri(setUrl), json);
+
             }
             catch { }
         }
@@ -603,7 +607,7 @@ namespace hapControlGUIApp
                         serializeJson(getVolumeObj, "audio", 1);
                         volIn.Text = nowVolume.ToString();
                         downloadCoverArt();
-                        if(fst < 3)
+                        if (fst < 3)
                         {
                             if (nowRepeat == "all") repallradioLock = 1;
                             else if (nowRepeat == "off") repoffradioLock = 1;
@@ -659,17 +663,17 @@ namespace hapControlGUIApp
                             albumshu.IsChecked = true;
                             shualbradioLock = 0;
                         }
-                        
+
                         setCenterimg();
                         if (!isDragging) slider.Value = ((posMin * 60 + posSec) / musiclen) * 100;
-                        
+
                         if (first == 1)
                         {
                             showall();
                             first = 0;
                         }
                     }
-                    else if(extinput == 1)
+                    else if (extinput == 1)
                     {
                         hiddenall();
                         browse.Visibility = Visibility.Visible;
@@ -723,88 +727,88 @@ namespace hapControlGUIApp
         {
             try
             {
-            string str = ipaddInput.Text;
-            ip = str;
-            hostUrl = str + ":60200/sony/";
-            var req = WebRequest.Create(hostUrl + "contentplayer/v100/powerstate");
-            var res = req.GetResponse();
-            StreamWriter writer = new StreamWriter(myDocument + "/ipadd", true, Encoding.GetEncoding("UTF-8"));
-            writer.WriteLine(hostUrl);
-            writer.Close();
-            setJunbi("getmusicinfo");
-            musicName.Text = nowPlaying;
-            musicArtist.Text = artist;
-            musicAlbum.Text = album;
-            string addi = codec.ToUpper() + " " + freq + "kHz/" + bandwidth + "bit " + bitrate + "kbps";
-            musicCodec.Text = addi;
-            minsec.Text = (posMin.ToString("00")) + ":" + (posSec.ToString("00"));
-            dynamic getVolumeObj = getVolumeInfo();
-            serializeJson(getVolumeObj, "audio", 1);
-            volIn.Text = nowVolume.ToString();
+                string str = ipaddInput.Text;
+                ip = str;
+                hostUrl = str + ":60200/sony/";
+                var req = WebRequest.Create(hostUrl + "contentplayer/v100/powerstate");
+                var res = req.GetResponse();
+                StreamWriter writer = new StreamWriter(myDocument + "/ipadd", true, Encoding.GetEncoding("UTF-8"));
+                writer.WriteLine(hostUrl);
+                writer.Close();
+                setJunbi("getmusicinfo");
+                musicName.Text = nowPlaying;
+                musicArtist.Text = artist;
+                musicAlbum.Text = album;
+                string addi = codec.ToUpper() + " " + freq + "kHz/" + bandwidth + "bit " + bitrate + "kbps";
+                musicCodec.Text = addi;
+                minsec.Text = (posMin.ToString("00")) + ":" + (posSec.ToString("00"));
+                dynamic getVolumeObj = getVolumeInfo();
+                serializeJson(getVolumeObj, "audio", 1);
+                volIn.Text = nowVolume.ToString();
 
 
-            if (nowRepeat == "track")
-            {
-                repall.IsChecked = true;
-            }
-            else if (nowRepeat == "off")
-            {
-                repoff.IsChecked = true;
-            }
-            else if (nowRepeat == "one")
-            {
-                repone.IsChecked = true;
-            }
+                if (nowRepeat == "track")
+                {
+                    repall.IsChecked = true;
+                }
+                else if (nowRepeat == "off")
+                {
+                    repoff.IsChecked = true;
+                }
+                else if (nowRepeat == "one")
+                {
+                    repone.IsChecked = true;
+                }
 
-            if (nowShuffle == "track")
-            {
-                allshu.IsChecked = true;
-            }
-            else if (nowShuffle == "off")
-            {
-                offshu.IsChecked = true;
-            }
-            else if (nowShuffle == "album")
-            {
-                albumshu.IsChecked = true;
-            }
+                if (nowShuffle == "track")
+                {
+                    allshu.IsChecked = true;
+                }
+                else if (nowShuffle == "off")
+                {
+                    offshu.IsChecked = true;
+                }
+                else if (nowShuffle == "album")
+                {
+                    albumshu.IsChecked = true;
+                }
 
-            downloadCoverArt();
+                downloadCoverArt();
 
-            string bgurl = myDocument + "/bg_overlay.png";
-            if (!File.Exists(bgurl))
-            {
-                WebClient wc = new WebClient();
-                string ipad = hostUrl.Replace(":60200/sony/", "");
-                ipad = ipad + ":60100/img/bg_overlay.png";
-                wc.DownloadFile(ipad, bgurl);
-            }
-            BitmapImage bgimg = new BitmapImage();
-            bgimg.BeginInit();
-            bgimg.UriSource = new Uri(bgurl);
-            bgimg.EndInit();
-            bgimage.Source = bgimg;
+                string bgurl = myDocument + "/bg_overlay.png";
+                if (!File.Exists(bgurl))
+                {
+                    WebClient wc = new WebClient();
+                    string ipad = hostUrl.Replace(":60200/sony/", "");
+                    ipad = ipad + ":60100/img/bg_overlay.png";
+                    wc.DownloadFile(ipad, bgurl);
+                }
+                BitmapImage bgimg = new BitmapImage();
+                bgimg.BeginInit();
+                bgimg.UriSource = new Uri(bgurl);
+                bgimg.EndInit();
+                bgimage.Source = bgimg;
 
-            ipadd.Foreground = new SolidColorBrush(Colors.White);
+                ipadd.Foreground = new SolidColorBrush(Colors.White);
 
-            BitmapImage img = new BitmapImage();
-            img.BeginInit();
-            img.UriSource = new Uri(nowMusicCover);
-            img.EndInit();
-            coverArt.Source = img;
-            BG.Background =
-                new SolidColorBrush(Color.FromArgb(Convert.ToByte(a, 16), Convert.ToByte(r, 16), Convert.ToByte(g, 16),
-                    Convert.ToByte(b, 16)));
-            ipaButton.Visibility = Visibility.Hidden;
+                BitmapImage img = new BitmapImage();
+                img.BeginInit();
+                img.UriSource = new Uri(nowMusicCover);
+                img.EndInit();
+                coverArt.Source = img;
+                BG.Background =
+                    new SolidColorBrush(Color.FromArgb(Convert.ToByte(a, 16), Convert.ToByte(r, 16), Convert.ToByte(g, 16),
+                        Convert.ToByte(b, 16)));
+                ipaButton.Visibility = Visibility.Hidden;
 
-            dispatcherTimer = new DispatcherTimer(DispatcherPriority.Normal);
-            dispatcherTimer.Interval = new TimeSpan(0, 0, 0, 0, 1000);
-            dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
-            dispatcherTimer.Start();
+                dispatcherTimer = new DispatcherTimer(DispatcherPriority.Normal);
+                dispatcherTimer.Interval = new TimeSpan(0, 0, 0, 0, 1000);
+                dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
+                dispatcherTimer.Start();
             }
             catch
             {
-                MessageBox.Show("入力されたIPアドレスの機器が見つかりませんでした。","エラー", MessageBoxButton.YesNo, MessageBoxImage.Error);
+                MessageBox.Show("入力されたIPアドレスの機器が見つかりませんでした。", "エラー", MessageBoxButton.YesNo, MessageBoxImage.Error);
             }
         }
 
@@ -925,6 +929,7 @@ namespace hapControlGUIApp
                         playlistModifiedVersion = data.result[0].playlistModifiedVersion;
                         playlistUri = data.result[0].playlistUri;
                         nowalbumId = data.result[0].albumID;
+                        nowmusicId = data.result[0].uri;
                         nowPlaying = data.result[0].title;
                         noAlbum = 0;
                         try
@@ -996,7 +1001,7 @@ namespace hapControlGUIApp
                     }
                 }
             }
-            catch{ }
+            catch { }
         }
 
         static string nowalbumId;
@@ -1220,16 +1225,16 @@ namespace hapControlGUIApp
                 try
                 {
                     string setUrl = rawip + "contentplayer/v100/playqueue/tracks";
-                    
+
                     Uri Url = new Uri(setUrl);
-                    
+
                     using (var client = new HttpClient())
                         await Task.Run(() =>
                         {
                             client.DefaultRequestHeaders.ExpectContinue = false;
                             queueres = client.GetAsync(Url).Result.Content.ReadAsStringAsync().Result;
                         });
-                    
+
                     dynamic data = DynamicJson.Parse(queueres);
                     string totalfigure = data.paging.total.ToString();
 
@@ -1524,7 +1529,7 @@ namespace hapControlGUIApp
             setLeftimg();
         }
 
-        private void leaved2(object sender,MouseEventArgs e)
+        private void leaved2(object sender, MouseEventArgs e)
         {
             playimg = "/play.png";
             stopimg = "/stop.png";
@@ -1716,6 +1721,85 @@ namespace hapControlGUIApp
                 queueTimer.Start();
                 myTimer.Start();
             }
+        }
+        public static string smbip = "";
+        private void sambaconnect_Click(object sender, RoutedEventArgs e)
+        {
+            string tid = nowmusicId.Replace("audio:track?id=", "");
+
+            SQLiteConnection connection = new SQLiteConnection("Data Source=" + db);
+            connection.Open();
+            SQLiteCommand cmd = connection.CreateCommand();
+            string getFilename = "SELECT ft0002.prop7007 from ft0002 where prop3601 = " + tid;
+            cmd.CommandText = getFilename;//ファイル名のみ
+            cmd.Parameters.Add(new SQLiteParameter(System.Data.DbType.String, tid));
+            cmd.Prepare();
+            SQLiteDataReader reader = cmd.ExecuteReader();
+            string trackfilename = "";
+            while (reader.Read())
+            {
+                trackfilename = (string)reader[0];
+            }
+            reader.Close();
+
+            string direct = "select prop7023 from ft0000 where prop3601 = (select prop3006 from ft0002 where prop3601 = " + tid + ")";//ディレクトリの素(よくわからん奴)出てくる
+            cmd.CommandText = direct;
+            cmd.Parameters.Add(new SQLiteParameter(System.Data.DbType.String, tid));
+            cmd.Prepare();
+            string getDirectry = "";
+            SQLiteDataReader readers = cmd.ExecuteReader();
+            while (readers.Read())
+            {
+                getDirectry = (string)readers[0];//数字ベースの解析元になるやつ
+            }
+            string editDir = "";//出てきたフォルダ名前の格納
+            readers.Close();
+            int pathLen = 0;
+            pathLen = getDirectry.Length - 1;
+            smbip = smbip.Replace("http://", "");
+            smbip = smbip.Replace(":60200/sony/", "");
+            string source = @"\\"+smbip+@"\HAP_Internal\";
+
+            if (getDirectry != "") {//直下ならnullになるはず
+                while (pathLen != 0) {
+                    int count = 0;
+                    getDirectry = getDirectry.Remove(0,1);
+                    pathLen -= 1;
+                    for (; ; )
+                    {
+                        if (char.IsDigit(getDirectry, count))
+                        {
+                            count++;
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                    string sqlTarget = getDirectry.Substring(0, count);//albumIDを出す
+                    cmd.CommandText = "select prop7020 from ft0000 where prop3601 = " + sqlTarget;//格納フォルダを出す
+                    cmd.Parameters.Add(new SQLiteParameter(System.Data.DbType.String, sqlTarget));
+                    cmd.Prepare();
+                    SQLiteDataReader reader2 = cmd.ExecuteReader();
+                    while (reader2.Read())
+                    {
+                        editDir = (string)reader2[0];
+                    }
+                    reader2.Close();
+                    source += editDir + @"\";//どんどんフォルダ名を追加していく
+                    pathLen -= count;//長さを減す
+                    getDirectry = getDirectry.Substring(count);//抽出した数字を消す(/は残す)
+                }
+            } else
+            {
+                //HAP_Internal直下の場合
+            }
+            
+            //double alid = int.Parse(nowalbumId.Replace("audio:album?id=", "")); --アルバムidが出る
+            string dst = myDocument + "/" + trackfilename;
+            string src = source+ trackfilename;
+            //string terst = @"\\192.168.0.7\HAP_Internal\test.flac";
+            File.Copy(src, dst, true);
         }
     }
 }

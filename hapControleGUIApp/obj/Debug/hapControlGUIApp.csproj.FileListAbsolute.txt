@@ -79,3 +79,11 @@ D:\GitHub\hapControleGUIApp\hapControleGUIApp\obj\Debug\hapControlGUIApp.exe.man
 D:\GitHub\hapControleGUIApp\hapControleGUIApp\obj\Debug\hapControlGUIApp.application
 D:\GitHub\hapControleGUIApp\hapControleGUIApp\obj\Debug\hapControlGUIApp.exe
 D:\GitHub\hapControleGUIApp\hapControleGUIApp\obj\Debug\hapControlGUIApp.pdb
+D:\GitHub\hapControleGUIApp\hapControleGUIApp\bin\Debug\SharpCifs.Std.dll
+D:\GitHub\hapControleGUIApp\hapControleGUIApp\bin\Debug\System.Console.dll
+D:\GitHub\hapControleGUIApp\hapControleGUIApp\bin\Debug\System.Net.NameResolution.dll
+D:\GitHub\hapControleGUIApp\hapControleGUIApp\bin\Debug\System.Net.NetworkInformation.dll
+D:\GitHub\hapControleGUIApp\hapControleGUIApp\bin\Debug\System.Net.Sockets.dll
+D:\GitHub\hapControleGUIApp\hapControleGUIApp\bin\Debug\System.Security.Cryptography.Algorithms.dll
+D:\GitHub\hapControleGUIApp\hapControleGUIApp\bin\Debug\System.Security.Cryptography.Primitives.dll
+D:\GitHub\hapControleGUIApp\hapControleGUIApp\bin\Debug\SharpCifs.Std.xml

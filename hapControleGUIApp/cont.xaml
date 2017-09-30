@@ -15,7 +15,7 @@
                 <TextBlock Text="{Binding TrackInfo}" Canvas.Left="170" Canvas.Top="27" Width="200" Height="15" Foreground="White" FontSize="8pt"/>
             </Canvas>
         </DataTemplate>
-        </Page.Resources>
+    </Page.Resources>
 
     <Grid x:Name="BG">
         <Grid.RowDefinitions>
@@ -72,5 +72,6 @@
         <Button x:Name="showqueue" Margin="20,45,419,82" Grid.RowSpan="2" Opacity="0" Click="Button_Click_2"/>
         <Button Visibility="Hidden"  x:Name="backButton" Content="戻る" HorizontalAlignment="Left" Margin="247,24,0,0" VerticalAlignment="Top" Width="34" Click="button_Click_3"/>
         <Button x:Name="powerbutton" Content="PowerOff" HorizontalAlignment="Left" Margin="10,160,0,0" Grid.Row="1" VerticalAlignment="Top" Width="55" RenderTransformOrigin="0.014,1.8" Click="button_Click_5"/>
+        <Button x:Name="sambaconnect" Content="Button" HorizontalAlignment="Left" Margin="639,50,0,0" VerticalAlignment="Top" Width="60" Height="19" Click="sambaconnect_Click"/>
     </Grid>
 </Page>
