@@ -67,14 +67,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="hapControlGUIApp.exe" size="706560">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="hapControlGUIApp.exe" size="707072">
       <assemblyIdentity name="hapControlGUIApp" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>IHd5xF74n3wasnuuY1Izzy6EcNZJb++fQc1HGaj+aXE=</dsig:DigestValue>
+        <dsig:DigestValue>jGcP5r1W6GNDKOaImjf+SSxWi5F941ijOC9/aHGDtVY=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>

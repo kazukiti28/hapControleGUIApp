@@ -537,6 +537,7 @@ namespace hapControlGUIApp
                         playlistModifiedVersion = data.result[0].playlistModifiedVersion;
                         playlistUri = data.result[0].playlistUri;
                         nowalbumId = data.result[0].albumID;
+                        nowmusicId = data.result[0].uri;
                         nowPlaying = data.result[0].title;
                         noAlbum = 0;
                         try
